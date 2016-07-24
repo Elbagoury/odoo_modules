@@ -1,0 +1,14 @@
+<openerp>
+  <data>
+    <record id="amazon_product_template" model="ir.ui.view">
+    <field name="name">amazon.product.template.form</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_only_form_view"/>
+    <field name="arch" type="xml">
+    <field name="list_price" position="after">
+      <field name="amazon_price" string="Amazon price"/>
+    </field>
+    </field>
+    </record>
+  </data>
+</openerp>

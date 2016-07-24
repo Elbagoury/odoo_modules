@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<act_window id="ebay_combine"
+				name="Ebay - combine"
+				res_model="ebay.order.combine"
+				src_model="sale.order"
+				key2="client_action_multi"
+				target="new" view_type="form" view_mode="form"/>
+
+			<record id="ebay_sale_order" model="ir.ui.view">
+				<field name="name">ebay.sale.order.form</field>
+				<field name="model">sale.order</field>
+				<field name="inherit_id" ref="sale.view_order_form" />
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='project_id']" position="after">
+
+							<field name="ebay_id" string="Ebay ID" attrs="{'invisible':[('ebay_id', '=', False)]}" readonly="True"/>
+							<field name="ebay_date" string="Ebay date" attrs="{'invisible':[('ebay_id', '=', False)]}" readonly="True"/>
+							<field name="ebay_username" string="Customer ebay name" attrs="{'invisible':[('ebay_id', '=', False)]}" readonly="True"/>
+							<group cols="1" colspan="2">
+								<div>
+								<button name="ebay_open_message_wizard" string="Send message on ebay" type="object" class="oe_highligh" attrs="{'invisible':['|', ('ebay_id', '=', False), ('ebay_username', '=', False)]}"/></div>
+								<div>
+								<button name="ebay_cancel_order" string="CANCEL ORDER" type="object" class="oe_highligh" attrs="{'invisible':['|', ('ebay_id', '=', False), ('state', 'not in', ['draft', 'sent'])]}"/></div>
+								<div>
+								<button name="ebay_is_canceled_order" string="THIS ORDER IS CANCELED EXTERNALY" type="object" class="oe_highligh" attrs="{'invisible':['|', ('ebay_id', '=', False), ('state', 'not in', ['draft', 'sent'])]}"/></div>
+							</group>
+
+					</xpath>
+				</field>
+				</record>
+
+				<record id="ebay_sale_order_tree" model="ir.ui.view">
+					<field name="name">ebay.sale.order.tree</field>
+					<field name="model">sale.order</field>
+					<field name="inherit_id" ref="sale.view_quotation_tree" />
+					<field name="arch" type="xml">
+						<xpath expr="//field[@name='partner_id']" position="after">
+							<field name="ebay_username"/>
+						</xpath>
+					</field>
+					</record>
+				<record id="ebay_sale_order_so_tree" model="ir.ui.view">
+						<field name="name">ebay.sale.order.so.tree</field>
+						<field name="model">sale.order</field>
+						<field name="inherit_id" ref="sale.view_order_tree" />
+						<field name="arch" type="xml">
+							<xpath expr="//field[@name='partner_id']" position="after">
+								<field name="ebay_username"/>
+							</xpath>
+						</field>
+						</record>
+
+			<record id="ebay_order_message_wizard" model="ir.ui.view">
+				<field name="name">Ebay order message wizard form</field>
+				<field name="model">ebay.order.message</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Ebay order message" version="7.0">
+
+							<group string="Send message to customer">
+								<field name="item_id" string="Item ID reference" readonly="1" />
+								<field name="recipient_id" string="Send to" readonly="1" required="1"/>
+								<field name="copy_to_sender" string="Send copy to sender"/>
+								<field name="question_type" string="Message type" required="1"/>
+								<field name="subject" string="Subject" required="1"/>
+								<field name="message" required="1"/>
+
+							</group>
+
+						<footer>
+							<button name="send_order_message" type="object"
+	                                string="SEND" class="oe_highlight"/>
+	                        or
+	                        <button special="cancel" string="Cancel"/>
+                    	</footer>
+					</form>
+				</field>
+			</record>
+			<record id="ebay_order_combine_wizard" model="ir.ui.view">
+				<field name="name">Ebay order combine wizard form</field>
+				<field name="model">ebay.order.combine</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Ebay order combine" version="7.0">
+						<group>
+							<field name="customer" readonly="True"/>
+							<field name="no_of_items" readonly="True"/>
+							<field name="items" readonly="True"/>
+							<!--<field name="order_lines" readonly="True"/>-->
+							<field name="amount_untaxed" readonly="True"/>
+							<field name="total_taxes" readonly="True"/>
+
+							<field name="total" string="Total" readonly="True"/>
+							<!--<field name="shipping_services" required="True"/>-->
+							<field name="new_shipping_cost" string="Delivery cost"/>
+						</group>
+						<footer>
+							<button name="order_combine" string="Combine" class="oe_highlight" type="object"/>
+							or
+							<button special="cancel" string="Cancel"/>
+						</footer>
+
+					</form>
+				</field>
+			</record>
+		</data>
+	</openerp>

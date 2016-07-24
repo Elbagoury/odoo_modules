@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="invoice_discount" model="ir.ui.view">
+				<field name="name">invoice.discount.form</field>
+				<field name="model">account.invoice</field>
+				<field name="inherit_id" ref="account.invoice_form" />
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='payment_term']" position="before">
+
+							<field name="discount_method" style="width:100px;"/>
+							<field name="invoice_discount" />
+
+					</xpath>
+					<xpath expr="//field[@name='amount_untaxed']" position="after">
+
+							<field name="amount_discount" widget='monetary'/>
+							<field name="discounted" widget='monetary'/>
+
+
+					</xpath>
+					<xpath expr="//tree[@string='Invoice Lines']/field[@name='price_unit']" position="before">
+
+							<field name="product_price"/>
+							<field name="pricelist_discount"/>
+
+
+					</xpath>
+
+					<xpath expr="//field[@name='tax_line']" position="replace">
+
+					</xpath>
+				</field>
+				</record>
+				<record id="invoice_supp_discount" model="ir.ui.view">
+				<field name="name">invoice.supp.discount.form</field>
+				<field name="model">account.invoice</field>
+				<field name="inherit_id" ref="account.invoice_supplier_form" />
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='comment']" position="before">
+							<group>
+							<field name="discount_method" style="width:100px;"/>
+							<field name="invoice_discount" />
+							</group>
+						
+					</xpath>
+					<xpath expr="//field[@name='amount_untaxed']" position="after">
+
+							<field name="amount_discount" widget='monetary'/>
+							<field name="discounted" widget='monetary'/>
+
+
+					</xpath>
+					<xpath expr="//field[@name='tax_line']" position="replace">
+
+					</xpath>
+				</field>
+				</record>
+
+		</data>
+	</openerp>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="action_leaves_report" model="ir.actions.act_window">
+            <field name="name">Leaves Status</field>
+            <field name="res_model">emp.leave_report</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+
+        </record>
+
+        <menuitem action="action_leaves_report"  id="menu_leaves_report"
+            parent="hr.menu_hr_reporting" groups="base.group_hr_manager" sequence="4"/>
+
+
+          <record model="ir.ui.view" id="leaves_form">
+      				<field name="name">Leaves</field>
+      				<field name="model">emp.leave_report</field>
+      				<field name="type">form</field>
+      				<field name="arch" type="xml">
+      					<form string="Leaves status" version="7.0">
+      						<group string="Filter parameters" cols="6">
+      							<group>
+      							<field name="leave_status" />
+                    <field name="leave_type"/>
+                    <field name="leave_duration_type"/>
+      							</group>
+      							<group>
+      							<button name="get_workers" type="object" string="Get workers" class="oe_highlight" style="height:40px; width:100px;"/>
+
+      							</group>
+      						</group>
+      						<field name="workers"/>
+      					</form>
+      				</field>
+      			</record>
+            <record model="ir.ui.view" id="leaves_tree">
+      				<field name="name">leaves tree</field>
+      				<field name="model">emp.leave_report.line</field>
+      				<field name="type">tree</field>
+      				<field name="arch" type="xml">
+      					<tree>
+      						<field name="name" style="width:200px"/>
+      						<field name="desc"/>
+      						<field name="start" style="width:100px"/>
+                  <field name="end" style="width:100px"/>
+                  <field name="total_days" style="width:100px"/>
+                  <field name="remaining_days" style="width:100px"/>
+      					</tree>
+      				</field>
+      			</record>
+    </data>
+</openerp>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record model="ir.actions.act_window" id="action_timelog">
+				<field name="name">check_in_out</field>
+				<field name="res_model">emp.time.tracking</field>
+				<field name="view_model">tree, form</field>
+			</record>
+			<menuitem name="Check In/Outs" id="menu_timelog" parent="hr.menu_hr_main" sequence="3" action="action_timelog"/>
+			<record model="ir.actions.act_window" id="action_open_absent">
+				<field name="name">Absent workers</field>
+				<field name="res_model">absent.worker</field>
+				<field name="view_type">form</field>
+				<field name="view_mode">form</field>
+				
+			</record>
+			<menuitem name="Absent workers" id="menu_absent" parent="hr.menu_hr_main" sequence="4" action="action_open_absent"/>
+			<record model="ir.actions.act_window" id="action_mistake_log">
+				<field name="name">mistake_log</field>
+				<field name="res_model">hr.mistake_log</field>
+				<field name="view_model">tree, form</field>
+			</record>
+			<menuitem name="Worker mistake log" id="menu_mistake_log" parent="hr.menu_hr_main" sequence="7" action="action_mistake_log"/>
+			
+			<record model="ir.actions.act_window" id="action_time_summary">
+				<field name="name">Worker timesheet summary</field>
+				<field name="res_model">emp.tracking.timesheet.summary</field>
+				<field name="view_type">form</field>
+				<field name="view_mode">form</field>
+			</record>
+			<menuitem name="Timesheet summary" id="menu_time_summary" parent="hr.menu_hr_main" sequence="5" action="action_time_summary"/>
+			<record model="ir.ui.view" id="summary_form">
+				<field name="name">Summary</field>
+				<field name="model">emp.tracking.timesheet.summary</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Summary" version="7.0">
+						<group string="Employee monthly timetracking summary" cols="6">
+							<group>
+							<field name="date" string="Choose date"/>
+							<field name="exact_date" string="Exact date"/>
+							</group>
+							<group>
+							<button name="get_workers" type="object" string="Get workers" class="oe_highlight" style="height:40px; width:100px;"/>
+							<!--<button name="print_report" type="object" string="Print" class="oe_highlight" style="height:40px; width:100px;"/>-->
+							</group>
+						</group>
+						<small>When you select 'Exact date' you will only get report for one day, otherwise for entire month</small>
+						
+						<field name="workers"/>
+					</form>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="absent_form">
+				<field name="name">Absent</field>
+				<field name="model">absent.worker</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Absent workers" version="7.0">
+						<group string="Absent workers check" cols="6">
+							<group>
+							<field name="date" string="Choose date"/>
+							<field name="total_absent" string="Total workers absent"/>
+							</group>
+							<group>
+							<button name="get_workers" type="object" string="Get workers" class="oe_highlight" style="height:40px; width:100px;"/>
+							
+							</group>
+						</group>
+						<field name="workers"/>
+					</form>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="summary_tree">
+				<field name="name">summary tree</field>
+				<field name="model">emp.tracking.summary.line</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="id_no" style="width: 150px;"/>
+						<field name="name"/>
+						<field name="regular"  widget="float_time"/>
+						<field name="overtime"  widget="float_time"/>
+						<field name="total"  widget="float_time"/>
+					</tree>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="mistake_tree">
+				<field name="name">mistake tree</field>
+				<field name="model">hr.mistake_log</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="worker_id"/>
+						<field name="message"/>
+						<field name="date"/>
+						<field name="checkpoint"/>
+						
+					</tree>
+				</field>
+			</record>
+			<!--<record model="ir.ui.view" id="absent_wizard_form">
+				<field name="name">Absent wizard form</field>
+				<field name="model">emp.tracking.absent.wizard</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Absent workers" version="7.0">
+						<group string="Absent workers" >
+						<field name="total_here" readonly="1"/>
+						<field name="total_absent" readonly="1"/>
+						<field name="workers" readonly="1"/>
+					</group>
+					</form>
+				</field>
+			</record>-->
+			<record model="ir.ui.view" id="timelog_tree">
+				<field name="name">timelog tree view</field>
+				<field name="model">emp.time.tracking</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="name"/>
+						<field name="check_in"/>
+						<field name="check_in_workplace"/>
+						<field name="check_out_workplace"/>
+						<field name="check_out"/>
+						<field name="status"/>
+						<field name="total" string="Time logged" widget="float_time"/>
+					</tree>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="timelog_form">
+				<field name="name">timelog form view</field>
+				<field name="model">emp.time.tracking</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Worker timesheet item" version="7.0">
+						<sheet>
+							<h1>
+								<field name="name"/>
+							</h1>
+							<h4><field name="status" /></h4>
+							<group string="Checkpoint times">
+								<field name="check_in" string="Check in the company"/>
+								<field name="check_in_workplace" string="Check at the workplace"/>
+								<field name="check_out_workplace" string="Check out of the workplace"/>
+								<field name="check_out" string="Check out of the company"/>
+							</group>
+							<button name="finish_day" type="object" class="oe_highlight" string="Calculate hours"/>
+							<group string="Time calculations">
+
+								<field name="regular_float" string="Regular time" widget="float_time"/>
+								<field name="overtime_float" string="Overtime" widget="float_time"/>
+								<field name="total" string="Time at the workplace" widget="float_time"/>
+								<field name="in_company_total" string="Total time in company" widget="float_time"/>
+							</group>
+						</sheet>
+					</form>
+				</field>
+			</record>
+
+        <report 
+            id="summary_report_test_3"
+            model="emp.tracking.timesheet.summary"
+            string="Summary report"
+            report_type="qweb-pdf"
+            name="employee_barcode_tracking.summary_report_test2"
+            attachment_use="False"
+            file="employee_barcode_tracking.summary_report_test2"
+        />
+        <report 
+            id="absent_report_id"
+            model="absent.worker"
+            string="Absence report"
+            report_type="qweb-pdf"
+            name="employee_barcode_tracking.absent_report"
+            attachment_use="False"
+            file="employee_barcode_tracking.absent_report"
+        />
+        <report 
+            id="contract_report_id"
+            model="hr.contract"
+            string="Contract"
+            report_type="qweb-pdf"
+            name="employee_barcode_tracking.contract_report"
+            attachment_use="False"
+            file="employee_barcode_tracking.contract_report"
+        />
+        <report 
+            id="badge_report_id"
+            model="hr.employee"
+            string="ID pass"
+            report_type="qweb-pdf"
+            name="employee_barcode_tracking.badge_report"
+            attachment_use="False"
+            file="employee_barcode_tracking.badge_report"
+        />
+
+        <record id="paperformat_lowmargin" model="report.paperformat">
+		    <field name="name">European A4 low margin</field>
+		    <field name="default" eval="True" />
+		    <field name="format">A4</field>
+		    <field name="page_height">0</field>
+		    <field name="page_width">0</field>
+		    <field name="orientation">Portrait</field>
+		    <field name="margin_top">5</field>
+		    <field name="margin_bottom">5</field>
+		    <field name="margin_left">10</field>
+		    <field name="margin_right">0</field>
+		    <field name="header_line" eval="False" />
+		    <field name="header_spacing">0</field>
+		    <field name="dpi">90</field>
+		</record>
+       	<record id="employee_barcode_tracking.badge_report_id" model="ir.actions.report.xml">
+		    <field name="paperformat_id" ref="employee_barcode_tracking.paperformat_lowmargin" />
+		</record>
+		<record id="employee_barcode_tracking.summary_report_test_3" model="ir.actions.report.xml">
+		    <field name="paperformat_id" ref="employee_barcode_tracking.paperformat_lowmargin" />
+		</record>
+		<record id="employee_barcode_tracking.absent_report_id" model="ir.actions.report.xml">
+		    <field name="paperformat_id" ref="employee_barcode_tracking.paperformat_lowmargin" />
+		</record>
+		</data>
+	</openerp>

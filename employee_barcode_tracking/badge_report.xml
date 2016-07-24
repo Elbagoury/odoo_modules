@@ -1,0 +1,110 @@
+<openerp>
+<data>
+
+<template id="badge_report">
+    <t t-call="report.html_container">
+        
+          <div class="page"  style="width:1000px;">
+            <t t-foreach="docs" t-as="o">
+            <style>
+              .page{
+              float:left
+              }
+               body{
+                  font-family: 'Sans Serif'
+                }
+                .image{
+                  float:left;
+                  width:170px;
+                  padding:10px;
+                  padding-top:25px;
+                  padding-left:25px;
+                  
+                }
+                .img-inner{
+                  width:110px;
+
+                }
+                .img-inner img{
+                  width:110px;
+                }
+                .data{
+                  float:right;
+                  width:245px;
+                  
+                  padding-top:10px;
+                }
+                small{
+                  color:gray;
+                }
+                p{
+                  margin:0px;
+                  font-size:1.6em
+                }
+                .barcode{
+                  width:240px;
+                  height:90px;
+                  margin-left:0px;
+                  margin-bottom:0px;
+                  margin-top:20px;
+                }
+                .bc_writeout{
+                  font-size:0.9em
+                }
+            </style>
+            <div style="width:446px; height:282px; border:1px solid black; background-color:white; padding:10px;float:left">
+              <div class="image">
+                
+                 <div style="width:160px">
+                    <span t-field="o.image" class="img-inner" t-field-options="{&quot;widget&quot;: &quot;image&quot;, &quot;class&quot;: &quot;img-rounded&quot;}"/>
+                
+                 </div>
+              </div>
+              <div class="data">
+              <img style="width:200px; margin-bottom:15px;" src="http://free-tech.com/GGGREEN.png"/>
+              <div style="text-align:center">
+                
+                    <img class="barcode" t-att-src="'/report/barcode/Code128/%s' % o.barcode"/>
+                    <p class="bc_writeout">
+                    <p style="font-size:.8em" t-field="o.barcode"/>
+                    </p>
+                 </div>
+               
+                
+              </div>
+              <div style="clear:both;">
+              </div>
+              <div style="padding:10px; padding-top:7px;">
+                <div style="float:left; width:230px;">
+                <small>Ime i prezime / Name</small>
+                <p style="line-height:90%; color:#33618a" t-field="o.name">
+                
+                </p>
+                </div>
+                
+                 <div style="float:right; width:170px; text-align:right">
+                 <small >Sektor/Department</small>
+                
+                <!--<p style="font-size:1em; color:#33618a; text-align:right" t-field="o.department_id.name"/>-->
+                <p style="font-size:1em; color:#33618a; text-align:right" t-esc="o.department_id.name_get()[0][1]"/>
+              </div>
+                
+
+
+                
+              </div>
+             
+             
+
+            </div>
+           
+
+          
+          
+            </t>
+          </div>
+       
+    </t>
+</template>
+</data>
+</openerp>

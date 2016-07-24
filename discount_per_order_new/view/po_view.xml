@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="porder_discount" model="ir.ui.view">
+				<field name="name">po.discount.form</field>
+				<field name="model">purchase.order</field>
+				<field name="inherit_id" ref="purchase.purchase_order_form" />
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='amount_untaxed']" position="after">
+							
+							<field name="discount_amount" widget="monetary"/>
+							<field name="discounted" widget="monetary"/>
+					</xpath>
+					<xpath expr="//field[@name='notes']" position="before">
+						<group >
+							<field name="discount_method" style="width:100px;" />
+							<field name="po_discount" />
+						</group>
+							
+					</xpath>
+				</field>
+				</record>
+				<record model="ir.ui.view" id="purchase_discount_order_line_form">
+			        <field name="name">purchase_discount.order.line.form</field>
+			        <field name="model">purchase.order.line</field>
+			        <field name="inherit_id" ref="purchase.purchase_order_line_form"/>
+			        <field name="arch" type="xml">
+			            <field name="price_unit" position="after">
+			                <field name="discount"/>
+			            </field>
+			        </field>
+			    </record>
+			    <record model="ir.ui.view" id="purchase_discount_order_line_tree">
+			        <field name="name">purchase_discount.order.line.tree</field>
+			        <field name="model">purchase.order.line</field>
+			        <field name="inherit_id" ref="purchase.purchase_order_line_tree"/>
+			        <field name="arch" type="xml">
+			            <field name="price_unit" position="after">
+			                <field name="discount"/>
+			            </field>
+			        </field>
+			    </record>
+			    
+			     <record model="ir.ui.view" id="purchase_discount_order_form">
+			         <field name="name">purchase.discount.order.form</field>
+			         <field name="model">purchase.order</field>
+			         <field name="inherit_id" ref="purchase.purchase_order_form"/>
+			         <field name="arch" type="xml">
+			              <xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+			                  <field name="discount"/>
+			                
+			                 </xpath>
+			         </field>
+			     </record>
+
+		</data>
+	</openerp>

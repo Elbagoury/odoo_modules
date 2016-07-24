@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="ebay_cat_form_view_inherited" model="ir.ui.view">
+    <field name="name">ebay.product.category.form</field>
+    <field name="model">product.category</field>
+    <field name="inherit_id" ref="product.product_category_form_view"/>
+    <field name="arch" type="xml">
+
+       <xpath expr="//group[@name='parent']" position="inside">
+           <group string="eBay" colspan="2">
+            <field name="ebay_category_id" string="eBay category ID"/>
+</group>
+         
+    </xpath>
+    </field>
+</record>
+        </data>
+    </openerp>

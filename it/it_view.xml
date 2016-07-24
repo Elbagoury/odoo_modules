@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+  <data>
+    <menuitem name="IT" id="menu_it_root" sequence="110" />
+    <menuitem name="IT equipment" id="menu_it_equipment" parent="menu_it_root" />
+    <record model="ir.actions.act_window" id="action_equipment">
+    	<field name="name">IT equipment</field>
+    	<field name="res_model">it.equipment</field>
+    	<field name="view_model">tree, form</field>
+    </record>
+    <menuitem name="Equipment list" id="menu_equipment" parent="menu_it_equipment" action="action_equipment"/>
+    <record model="ir.actions.act_window" id="action_equipment_categories">
+    	<field name="name">IT equipment categories</field>
+    	<field name="res_model">it.categories</field>
+    	<field name="view_model">tree, form</field>
+    </record>
+    <menuitem name="Equipment categories" id="menu_categories" parent="menu_it_equipment" action="action_equipment_categories"/>
+    <record model="ir.actions.act_window" id="action_equipment_brands">
+    	<field name="name">IT equipment brands</field>
+    	<field name="res_model">it.brands</field>
+    	<field name="view_model">tree, form</field>
+    </record>
+    <menuitem name="Equipment brands" id="menu_brands" parent="menu_it_equipment" action="action_equipment_brands"/>
+
+    <record model="ir.ui.view" id="it_equipment_tree">
+      <field name="name">equipment tree view</field>
+      <field name="model">it.equipment</field>
+      <field name="type">tree</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="description"/>
+          <field name="assigned_to"/>
+          <field name="ip_address"/>
+          <field name="brand"/>
+          <field name="categ_id"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="it_categories_tree">
+      <field name="name">categories tree view</field>
+      <field name="model">it.categories</field>
+      <field name="type">tree</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="description"/>
+          <field name="nw_device"/>
+
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="category_form">
+      <field name="name">it categories form view</field>
+      <field name="model">it.categories</field>
+      <field name="arch" type="xml">
+        <form string="IT categories" version="7.0">
+          <sheet>
+          	<group>
+          		<field name="name"/>
+		          <field name="description"/>
+		          <field name="nw_device"/>
+          	</group>
+          </sheet>
+      </form>
+	  </field>
+	</record>
+
+	 <record model="ir.ui.view" id="equipment_form">
+      <field name="name">it equipment form view</field>
+      <field name="model">it.equipment</field>
+      <field name="arch" type="xml">
+        <form string="IT equipment" version="7.0">
+          <sheet>
+          	<p style="font-size:22px;"><field name="name"/></p>
+          	<group cols='2'>
+          		<group>
+          			<field name="brand"/>
+          		</group>
+          		<group>
+          			<field name="categ_id"/>
+          		</group>
+
+          	</group>
+          	<group>
+          		<field name="active"/>
+          		<field name="serial_no"/>
+          		<field name="ip_address"/>
+          		<field name="in_storage"/>
+          		<field name="assigned_to"/>
+          	</group>
+          	<group>
+          	<field name="description"/>
+          </group>
+          <field name="components"/>
+          </sheet>
+      </form>
+	  </field>
+	</record>
+
+  </data>
+</openerp>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="invoice_carrier_inherited" model="ir.ui.view">
+    <field name="name">invoice.carrier.form</field>
+    <field name="model">account.invoice</field>
+    <field name="inherit_id" ref="account.invoice_form"/>
+    <field name="arch" type="xml">
+
+       <xpath expr="//field[@name='payment_term']" position="after">
+            <field name="carrier_id" string="Delivery method"/>
+         
+    </xpath>
+    </field>
+</record>
+        </data>
+    </openerp>

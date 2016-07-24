@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+	<openerp>
+		<data>
+			<record model="ir.actions.act_window" id="action_barcode_binding">
+				<field name="name">Barcode binding</field>
+				<field name="res_model">product.tracking.barcode</field>
+				<field name="view_model">tree, form</field>
+			</record>
+			<menuitem name="Barcodes binding" parent="mrp.menu_mrp_bom" id="barcode_binding" sequence="10" action="action_barcode_binding"/>
+			<record model="ir.actions.act_window" id="action_product_tracking">
+				<field name="name">Product tracking</field>
+				<field name="res_model">product.tracking</field>
+				<field name="view_model">tree, form</field>
+			</record>
+			<!--<menuitem name="Product tracking" parent="mrp.menu_mrp_bom" id="product_tracking" sequence="11" action="action_product_tracking"/>-->
+			<record model="ir.ui.view" id="barcode_binding_form">
+				<field name="name">barcode binding form</field>
+				<field name="model">product.tracking.barcode</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Barcodes bound to products" version="7.0">
+						<header>
+							<field name="state" widget="statusbar" statusbar_visible="not_yet_in_production,in_production,done"/>
+
+						</header>
+						<group>
+							<field name="name" string="Barcode"/>
+							<field name="product_id"/>
+							<field name="mo_id"/>
+							<field name="workers"/>
+							
+						</group>
+					</form>
+				</field>
+			</record>
+			<record id="barcode_binding_tree" model="ir.ui.view">
+				<field name="name">barcode binding tree</field>
+				<field name="model">product.tracking.barcode</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="name"/>
+						<field name="product_id"/>
+						<field name="mo_id"/>
+						<field name="state"/>
+					</tree>
+				</field>
+			</record>
+			<record id="barcode_flash_tree" model="ir.ui.view">
+				<field name="name"> barcode flash tree</field>
+				<field name="model">product.barcode.flash</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="worker_id"/>
+						<field name="department"/>
+						<field name="timestamp"/>
+					</tree>
+				</field>
+			</record>
+			<record id="barcode_flash_form" model="ir.ui.view">
+				<field name="name"> barcode flash form</field>
+				<field name="model">product.barcode.flash</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Worker barcode flash">
+						<field name="worker_id"/>
+						<field name="department"/>
+						<field name="timestamp"/>
+					</form>
+				</field>
+			</record>
+			
+		</data>
+	</openerp>

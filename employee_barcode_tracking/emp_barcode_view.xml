@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="emp_barcode" model="ir.ui.view">
+				<field name="name">emp.barcode.form</field>
+				<field name="model">hr.employee</field>
+				<field name="inherit_id" ref="hr.view_employee_form" />
+				<field name="arch" type="xml">
+					<field name="name" position="after">
+						<field name="barcode"/>
+						<p style="margin:0px; padding:0px; font-size:13px; "><field name="presence"/></p>
+						<!--<field name="last_logout"/>-->
+					</field>
+					<xpath expr="//page[@string='HR Settings']" position="after">
+						<page string="Timesheets">
+							<!--<button name="get_workers" type="object" string="Get emps with valid contracts" class="oe_highlight"/>-->
+							<field name="exclude_from_tracking" />
+							<field name="timesheets"/>
+						</page>
+					</xpath>
+					<field name="address_home_id" position="replace">
+						<field name="street" />
+						<field name="city"/>
+						<field name="father_name"/>
+						<field name="personal_phone"/>
+					</field>
+				</field>
+			</record>
+		</data>
+	</openerp>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="order_discount" model="ir.ui.view">
+				<field name="name">order.discount.form</field>
+				<field name="model">sale.order</field>
+				<field name="inherit_id" ref="sale.view_order_form" />
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='amount_tax']" position="after">
+							
+							<field name="amount_discount" widget="monetary"/>
+					</xpath>
+					<xpath expr="//field[@name='note']" position="before">
+						<group>
+							<field name="discount_method" style="width:100px;" />
+							<field name="discount" />
+						</group>
+					</xpath>
+				</field>
+			</record>
+			
+		</data>
+	</openerp>

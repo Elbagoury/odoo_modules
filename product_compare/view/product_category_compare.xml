@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="compare_category_view" model="ir.ui.view">
+    <field name="name">compare.product.category.form</field>
+    <field name="model">product.category</field>
+    <field name="inherit_id" ref="product.product_category_form_view"/>
+    <field name="arch" type="xml">
+
+       <xpath expr="//div[@class='oe_title']" position="after">
+          <group string="This category in other companies">
+            <field name="foreign_binding" string="Other companies it exists in" widget="many2many_tags"/>
+           
+          </group>
+    </xpath>
+    </field>
+</record>
+        </data>
+    </openerp>

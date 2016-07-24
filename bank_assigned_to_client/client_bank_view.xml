@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="res_partner_form_view" model="ir.ui.view">
+				<field name="model">res.partner</field>
+				<field name="inherit_id" ref="base.view_partner_form"/>
+				<field name="arch" type="xml">
+					<xpath expr='//field[@name="credit_limit"]' position="after">
+						<field name="bank_pid" attrs="{'invisible': True}"/>
+						<field name="our_bank" domain="[('partner_id.id', '=', bank_pid)]"/>
+					</xpath>
+				</field>
+			</record>
+			<record id="account_invoice_bank" model="ir.ui.view">
+				<field name="name">account.invoice.bank.form</field>
+				<field name="model">account.invoice</field>
+				<field name="inherit_id" ref="account.invoice_form" />
+				<field name="arch" type="xml">
+					<field name="move_id" position="after">
+						<field name="bank_pid" attrs="{'invisible': True}"/>
+						<field name="our_bank" domain="[('partner_id.id', '=', bank_pid)]"/>
+
+					</field>
+				</field>
+			</record>
+			<record id="company_bank" model="ir.ui.view">
+				<field name="name">company.bank.form</field>
+				<field name="model">res.company</field>
+				<field name="inherit_id" ref="base.view_company_form" />
+				<field name="arch" type="xml">
+					<field name="company_registry" position="after">
+
+						<field name="is_bank_default"/>
+
+					</field>
+				</field>
+			</record>
+		</data>
+	</openerp>

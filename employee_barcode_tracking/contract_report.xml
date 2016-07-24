@@ -1,0 +1,70 @@
+<openerp>
+<data>
+
+    <template id="contract_report">
+        <t t-call="report.html_container">
+            <t t-foreach="docs" t-as="o">
+              <div class="page">
+               
+                <div style="text-align:center">
+                    <p>Na osnovu člana 30-35 Zakona o radu (Sl.glasnik RS br. 24, 61/2005; 54/2009, 32/2013, 75/2014) i Pravilnika o radu Društva broj 2-2014 od 23.09.2014 godine.</p><p> </p>
+                    <h4>UGOVOR O RADU</h4><p> </p>
+                    <h4 style="display:inline">Broj :PROIZVODNJA</h4> <h4 style="display:inline" t-field="o.create_date" t-field-options='{"format": "dd.MM.yyyy"}'/><h4>u Kikindi</h4>
+                    <p>Između:</p>
+                    <p>Poslodavaca: „Gigraphix“ d.o.o Kikinda, adresa Miloša Velikoga 85, mesto Kikinda, opština Kikinda. PIB:104098220. MB 20090847.
+                    
+                    Datum osnivanja:12.10.2005 godine.
+                    
+                    Šifra delatnosti 3832 ponovna upotreba raznovrsnih materijala</p>
+                    <p>I</p>
+                    <p><p style="display:inline" t-field="o.employee_id.name"/> (otac <p style="display:inline" t-field="o.employee_id.father_name"/> ), JMBG <p style="display:inline" t-field="o.employee_id.identification_id"/> sa prebivalištem u: <p style="display:inline" t-field="o.employee_id.city"/>, <p style="display:inline" t-field="o.employee_id.street"/> u daljem teksu Zaposleni)</p>
+
+
+                </div>
+                <h5 style="text-align:center">Član 1.</h5>
+                <p>Vrsta stručne spreme zaposlenog / zaposlene je IV a stepen stručne spreme koji su kao uslov predviđeni opštim aktom poslodavca za obavljanje poslova za koje se zasniva radni odnos. </p>
+                <h5 style="text-align:center">Član 2.</h5>
+                <p>Zaposleni / zaposlena zasniva radni odnos na poslovima <b>Radnik u proizvodnji</b>: </p>
+                <ul style="margin-left:20px;">
+                    <li><p>Vrši rasklapanje toner kaseta,</p> </li>
+                    <li><p>Izbacuje toner prah,</p></li>
+                    <li><p>Čisti ih zamenjuje oštećene delove,</p> </li>
+                    <li><p>Puni ih novim tonerom </p></li>
+                    <li><p>Sklapa proizvod, </p></li>
+                    <li><p>Zaposleni je dužan da nakon kontrole toner kaseta svojim potpisom potvrdi ispravnost istih, a neispravne toner kasete uz pismenu belešku preda pretpostavljenom. </p></li>
+                </ul>
+                <p>Neposredno sprovodi mere zaštite zdravlja i bezbednosti na radu za svoje radno mesto.</p>
+                <h5 style="text-align:center">Član 3.</h5>
+                <p style="display:inline">Zaposleni / zaposlena zasniva radni odnos na određeno vreme počev od <p style="display:inline" t-field="o.date_start"/>- <p style="display:inline" t-field="o.date_end"/> Godine.</p>
+                <p>Početak rada zaposlenog/ zaposlene je  29.2.2016</p>
+                <p>Radni odnos se zasniva na određeno vreme zbog povećanja proizvodnih kapaciteta. </p>
+                <h5 style="text-align:center">Član 5.</h5>
+                <p>Zaposleni / zaposlena zasniva radni odnos sa <b>punim</b> radnim vremenom s tim što dnevno radno vreme traje 8 časova a nedeljno radno vreme 40 časova.</p>
+                <p>Radna nedelja traje 5 radnih dnaa. Raspored radnog vremena u okrivu radne nedelje utvrđuje poslodavac. </p>
+                <h5 style="text-align:center">Član 6.</h5>
+                <p>Zaposleni / zaposlena ima pravo na osnovnu zaradu koja na dan zaključenja ugovora o radu iznosi 28.800.00 dinara.</p>
+                <h5 style="text-align:center">Član 7.</h5>
+                <p>Elementi za utvrđivanje osnovne zarade i radnog učinka su utvrđeni Pravilnikom o Radu broj 2 od 23-09-2014 godine, sa kojim je zaposleni / zaposlena upoznat/a prilikom zaključivanja ugovora o radu.</p>
+                <h5 style="text-align:center">Član 8.</h5>
+                <p>Zaposlenom / zaposlenoj se zarada i druga primanja isplaćuju do 10 u meseuc a prethodni mesec.</p>
+                <h5 style="text-align:center">Član 9.</h5>
+                <p>Svaka od ugovornih strana može da otkaže ovaj Ugovor pod uslovima i u slučajevima utvrđenim zakonom i opštim aktima poslodavca.</p>
+                <h5 style="text-align:center">Član 10.</h5>
+                <p>Sva druga prava i obaveze zaposlenog / zaposlene i poslodavca detaljnije su utvrđeni Pravilnikom o radu poslodavca donetog 23-09-2014 godine i Pravilniku od Disciplini donetog 30.09.2014</p>
+                 <h5 style="text-align:center">Član 11.</h5>
+                <p>Otkazni rok od strane zaposlenog je 15 dana, zaposleni je dužan da obavesti poslodavca o svojoj nameri da napusti radno mesto, ukoliko to ne učini blagovremeno poslodavac ima pravo na traži naknadu štete koju je pretrpeo. U dodatku pravilnika o Discipli donetog 06.04.2015</p>
+                 <h5 style="text-align:center">Član 12.</h5>
+                <p>Ovaj Ugovor je sačinjen u3 (tri) istovetna primerka od kojih se 1 (jedan primerak) predaje zaposlenom / zaposlenoj a 2 (dva) primerka zadržava poslodavac.</p>
+                <p>Gigraphix doo Kikinda Zaposlenisleni / zaposlena će obavljati poslove u sedištu poslodavca na adresi Milioša Velikoga 85 U Kikindi. .</p>
+                 <h5 style="text-align:center">Član 13.</h5>
+                <p>Ovaj Ugovor je sačinjen u3 (tri) istovetna primerka od kojih se 1 (jedan primerak) predaje zaposlenom / zaposlenoj a 2 (dva) primerka zadržava poslodavac.</p>
+                <p>Gigraphix doo Kikinda Zaposlenisleni / zaposlena će obavljati poslove u sedištu poslodavca na adresi Milioša Velikoga 85 U Kikindi.</p>
+
+
+
+              </div>
+            </t>
+        </t>
+    </template>
+</data>
+</openerp>

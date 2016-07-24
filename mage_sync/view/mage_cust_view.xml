@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="magento_customer_form_view_inherited" model="ir.ui.view">
+    <field name="name">magento.customer.form</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+    <page name="sales_purchases" position="after">
+        <page name="magento" string="Magento profile">
+            <group cols='2'>
+            <group string="Information on magento profile">
+            <field name="sync_to_mage" string="Publish on magento" style="font-size:16px;"/>
+            <field name="magento_id" string="ID on magento" attrs="{'invisible': [('sync_to_mage', '=', False), ('magento_id', '=', 0)]}"/>
+            <field name="last_name" string="Last name" attrs="{'invisible':[('sync_to_mage', '=', False)]}"/>
+            <field name="mage_customer_pass" string="Password on magento" attrs="{'invisible':[('sync_to_mage', '=', False)]}"/>
+        </group>
+        <button name="export_cust_immediately" string="Export/Update now" type="object" class="oe_highlight" style="margin-top:40px; margin-left:40px; width:120px; height:80px;" attrs="{'invisible':[('sync_to_mage', '=', False)]}"/>
+    </group>
+        </page>
+    </page>
+ 
+    </field>
+</record>
+        </data>
+    </openerp>

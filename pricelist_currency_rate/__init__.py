@@ -1,0 +1,1 @@
+import pricelist_currency_rate

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="ebay_product_template" model="ir.ui.view">
+				<field name="name">ebay.product.template.form</field>
+				<field name="model">product.template</field>
+				<field name="inherit_id" ref="product.product_template_only_form_view" />
+				<field name="arch" type="xml">
+					 <xpath expr="//page[@string='Sales']" position="after">
+                    	<page name="ebay" string="Ebay">
+
+                <group string="eBay status">
+								<field name="ebay_sync" string="Sync with eBay"/>
+
+								<group col='3' string="Ebay ID">
+									<field name="ebay_id" string="Product ID on eBay">
+										<tree>
+											<field name="ebay_id"/>
+										</tree>
+									</field>
+									<button name="open_on_ebay" string="Open on ebay" type="object" class="oe_hightlight" style="margin:0px; margin-left:15px;" />
+								</group>
+
+								<field name="ebay_date_added" string="Added or last modified" readonly="True"/>
+								<group string="eBay Price" col="3">
+								<field name="ebay_price" string="Price for eBay" style="font-size:1.2em">
+                  				</field>
+                  				<button name="set_price" type="object" class="oe_highlight"  string="Calculate" style="margin:0px; margin-left:15px;" />
+								</group>
+							</group>
+
+							<group string="Fees and stock" col="1" >
+
+
+
+								<group>
+								<field name="ebay_shipping_cost" string="Shipping cost" />
+								<field name="ebay_additional_item_cost" string="Shipping cost for additional item" />
+								<field name="ebay_free_shipping" string="Free shipping" />
+								<field name="ebay_payment_instruction" string="Payment instructions" />
+
+								<field name="stock_limit" string="Stock limit"/>
+								</group>
+							</group>
+
+							<group string="Additional information" col="4" colspan="2">
+								<field name="copies" string="Number of copies" />
+
+								<field name="with_chip" string="With chip" />
+								<field name="ebay_listing_duration" string="Listing duration" />
+								<field name="ebay_template_id" string="eBay template ID" />
+								<field name="ebay_item_location" string="Item location (postal)" />
+								<field name="ebay_extra_name" string="Name of extra attribute" />
+								<field name="ebay_extra_value" string="Value of extra attribute" />
+							</group>
+							<group string="Custom description block">
+								<field name="ebay_custom_desc"/>
+							</group>
+							<group string="Name division">
+								<div><button name="divide_name" string="Auto divide product name" type="object" class="oe_highlight" style="margin-bottom:10px;"/></div>
+								<div></div>
+								<field name="main_name_part" string="First part of name"/>
+							</group>
+							<field name="name_parts"/>
+                    	</page>
+                	</xpath>
+				</field>
+			</record>
+		</data>
+	</openerp>

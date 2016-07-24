@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="action_timesheet_report" model="ir.actions.act_window">
+            <field name="name">Timesheet Analysis</field>
+            <field name="res_model">timesheet.report</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">graph</field>
+            <field name="context">{'group_by_no_leaf':1,'group_by':[]}</field>
+        </record>
+
+        <menuitem action="action_timesheet_report"  id="menu_timesheet_report"
+            parent="hr.menu_hr_reporting" groups="base.group_hr_manager" sequence="3"/>
+        <record id="view_hr_timesheet_report_graph" model="ir.ui.view">
+            <field name="name">timesheet.report.graph</field>
+            <field name="model">timesheet.report</field>
+            <field name="arch" type="xml">
+                <graph string="Timesheet" type="pivot">
+                    <field name="department" type="row"/>
+                    <field name="emp"  type="row"/>
+                    <field name="check_in" type="col" interval="month"/>
+                    
+                    <field name="regular" type="measure"/>
+                    <field name="overtime" type="measure"/>
+                    <field name="total" type="measure"/>
+                </graph>
+            </field>
+        </record>
+    </data>
+</openerp>

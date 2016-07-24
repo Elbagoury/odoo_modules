@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="rand_prod_form" model="ir.ui.view">
+    <field name="name">rand.product.form</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_only_form_view"/>
+    <field name="arch" type="xml">
+
+       <xpath expr="//page[@string='Sales']" position="after">
+        <page name="rand" string="R and D">
+          <group>
+            <div class="oe_inline">
+              <p class="oe_inline" style="display:inline;font-weight:bold; font-size:13px;" >Location(cabinet): </p>
+              <p style="font-weight:bold; font-size:13px;display:inline;">
+              <field name="file_letter" class="oe_inline" attrs="{'invisible': [('file_number', '=', 0)]}" />
+              <field name="cabinet_number" class="oe_inline" attrs="{'invisible': [('file_number', '=', 0)]}" />
+            </p>
+           </div>
+           <div class="oe_inline">
+             <p class="oe_inline" style="display:inline;font-weight:bold; font-size:13px;" >Folder number: </p>
+             <p style="font-weight:bold; font-size:13px;display:inline;">
+
+             <field name="file_number" class="oe_inline" attrs="{'invisible': [('file_number', '=', 0)]}" />
+           </p>
+          </div>
+           <button name="insert_number" type="object" class="oe_highlight" string="Insert number" attrs="{'invisible': [('file_number', '>', 0)]}"/>
+          </group>
+           <field name="rd_files"/>
+         </page>
+    </xpath>
+    </field>
+</record>
+<record model="ir.ui.view" id="rand_files_form">
+      <field name="name">irand form view</field>
+      <field name="model">rand_files</field>
+      <field name="arch" type="xml">
+        <form string="RandD file" version="7.0">
+          <sheet>
+            <group>
+              <field name="name"/>
+              <field name="file" filename="name"/>
+            </group>
+            </sheet>
+          </form>
+        </field>
+      </record>
+<record model="ir.ui.view" id="rand_files_tree">
+      <field name="name">rand tree view</field>
+      <field name="model">rand_files</field>
+      <field name="type">tree</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+              <field name="file" filename="name"/>
+        </tree>
+      </field>
+    </record>
+        </data>
+    </openerp>

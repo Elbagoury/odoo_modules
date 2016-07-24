@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+      <record id="pricelist_summary_form" model="ir.ui.view">
+  				<field name="name">pricelist.summary.form</field>
+  				<field name="model">sale.order</field>
+  				<field name="inherit_id" ref="sale.view_order_form" />
+  				<field name="arch" type="xml">
+            <xpath expr="//field[@name='tax_id']" position="after">
+
+  							<field name="pricelist_discount_summary" readonly="1"/>
+
+
+
+
+  					</xpath>
+  				</field>
+  			</record>
+		</data>
+	</openerp>

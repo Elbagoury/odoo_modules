@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="product_template_tree_view" model="ir.ui.view">
+				<field name="model">product.template</field>
+				<field name="inherit_id" ref="product.product_template_tree_view"/>
+				<field name="arch" type="xml">
+					<field name="name" position="before">
+						<field name="default_code" string="Int. reference"/>
+					</field>
+					<field name="name" position="before">
+						<field name="oem_code" string="OEM code"/>
+					</field>
+					<field name="name" position="after">
+						 <field name="description" />
+					</field>
+					<field name="state" position="replace">
+						<field name="state" invisible="1"/>
+					</field>
+					<field name="type" position="replace">
+						<field name="type" invisible="1"/>
+					</field>
+					
+				</field>
+			</record>
+			<record id="product.product_template_action" model="ir.actions.act_window">
+            
+            <field name="view_mode">tree, form, kanban</field>
+           
+            <field name="view_id" ref="product_template_tree_view"/>
+            
+        </record>
+		</data>
+	</openerp>

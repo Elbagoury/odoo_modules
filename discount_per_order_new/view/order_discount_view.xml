@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="discount_order" model="ir.ui.view">
+				<field name="name">discount.order.form</field>
+				<field name="model">sale.order</field>
+				<field name="inherit_id" ref="sale.view_order_form"/>
+				<field name="arch" type="xml">
+					<xpath expr="//tree[@string='Sales Order Lines']/field[@name='price_unit']" position="before">
+						<field name="product_price"/>
+						<field name="pricelist_discount"/>
+
+						<!--<field name="discount_global"/>-->
+					</xpath>
+
+					<xpath expr="//tree[@string='Sales Order Lines']/field[@name='price_unit']" position="after">
+						<!--<field name="with_discount"/>
+						<field name="full_subtotal"/>-->
+						<field name="price_subtotal"/>
+					</xpath>
+					<xpath expr="//field[@name='note']" position="before">
+						<group>
+							<field name="discount_method"/>
+							<field name="order_discount"/>
+						</group>
+					</xpath>
+					<xpath expr="//field[@name='amount_untaxed']" position="after">
+
+									<!--<field name="amount_discount" widget="monetary"/>
+									<field name="discounted" widget="monetary"/>-->
+							</xpath >
+					<xpath expr="//form[@string='Sales Order Lines']/group/group/field[@name='price_unit']" position="before">
+
+									<field name="product_price" readonly="1"/>
+									<field name="pricelist_discount" readonly="1"/>
+									<field name="is_manual_price"/>
+
+
+
+
+							</xpath>
+				</field>
+			</record>
+
+		</data>
+	</openerp>

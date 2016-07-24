@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="product_label" model="ir.ui.view">
+				<field name="name">product.label.form</field>
+				<field name="model">product.product</field>
+				<field name="inherit_id" ref="product.product_normal_form_view" />
+				<field name="arch" type="xml">
+					<!--<field name="lst_price" position="after">
+						<field name="color" string="Cartridge color"/>
+						<field name="oem_code" string="OEM code"/>
+					</field>-->
+					<xpath expr="//page[@string='Sales']" position="inside">
+						<group string="Product label" col="6">
+							<field name="company_prefix" string="Company prefix"/>
+							<p></p>
+							<p></p>
+							<p></p>
+							<p></p>
+							
+							<p></p>
+							<p></p>
+							<p></p>
+							<p></p>
+							<field name="template" string="Template"/>
+							<button type="object" name="print_label_pdf" string="Print label " class="oe_highlight"/>
+							<button type="object" name="print_label_html" string="View/Edit" class="oe_highlight"/>
+							<p></p>
+							<p></p>
+						</group>
+					</xpath>
+				</field>
+			</record>
+		</data>
+	</openerp>

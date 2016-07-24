@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<menuitem name="Product packaging" id="menu_root" sequence="109"  />
+			<menuitem name="Labels" id="menu_main" parent="menu_root" sequence="2"/>
+			<record model="ir.actions.act_window" id="action_templates">
+				<field name="name">Labels</field>
+				<field name="res_model">label.maker</field>
+				<field name="view_model">tree, form</field>
+			</record>
+
+			<menuitem name="Product packaging labels" id="menu_templates" parent="menu_main" sequence="1" action="action_templates"/>
+
+			<record model="ir.ui.view" id="template_form">
+				<field name="name">templates form view</field>
+				<field name="model">label.maker</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Label templates" version="7.0">
+						<sheet>
+							
+							<group string="Label definition">
+								<field name="name" string="Display name" required="True" />
+								<field name="view_name" string="Tech name" required="True" />
+								<field name="is_created" attrs="{'invisible': True}"/>
+							</group>
+							<group col="2">
+							
+							<group string="Graphical editor" attrs="{'invisible': [('is_created', '=', False)]}" col="2">
+								<field name="test_pro"/>
+									<button name="edit_label_html" string="Open in editor" type="object" class="oe_highlight" style="width:120px; margin-top:10px;"/>
+							</group>
+							<group string="Add fields to label" col="2" attrs="{'invisible': [('is_created', '=', False)]}">
+									
+									<field name="field_ids" string="Field" />
+									
+									<field name="tag" string="Tag"/>
+								
+									<button name="add_field" string="Add field" type="object" class="oe_highlight" style="width:120px; margin-top:10px;"/>
+									
+
+							</group>
+						</group>
+				
+						<group string="HTML">
+						<field name="view_arch"  string="Arch" required="True"/>
+							</group>
+							<!--<group string="Temporary meta">
+								
+								<field name="view_id" string="view_id"/>
+								<field name="rep_id" string="rep_id"/>
+								<field name="eid_id" string="eid_id"/>
+								<field name="ab_id" string="ab_id"/>
+								<field name="view_header" string="view_header"/>
+								<field name="view_footer" string="view_footer"/>
+							</group>-->
+							<group string="Label variations" attrs="{'invisible': [('is_created', '=', False)]}">
+								
+								<field name="variations" />
+					
+							</group>
+						</sheet>
+					</form>
+				</field>
+			</record>
+
+			<record model="ir.ui.view" id="template_tree">
+				<field name="name">template tree view</field>
+				<field name="model">label.maker</field>
+				<field name="type">tree</field>
+				
+				<field name="arch" type="xml">
+					<tree >
+						
+						<!--<field name="rel_id" string="RelID" attrs="{'invisible':[('rel_id', '>', '0')]}"/>-->
+						<field name="name" string="Display name" required="True" />
+						<field name="view_name" string="Tech name" required="True"/>
+						
+					</tree>
+				</field>
+			</record>
+
+			<record model="ir.ui.view" id="label_variant_form">
+				<field name="name">label variants form view</field>
+				<field name="model">label.variant</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Label variant" version="7.0">
+						<sheet>
+							
+							<group string="Label definition">
+								<field name="name" string="Display name" required="True" />
+								<field name="view_name" string="Tech name" required="True" />
+								<field name="is_created" attrs="{'invisible': True}"/>
+							</group>
+							<group col="2">
+							
+							<group string="Graphical editor" attrs="{'invisible': [('is_created', '=', False)]}" col="2">
+								<field name="test_pro"/>
+									<button name="edit_label_html" string="Open in editor" type="object" class="oe_highlight" style="width:120px; margin-top:10px;"/>
+							</group>
+							<group string="Add fields to label" col="2" attrs="{'invisible': [('is_created', '=', False)]}">
+									
+									<field name="field_ids" string="Field" />
+									
+									<field name="tag" string="Tag"/>
+								
+									<button name="add_field" string="Add field" type="object" class="oe_highlight" style="width:120px; margin-top:10px;"/>
+									
+
+							</group>
+						</group>
+				
+						<group string="HTML">
+						<field name="view_arch"  string="Arch" required="True"/>
+							</group>
+							<!--<group string="Temporary meta">
+								
+								<field name="view_id" string="view_id"/>
+								<field name="rep_id" string="rep_id"/>
+								<field name="eid_id" string="eid_id"/>
+								<field name="ab_id" string="ab_id"/>
+								<field name="view_header" string="view_header"/>
+								<field name="view_footer" string="view_footer"/>
+							</group>-->
+							
+						</sheet>
+					</form>
+				</field>
+			</record>
+
+		</data>
+	</openerp>

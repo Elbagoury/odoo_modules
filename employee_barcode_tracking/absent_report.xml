@@ -1,0 +1,41 @@
+<openerp>
+<data>
+
+ 
+<template id="absent_report">
+    <t t-call="report.html_container">
+        <t t-foreach="docs" t-as="o">
+          <div class="page">
+            <h1>Worker absence summary</h1>
+            
+                <h4 style="display:inline">Summary for datetime:
+                <span style="display:inline" t-field="o.date" t-field-options="{&quot;format&quot;: &quot;yyyy-MM-dd HH-mm&quot;}" /></h4>
+            
+            
+           
+
+            <table style="margin-top:20px;">
+                <tr style="border:1px solid black; background-color:lightgray">
+                    <td style="width:160px; font-weight:bold">Identification number</td>
+                    <td style="width:350px; font-weight:bold">Name</td>
+                    <td style="width:150px; font-weight:bold">Department</td>
+                    <td style="width:2000px; font-weight:bold">Absence reason</td>
+                </tr>
+                <t t-foreach="o.workers" t-as="w">
+                
+           
+                <tr style="border:1px solid black;">
+                    <td><p t-field="w.identification_id"/></td>
+                    <td><p t-field="w.name"/></td>
+                    <td><p t-field="w.department_id.name"/></td>
+                    <td></td>
+                </tr>
+                </t>
+            </table>
+           
+          </div>
+        </t>
+    </t>
+</template>
+</data>
+</openerp>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="res_partner_form_view" model="ir.ui.view">
+				<field name="model">res.partner</field>
+				<field name="inherit_id" ref="base.view_partner_form"/>
+				<field name="arch" type="xml">
+					<xpath expr='//div[@class="address_format"]' position="replace">
+					     <div class="address_format">
+
+                                    <field name="city" placeholder="City" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                                    <field name="state_id" class="oe_no_button" placeholder="State" style="width: 60%" options="{&quot;no_open&quot;: True}" on_change="onchange_state(state_id)" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                                    <field name="zip" placeholder="ZIP" style="width: 40%" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                                </div>
+					</xpath>
+				</field>
+			</record>
+
+		</data>
+	</openerp>

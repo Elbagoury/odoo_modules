@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+  <data>
+    <menuitem name="Magento sync" id="menu_root" sequence="110" />
+    <menuitem name="Magento instances" id="menu_instances" parent="menu_root" />
+
+    <record model="ir.actions.act_window" id="action_instances">
+      <field name="name">Magento instances</field>
+      <field name="res_model">magento_sync</field>
+      <field name="view_model">tree, form</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_cron_logs">
+      <field name="name">Global logs</field>
+      <field name="res_model">cron.log</field>
+      <field name="view_model">tree, form</field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_compare">
+      <field name="name">Price compare</field>
+      <field name="res_model">magento.price.compare</field>
+      <field name="view_model">tree</field>
+    </record>
+
+    <menuitem name="Instances" id="menu_in" parent="menu_instances" sequence="1" action="action_instances" />
+    <menuitem name="Price compare" id="menu_compare" parent="menu_instances" sequence="3" action="action_compare"/>
+    <menuitem name="Cron logs" id="menu_logs" parent="menu_instances" sequence="2" action="action_cron_logs"/>
+
+    <record model="ir.ui.view" id="cron_tree">
+      <field name="name">cron log tree view</field>
+      <field name="model">cron.log</field>
+      <field name="type">tree</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="date"/>
+          <field name="name"/>
+          <field name="description"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="instances_form">
+      <field name="name">instances form view</field>
+      <field name="model">magento_sync</field>
+      <field name="arch" type="xml">
+        <form string="Magento instance" version="7.0">
+          <sheet>
+            <group string="Instance name">
+              <field name="name"/>
+            </group>
+            <group string="Details about magento instance">
+              <field name="mage_location" string="URL to magento"/>
+              <field name="mage_port" string="Port"/>
+              <field name="mage_user" string="Username"/>
+              <field name="mage_pwd" string="Password"/>
+              <field name="auto_update_products"/>
+              <field name="import_delivery_cost"/>
+              <field name="default_user"/>
+              <field name="confirmation_email_template"/>
+              <field name="root_category" string="ID of odoo category that is root in magento" />
+            </group>
+
+            <group string="Imports">
+              <label string="Import orders" class="oe_inline" style="font-weight:bold;" />
+              <div>
+                <button name="import_orders" type="object" class="oe_highlight" string="Import orders" />
+              </div>
+              <field name="so_imported" string="Last import" />
+            </group>
+            <group string="Exports">
+                <group >
+
+                  <label string="Export categories" class="oe_inline" style="font-weight:bold;"/>
+
+                         <div >
+                           <button name="export_categories" type="object" class="oe_highlight" string="Export"/>
+
+                          </div>
+                    <field name="categories_exported" string="Last export"/>
+               </group>
+                <group>
+
+                  <label string="Export products " class="oe_inline" style="font-weight:bold;"/>
+
+                         <div>
+                           <button name="export_products" type="object" class="oe_highlight" string="Export"/>
+                  </div>
+                 <field name="products_exported" string="Last export"/>
+               </group>
+               <group>
+
+                  <label string="Export all products" class="oe_inline" style="font-weight:bold;"/>
+
+                         <div>
+                           <button name="export_products_all" type="object" class="oe_highlight" string="Export"/>
+                  </div>
+                   <field name="products_exported_all" string="Last export"/>
+               </group>
+                 <group>
+
+                  <label string="Export customers" class="oe_inline" style="font-weight:bold;"/>
+                         <div>
+                           <button name="export_customers" type="object" class="oe_highlight" string="Export"/>
+                  </div>
+                      <field name="customers_exported" string="Last export"/>
+               </group>
+
+                 <group>
+
+                  <label string="Export pricelists" class="oe_inline"/>
+                         <div>
+                           <button name="export_pricelists" type="object" class="oe_highlight" string="Export"/>
+                  </div>
+                      <field name="pricelists_exported" string="Last export"/>
+               </group>
+
+
+
+               <!--
+               <group>
+
+                  <label string="EXPORT TO CSV (to remove)" class="oe_inline"/>
+                         <div>
+                           <button name="export_products_to_csv" type="object" class="oe_highlight" string="***CSV EXPORT***"/>
+                           <button name="import_products_from_csv" type="object" class="oe_highlight" string="***CSV IMPORT***"/>
+                           <button name="delete_all_products" type="object" class="oe_highlight" string="***DELETE ALL***"/>
+                  </div>
+
+
+            </group>
+            -->
+            <!--<group string="Crons" cols="3">
+              <group cols="3">
+              <field name="product_cron" string="Product export cron" />
+              <button name="create_product_cron" string="Create cron" type="object" class="oe_highlight" attrs="{'invisible':[('product_cron', '!=', False)]}"/>
+            </group>
+            <group cols="3">
+              <field name="customer_cron" string="Customer export cron" />
+              <button name="create_customer_cron" string="Create cron" type="object" class="oe_highlight" attrs="{'invisible':[('customer_cron', '!=', False)]}"/>
+            </group>
+          -->
+            <group cols="3">
+              <field name="orders_cron" string="Orders import cron" />
+              <button name="create_orders_cron" string="Create cron" type="object" class="oe_highlight" attrs="{'invisible':[('orders_cron', '!=', False)]}"/>
+            </group>
+           <!--
+               <group cols="3">
+              <field name="categories_cron" string="Categories export cron" />
+              <button name="create_categories_cron" string="Create cron" type="object" class="oe_highlight" attrs="{'invisible':[('categories_cron', '!=', False)]}"/>
+             </group>
+            -->
+
+            </group>
+            <group string="ADMIN FUNCTIONS">
+                <button name="delete_all" type="object" class="oe_highlight" string="PURGE ALL (caution)" confirm="This will delete all products, categories and customers. Are you really sure?"/>
+                <button name="compare_prices" type="object" class="oe_highlight" string="COMPARE PRICES" confirm="Are you sure you want to do this?"/>
+                <button name="test_button" type="object" class="oe_highlight" string="*** TEST BUTTON ***" confirm="Are you sure you want to do this?"/>
+                <button name="sync_ids_clients" type="object" class="oe_highlight" confirm="Are you sure?" string="SYNC CUSTOMER IDS"/>
+                <button name="sync_ids_products" type="object" class="oe_highlight" confirm="Are you sure?" string="SYNC PRODUCTS IDS"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="instances_tree">
+      <field name="name">instances tree view</field>
+      <field name="model">magento_sync</field>
+      <field name="type">tree</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name" string="Instance name" />
+          <field name="mage_location" string="Magento URL" />
+
+        </tree>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="compare_tree">
+      <field name="name">compare tree view</field>
+      <field name="model">magento.price.compare</field>
+      <field name="type">tree</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="product_id" />
+          <field name="odoo_price" />
+          <field name="mage_price"/>
+
+        </tree>
+      </field>
+    </record>
+  </data>
+</openerp>

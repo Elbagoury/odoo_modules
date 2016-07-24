@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <openerp>
+            <data>
+
+
+                <record model="ir.actions.act_window" id="action_cprices">
+                    <field name="name">Competitors prices</field>
+                    <field name="res_model">cprices.cprices</field>
+                    <field name="view_model">tree, form</field>
+                </record>
+
+
+                    <record model="ir.ui.view" id="cprices_form">
+                        <field name="name">cprices form view</field>
+                        <field name="model">cprices.cprices</field>
+                        <field name="arch" type="xml">
+                            <form string="Competitors prices" version="7.0">
+                                <sheet>
+                                    <group string="Set current price">
+                                        <field name="competitor" string="Competitor" />
+                                        <field name="product_x" string="Product" />
+                                        <field name="price" string="Current price" />
+
+                                    </group>
+                                </sheet>
+                            </form>
+                        </field>
+                    </record>
+
+                    <record model="ir.ui.view" id="cprices_tree">
+                        <field name="name">cprices tree view</field>
+                        <field name="model">cprices.cprices</field>
+                        <field name="type">tree</field>
+                        <field name="arch" type="xml">
+                            <tree>
+                                <field name="date" string="Date" />
+                                <field name="competitor" string="Competitor" />
+                                 <field name="product_x" string="Product" />
+                                <field name="price" string="Price" />
+                            </tree>
+                        </field>
+                    </record>
+
+            </data>
+        </openerp>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+
+<menuitem name="Boxes" id="menu_main_box" parent="menu_root"/>
+			<record model="ir.actions.act_window" id="action_boxes">
+				<field name="name">Boxes</field>
+				<field name="res_model">box</field>
+				<field name="view_model">tree, form</field>
+			</record>
+
+			<menuitem name="Boxes" id="menu_boxes" parent="menu_main_box" sequence="2" action="action_boxes"/>
+
+			<record model="ir.ui.view" id="box_form">
+				<field name="name">box form view</field>
+				<field name="model">box</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Boxes" version="7.0">
+						<sheet>
+							<h1><field name="name"/></h1>
+						<group col='2'>
+							
+						<group string="Dimensions">
+							<field name="width"/>
+							<field name="height"/>
+							<field name="length"/>
+						</group>
+						<group string="Volume and weight">
+							<field name="volume"/>
+							<field name="weight"/>
+						</group>
+							
+						</group>
+							<field name="variants" string="Personalized versions of this box" />
+							
+						</sheet>
+
+					</form>
+				</field>
+			</record>
+
+			<record model="ir.ui.view" id="box_variant_form">
+				<field name="name">box variant form view</field>
+				<field name="model">box.variant</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Box variant" version="7.0">
+						<sheet>
+							<h1><field name="name"/></h1>
+						<group col='2'>
+							
+						<group string="Dimensions">
+							<field name="width"/>
+							<field name="height"/>
+							<field name="length"/>
+						</group>
+						<group string="Volume and weight">
+							<field name="volume"/>
+							<field name="weight"/>
+						</group>
+							
+						</group>
+						
+							
+						</sheet>
+
+					</form>
+				</field>
+			</record>
+
+
+			<record model="ir.ui.view" id="personal_form">
+				<field name="name">Personalization form view</field>
+				<field name="model">res.partner</field>
+				<field name="inherit_id" ref="base.view_partner_form"/>
+				<field name="arch" type="xml">
+					<xpath expr="//page[@string='Accounting']" position="after">
+       					 <page string="Personalization">
+       					 	<group>
+           					 <h2><field name='personalize'/> Personalize</h2>
+           					</group>
+           				<group string="Customizations" attrs="{'invisible': [('personalize', '=', False)]}">
+           					<field name="boxes" string="Boxes" />
+           					<field name="labels" string="Labels" />
+
+           				</group>
+       					 </page>
+    				</xpath>
+				</field>
+			</record>
+
+		</data>
+	</openerp>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="magento_pro_form_view_inherited" model="ir.ui.view">
+    <field name="name">magento.product.form</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_only_form_view"/>
+    <field name="arch" type="xml">
+
+       <xpath expr="//field[@name='active']" position="after">
+           <field name="magento_id" string="Magento ID" attrs="{'invisible': [('magento_id', '=', 0)]}"/>
+           <field name="do_not_publish_mage" string="Magento - do not publish"/>
+    </xpath>
+    </field>
+</record>
+        </data>
+    </openerp>

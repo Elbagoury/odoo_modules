@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="magento_cat_form_view_inherited" model="ir.ui.view">
+    <field name="name">magento.product.category.form</field>
+    <field name="model">product.category</field>
+    <field name="inherit_id" ref="product.product_category_form_view"/>
+    <field name="arch" type="xml">
+
+       <xpath expr="//group[@name='parent']" position="inside">
+            <group colspan="4" string="Magento">
+            <field name="do_not_publish_mage" string="Do not publish on magento"/>
+
+            <field name="magento_id" string="Magento ID"/>
+            <field name="mage_root" string="Root category on magento"/>
+          </group>
+    </xpath>
+    </field>
+</record>
+        </data>
+    </openerp>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<menuitem id="menu_compare" parent="base.menu_administration" name="Comparison" sequence="3" groups="base.group_no_one"/>
+
+    	<record model="ir.actions.act_window" id="action_compare">
+    		<field name="name">Product comparison</field>
+    		<field name="res_model">product.compare</field>
+    		<field name="view_model">tree, form</field>
+    	</record>
+		<menuitem id="menu_pro_compare" parent="menu_compare" name="Product comparison" action="action_compare"/>
+        <record model="ir.actions.act_window" id="action_category_mapping">
+            <field name="name">Product comparison category mapping</field>
+            <field name="res_model">product.compare.category</field>
+            <field name="view_model">tree, form</field>
+        </record>
+        <menuitem id="menu_cat_mapping" parent="menu_compare" name="Category mapping" action="action_category_mapping"/>
+        <record model="ir.actions.act_window" id="action_aggregate_compare">
+            <field name="name">Product compare line aggregate view</field>
+            <field name="res_model">product.compare.line</field>
+            <field name="view_model">tree, form</field>
+        </record>
+        <menuitem id="menu_agg_view" parent="menu_compare" name="Aggregate view" action="action_aggregate_compare"/>
+        <record model="ir.ui.view" id="cat_map_form">
+            <field name="name">cat map form</field>
+            <field name="model">product.compare.category.mapping</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Category mapping" version="7.0">
+                    <group>
+                        <field name="local" string="Local category"/>
+
+                        <field name="remote" string="Category id in other company"/>
+                        <!--<field name="company" string="Company"/>-->
+                    </group>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="cat_map_tree">
+            <field name="name">cat map tree</field>
+            <field name="model">product.compare.category.mapping</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <!--<field name="compare_id" string="Company"/>-->
+                    <field name="local"/>
+                    <field name="remote"/>
+                </tree>
+            </field>
+        </record>
+    	<record model="ir.ui.view" id="pro_compare_form">
+    		<field name="name">pro compare form</field>
+    		<field name="model">product.compare</field>
+    		<field name="type">form</field>
+    		<field name="arch" type="xml">
+    			<form string="Product comparison" version="7.0">
+    				<group>
+                        <field name="name" string="Name"/>
+                        <field name="url" string="URL"/>
+                        <field name="db" string="DB"/>
+                        <field name="user" string="Username"/>
+                        <field name="pwd" string="Password"/>
+                        <field name="field_to_check" string="Fields to check" widget="many2many_tags"/>
+                        <field name="sync_images" string="Sync images"/>
+                        <field name="add_all" />
+
+
+                    </group>
+                    <notebook>
+                        <page string="Products">
+                            <button name="getList" string="Refresh ALL" type="object" class="oe_highlight"/>
+                            <button name="sync" string="SYNCHRONIZE" type="object" class="oe_highlight"/>
+                            <button name="updatePrices" string="UPDATE PRICES" type="object" class="oe_highlight"/>
+                            <field name="lines"/>
+                        </page>
+                        <!--
+                        <page string="Categories">
+                            <button name="refreshCats" string="Refresh categories" type="object" class="oe_highlight"/>
+                            <field name="categories" />
+                        </page>
+                    -->
+                    </notebook>
+    			</form>
+    		</field>
+    	</record>
+        <record id="compare_item_tree_view" model="ir.ui.view">
+            <field name="name">compare item tree</field>
+            <field name="model">product.compare.line</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml" >
+                <tree>
+                    <field name="product_id" string="Product on SEA"/>
+                    <field name="default_code" string="Int. reference"/>
+                    <field name="description" string="Description"/>
+                    <field name="code_for_foreign" string="Code for other company"/>
+                    <field name="info_diff" string="Difference only in info"/>
+                    <field name="compare_id" string="Company ID"/>
+                </tree>
+            </field>
+        </record>
+        <record id="compare_item_form_view" model="ir.ui.view">
+            <field name="name">compare item form</field>
+            <field name="model">product.compare.line</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Comparison line" version="7.0">
+                    <group string="Local product">
+                        <field name="product_id"/>
+                        <field name="description"/>
+                        <field name="default_code"/>
+                    </group>
+                    <group string="Remote product">
+                        <field name="code_for_foreign" />
+                        <field name="info_diff" string="Product exists but has information is different"/>
+                    </group>
+                    <button name="updatePrices" string="UPDATE PRICES ALL _TEMP DO NOT CLICK" type="object" class="oe_highlight"/>
+
+                </form>
+            </field>
+        </record>
+        <record id="compare_cat_tree_view" model="ir.ui.view">
+            <field name="name">compare category tree</field>
+            <field name="model">product.compare.category</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml" >
+                <tree>
+                    <field name="compare_id" string="Company"/>
+                    <field name="local_cat" string="Category on master"/>
+                    <field name="remote_cat" string="ID on slave odoo"/>
+                </tree>
+            </field>
+        </record>
+        <record id="compare_cat_form_view" model="ir.ui.view">
+            <field name="name">compare category form</field>
+            <field name="model">product.compare.category</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Category mapping">
+                    <group>
+                         <field name="compare_id" string="Company"/>
+                         <field name="local_cat" string="Category on master"/>
+                            <field name="remote_cat" string="ID on slave odoo"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>

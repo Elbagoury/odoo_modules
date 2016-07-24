@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<menuitem id="menu_gls" parent="base.menu_administration" name="GLS" sequence="3" groups="base.group_no_one"/>
+
+    	<record model="ir.actions.act_window" id="action_parcel">
+    		<field name="name">Parcels</field>
+    		<field name="res_model">gls.parcel</field>
+    		<field name="view_model">tree, form</field>
+    	</record>
+		<menuitem id="menu_gls_parcels" parent="menu_gls" name="Parcels" action="action_parcel"/>
+    	<record model="ir.ui.view" id="gls_parcel_form">
+    		<field name="name">gls parcel form</field>
+    		<field name="model">gls.parcel</field>
+    		<field name="type">form</field>
+    		<field name="arch" type="xml">
+    			<form string="GLS parcel" version="7.0">
+    				<sheet>
+    					<group string="GLS parcel">
+                <field name="name" string="ParcelID"/>
+    					<field name="ragionesociale" string="Client name"/>
+    					<field name="localita" string="City of delivery" />
+    					<field name="id" string="Progressive counter" />
+    					<field name="numero_spedizione" string="Spedition number" />
+              <field name="note" />
+    					<field name="status" string="Status" />
+              <field name="label_binary" filename="label_filename" />
+              <field name="label_filename" attrs="{'invisible': True}"/>
+    				</group>
+    				</sheet>
+    			</form>
+    		</field>
+    	</record>
+    	<record id="gls_parcel_tree" model="ir.ui.view">
+    		<field name="name">gls parcel tree</field>
+    		<field name="model">gls.parcel</field>
+    		<field name="type">tree</field>
+    		<field name="arch" type="xml">
+    			<tree>
+    				<field name="name" string="Parcel ID"/>
+    					<field name="localita" string="City of delivery" />
+    					<field name="id" string="Progressive counter" />
+    					<field name="numero_spedizione" string="Spedition number" />
+    					<field name="status" string="Status" />
+              <field name="label_binary" filename="label_filename" />
+              <field name="label_filename" attrs="{'invisible': True}"/>
+    			</tree>
+    		</field>
+    	</record>
+
+    	<record id="gls_config_form" model="ir.ui.view">
+    		<field name="name">GLS Settings</field>
+    		<field name="model">gls.config</field>
+    		<field name="type">form</field>
+    		<field name="arch" type="xml">
+    			<form string="Configure GLS" version="7.0">
+    				<sheet>
+    					<group string="GLS configuration">
+    						<field name="name" string="GLS instance name"/>
+    						<field name="sedeID" string="SedeID"/>
+    						<field name="glsUser" string="GLS username" />
+    						<field name="glsPass" string="GLS password" />
+    						<field name="glsContract" string="GLS contract number" />
+    						<field name="cron_id" string="Schedule for CWD"/>
+                <field name="confirmation_email_template"/>
+    					</group>
+                        <group col="6">
+                             <button name="create_cron" string="Create scheduler" type="object" class="oe_highlight" attrs="{'invisible':[('cron_id', '!=', False)]}"/>
+                            <button name="closeWorkDay" string="Close Work Day" type="object" class="oe_highlight" attrs="{'invisible':[('name', '=', False)]}"/>
+
+                        </group>
+    				</sheet>
+    			</form>
+    		</field>
+    	</record>
+    	<record id="gls_config_tree" model="ir.ui.view">
+    		<field name="name">gls config tree</field>
+    		<field name="model">gls.config</field>
+    		<field name="type">tree</field>
+    		<field name="arch" type="xml">
+    			<tree>
+    				<field name="name" string="GLS instance"/>
+    						<field name="sedeID" string="SedeID"/>
+    						<field name="glsUser" string="GLS username" />
+
+    						<field name="glsContract" string="GLS contract number" />
+    			</tree>
+    		</field>
+    	</record>
+
+    	<record model="ir.actions.act_window" id="action_gls_config">
+    		<field name="name">GLS settings</field>
+    		<field name="res_model">gls.config</field>
+    		<field name="view_model">tree,form</field>
+
+    	</record>
+    	<menuitem id="menu_gls_config" parent="menu_gls" name="Configuration" action="action_gls_config"/>
+    </data>
+</openerp>

@@ -1,0 +1,428 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* discount_per_order
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-05-16 06:18+0000\n"
+"PO-Revision-Date: 2016-05-16 06:18+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Amount"
+msgstr ""
+
+#. module: discount_per_order
+#: field:purchase.order,discounted:0
+#: field:sale.order,discounted:0
+msgid "Amount with discount"
+msgstr "Prezzo scontato"
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Base"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Cancelled Invoice"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Code"
+msgstr "Codice"
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Comment:"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Customer Code:"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Date Ordered:"
+msgstr "Data di ordine:"
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+msgid "Date Req."
+msgstr ""
+
+#. module: discount_per_order
+#: code:addons/discount_per_order/purchase_order.py:175
+#, python-format
+msgid "Define purchase journal for this company: \"%s\" (id:%d)."
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+#: view:website:purchase.report_purchaseorder_document
+msgid "Description"
+msgstr "Descrizione"
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Description1"
+msgstr "Descrizione"
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Description:"
+msgstr "Descrizione:"
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Disc.(%)"
+msgstr "Sconti (%)"
+
+#. module: discount_per_order
+#: field:account.invoice,amount_discount:0
+#: field:purchase.order,discount_amount:0
+#: field:sale.order,amount_discount:0
+#: field:sale.order,order_discount:0
+#: view:website:account.report_invoice_document
+#: view:website:purchase.report_purchaseorder_document
+#: view:website:sale.report_saleorder_document
+msgid "Discount"
+msgstr "Sconti"
+
+#. module: discount_per_order
+#: field:purchase.order.line,discount:0
+#: view:website:account.report_invoice_document
+#: view:website:purchase.report_purchaseorder_document
+#: view:website:sale.report_saleorder_document
+msgid "Discount (%)"
+msgstr "Sconti (%)"
+
+#. module: discount_per_order
+#: field:sale.order.line,pricelist_discount:0
+msgid "Discount from pricelist"
+msgstr "Sconto da listino"
+
+#. module: discount_per_order
+#: field:account.invoice,discount_method:0
+#: field:purchase.order,discount_method:0
+#: field:sale.order,discount_method:0
+msgid "Discount method"
+msgstr "Metodo di sconto"
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Draft Invoice"
+msgstr ""
+
+#. module: discount_per_order
+#: code:addons/discount_per_order/order_discount.py:273
+#: code:addons/discount_per_order/purchase_order.py:174
+#, python-format
+msgid "Error!"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Fiscal Position Remark:"
+msgstr ""
+
+#. module: discount_per_order
+#: selection:account.invoice,discount_method:0
+#: selection:purchase.order,discount_method:0
+#: selection:sale.order,discount_method:0
+msgid "Fixed"
+msgstr ""
+
+#. module: discount_per_order
+#: field:account.invoice.line,product_price:0
+#: field:sale.order.line,product_price:0
+#: view:website:account.report_invoice_document
+#: view:website:sale.report_saleorder_document
+msgid "Full price"
+msgstr "Prezzo"
+
+#. module: discount_per_order
+#: field:account.invoice.line,full_subtotal:0
+msgid "Full subtotal"
+msgstr ""
+
+#. module: discount_per_order
+#: field:purchase.order.line,full_subtotal:0
+#: field:sale.order.line,full_subtotal:0
+msgid "Full total"
+msgstr ""
+
+#. module: discount_per_order
+#: field:account.invoice.line,discount_global:0
+#: field:purchase.order.line,discount_global:0
+msgid "Global discount"
+msgstr ""
+
+#. module: discount_per_order
+#: field:sale.order.line,discount_global:0
+msgid "Global discount %"
+msgstr ""
+
+#. module: discount_per_order
+#: model:ir.model,name:discount_per_order.model_account_invoice
+#: view:website:account.report_invoice_document
+msgid "Invoice"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Invoice Date:"
+msgstr ""
+
+#. module: discount_per_order
+#: model:ir.model,name:discount_per_order.model_account_invoice_line
+msgid "Invoice Line"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Invoice address:"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Invoice and shipping address:"
+msgstr ""
+
+#. module: discount_per_order
+#: field:account.invoice,invoice_discount:0
+msgid "Invoice discount"
+msgstr "Sconti da fattura"
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+msgid "Net Price"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+msgid "Order Date:"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Order N°"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+msgid "Our Order Reference:"
+msgstr ""
+
+#. module: discount_per_order
+#: field:purchase.order,po_discount:0
+msgid "PO discount"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "PRO-FORMA"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+#: view:website:sale.report_saleorder_document
+msgid "Payment Term:"
+msgstr "Termini di pagamento:"
+
+#. module: discount_per_order
+#: selection:account.invoice,discount_method:0
+#: selection:purchase.order,discount_method:0
+#: selection:sale.order,discount_method:0
+msgid "Percent"
+msgstr ""
+
+#. module: discount_per_order
+#: code:addons/discount_per_order/order_discount.py:274
+#, python-format
+msgid "Please define sales journal for this company: \"%s\" (id:%d)."
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Price"
+msgstr ""
+
+#. module: discount_per_order
+#: field:account.invoice.line,pricelist_discount:0
+msgid "Pricelist discount (%)"
+msgstr "Sconto da listino (%)"
+
+#. module: discount_per_order
+#: model:ir.model,name:discount_per_order.model_purchase_order
+msgid "Purchase Order"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+msgid "Purchase Order Confirmation N°"
+msgstr ""
+
+#. module: discount_per_order
+#: model:ir.model,name:discount_per_order.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+msgid "Qty"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+#: view:website:sale.report_saleorder_document
+msgid "Quantity"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Quotation Date:"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Quotation N°"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Reference:"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Refund"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+msgid "Request for Quotation N°"
+msgstr ""
+
+#. module: discount_per_order
+#: model:ir.model,name:discount_per_order.model_sale_order
+msgid "Sales Order"
+msgstr ""
+
+#. module: discount_per_order
+#: model:ir.model,name:discount_per_order.model_sale_order_line
+msgid "Sales Order Line"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Salesperson:"
+msgstr "Commercialista:"
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+#: view:website:sale.report_saleorder_document
+msgid "Shipping address:"
+msgstr "Indirizzo di consegna:"
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Source:"
+msgstr ""
+
+#. module: discount_per_order
+#: field:purchase.order.line,with_global_discount:0
+#: field:sale.order.line,with_global_discount:0
+msgid "Subtotal with global discount"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Supplier Invoice"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Supplier Refund"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "TIN:"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+msgid "Tax"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+#: view:website:purchase.report_purchaseorder_document
+#: view:website:sale.report_saleorder_document
+msgid "Taxes"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+#: view:website:purchase.report_purchaseorder_document
+#: view:website:sale.report_saleorder_document
+msgid "Total"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+#: view:website:purchase.report_purchaseorder_document
+#: view:website:sale.report_saleorder_document
+msgid "Total Without Taxes"
+msgstr "Totale imponibile"
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+#: view:website:purchase.report_purchaseorder_document
+#: view:website:sale.report_saleorder_document
+msgid "Total with discount"
+msgstr "Scontato"
+
+#. module: discount_per_order
+#: view:website:account.report_invoice_document
+#: view:website:purchase.report_purchaseorder_document
+#: view:website:sale.report_saleorder_document
+msgid "Unit Price"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+#: view:website:sale.report_saleorder_document
+msgid "VAT:"
+msgstr "P.IVA:"
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+msgid "Validated By:"
+msgstr ""
+
+#. module: discount_per_order
+#: field:account.invoice.line,with_discount:0
+msgid "With discount"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:purchase.report_purchaseorder_document
+msgid "Your Order Reference"
+msgstr ""
+
+#. module: discount_per_order
+#: view:website:sale.report_saleorder_document
+msgid "Your Reference:"
+msgstr ""

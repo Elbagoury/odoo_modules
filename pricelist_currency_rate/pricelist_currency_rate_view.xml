@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="currency_pricelist_view" model="ir.ui.view">
+				<field name="name">pricelist.currency.rate.form</field>
+				<field name="model">product.pricelist</field>
+				<field name="inherit_id" ref="product.product_pricelist_view" />
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='currency_id']" position="after">
+
+							<field name="currency_rate" />
+
+					</xpath >
+        </field>
+				</record>
+        <record id="currency_service_view" model="ir.ui.view">
+          <field name="name">currency.update.rate.form</field>
+          <field name="model">currency.rate.update.service</field>
+          <field name="inherit_id" ref="currency_rate_update.currency_rate_update_form" />
+          <field name="arch" type="xml">
+            <xpath expr="//field[@name='max_delta_days']" position="after">
+
+                <field name="pricelists_ids" widget="many2many_tags"/>
+                <button name="run_test" type="object" string="UPDATE PRICELIST NOW"/>
+            </xpath >
+          </field>
+          </record>
+      </data>
+    </openerp>

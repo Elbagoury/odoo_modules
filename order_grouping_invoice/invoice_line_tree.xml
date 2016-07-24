@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="inv_line_origin" model="ir.ui.view">
+				<field name="name">inv.line.origin</field>
+				<field name="model">account.invoice.line</field>
+				<field name="inherit_id" ref="account.view_invoice_line_tree"/>
+				<field name="arch" type="xml">
+					<field name="name" position="before">
+						<field name="origin"/>
+					</field>
+				</field>
+			</record>
+			
+		</data>
+	</openerp>

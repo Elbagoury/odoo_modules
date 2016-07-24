@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+	<openerp>
+		<data>
+			<menuitem name="Ebay" id="menu_root" sequence="109" />
+
+			<!--ACTIONS-->
+			<record model="ir.actions.act_window" id="action_instances">
+				<field name="name">Ebay instances</field>
+				<field name="res_model">ebay</field>
+				<field name="view_model">tree, form</field>
+			</record>
+
+
+			<record model="ir.actions.act_window" id="action_logs">
+				<field name="name">Ebay logs</field>
+				<field name="res_model">ebay.log</field>
+				<field name="view_model">tree</field>
+			</record>
+
+			<record model="ir.actions.act_window" id="action_templates">
+				<field name="name">Ebay templates</field>
+				<field name="res_model">ebay.template</field>
+				<field name="view_model">form</field>
+
+			</record>
+			<record model="ir.actions.act_window" id="action_cancels">
+				<field name="name">Ebay cancel request</field>
+				<field name="res_model">ebay.cancel.request</field>
+				<field name="view_model">form</field>
+			</record>
+			<record model="ir.actions.act_window" id="action_messages">
+				<field name="name">Ebay messages</field>
+				<field name="res_model">ebay.message</field>
+				<field name="view_model">form</field>
+			</record>
+			<record model="ir.actions.act_window" id="action_sent">
+				<field name="name">Ebay sent messages</field>
+				<field name="res_model">ebay.sent.message</field>
+				<field name="view_model">form</field>
+			</record>
+			<record model="ir.actions.act_window" id="action_shipping_services">
+				<field name="name">Ebay shipping services</field>
+				<field name="res_model">ebay.shipping.service</field>
+				<field name="view_model">form</field>
+			</record>
+
+			<!--MENU ITEMS-->
+			<menuitem name="Connections" id="menu_connections" parent="menu_root"/>
+			<menuitem name="Messages" id="menu_messages" parent="menu_root"/>
+			<menuitem name="Inbox" id="menu_inbox" parent="menu_messages" action="action_messages"/>
+			<menuitem name="Sent" id="menu_sent" parent="menu_messages" action="action_sent"/>
+
+
+			<menuitem name="Instances" id="menu_instances" parent="menu_connections" sequence="1" action="action_instances"/>
+
+			<menuitem name="Logs" id="menu_logs" parent="menu_connections" sequence="3" action="action_logs"/>
+			<menuitem name="Templates" id="menu_templates" parent="menu_connections" sequence="4" action="action_templates" />
+			<!--<menuitem name="Customer cancel requests" id="menu_cancels" parent="menu_root"/>
+			<menuitem name="Cancel requests" id="menu_crequests" parent="menu_cancels" sequence="2" action="action_cancels"/>-->
+			<menuitem name="Other" id="menu_other" parent="menu_root" sequence="4"/>
+			<menuitem name="Shipping services" id="menu_shipp_serv" parent="menu_other" action="action_shipping_services"/>
+
+			<record model="ir.ui.view" id="cancels_tree_view">
+				<field name="name">cancels_tree_view</field>
+				<field name="model">ebay.cancel.request</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree colors="blue:aproved == False;red:rejected == True">
+						<field name="user_id"/>
+						<field name="order_id"/>
+						<field name="approved" invisible="1"/>
+						<field name="rejected" invisible="1"/>
+					</tree>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="cancels_form_view">
+				<field name="name">cancels_form_view</field>
+				<field name="model">ebay.cancel.request</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Ebay cancel request">
+						<sheet>
+							<group>
+								<field name="user_id"/>
+								<field name="order_id"/>
+							</group>
+						</sheet>
+					</form>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="shipping_services_tree_view">
+				<field name="name">shipping_services_tree_view</field>
+				<field name="model">ebay.shipping.service</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree >
+						<field name="name"/>
+								<field name="shipping_type"/>
+								<field name="is_cod"/>
+								<field name="international"/>
+					</tree>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="shipping_services_form_view">
+				<field name="name">shipping_services_form_view</field>
+				<field name="model">ebay.shipping.service</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Ebay shipping service">
+						<sheet>
+							<group>
+								<field name="name" readonly="1"/>
+								<field name="shipping_type" readonly="1"/>
+								<field name="is_cod" readonly="1"/>
+								<field name="international" readonly="1"/>
+							</group>
+						</sheet>
+					</form>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="messages_tree_view">
+				<field name="name">messages_tree_view</field>
+				<field name="model">ebay.message</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree fonts="bold:is_read == False" colors="green:replied == True or external_message_id == False">
+						<field name="sender_name"  />
+						<field name="name" />
+
+						<field name="rcv_date"  />
+						<field name="is_read" invisible="1"/>
+						<field name="replied" invisible="1"/>
+						<field name="external_message_id" invisible="1"/>
+					</tree>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="messages_form">
+				<field name="name">messages form view</field>
+				<field name="model">ebay.message</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Ebay messages" version="7.0">
+						<sheet>
+							<group string="Ebay Message">
+								<button name="mark_as_read" type="object" class="oe_highlight" string="Mark as read" attrs="{'invisible': [('is_read', '=', True)]}" />
+								<button name="delete_message" type="object" class="oe_highlight" string="DELETE MESSAGE"/>
+								<group >
+									<group cols="2">
+										<field name="rcv_date" readonly="1"/>
+										<field name="sender_name" readonly="1"/>
+										<field name="external_message_id" invisible="1"/>
+									</group>
+									<group >
+										<field name="is_read" readonly="1"/>
+
+										<field name="replied" readonly="1" attrs="{'invisible': [('external_message_id', '=',False)]}"/>
+
+									</group>
+								</group>
+
+							</group>
+							<group>
+								<field name="name" readonly="1"/>
+								<field name="content" colspan="4" readonly="1"/>
+								</group>
+							<group string="Reply" attrs="{'invisible': ['|',('replied', '=', True),('external_message_id', '=',False)]}">
+								<field name="show_reply"/>
+
+							</group>
+							<field name="reply_content" colspan="4" attrs="{'invisible': ['|',('replied', '=', True),('external_message_id', '=',False)]}" />
+								<button name="send_reply" type="object" class="oe_highlight" string="SEND REPLY" attrs="{'invisible': ['|',('replied', '=', True),('external_message_id', '=',False)]}"/>
+
+						</sheet>
+					</form>
+				</field>
+			</record>
+
+			<record model="ir.ui.view" id="messages_sent_form">
+				<field name="name">messages sent form view</field>
+				<field name="model">ebay.sent.message</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Ebay sent message">
+						<sheet>
+							<group>
+								<field name="timestamp" readonly="1"/>
+								<field name="sent_to" readonly="1"/>
+								<field name="item_id" attrs="{'invisible':[('item_id', '=', False)]}" readonly="1"/>
+								<field name="backup_item_id" attrs="{'invisible':[('item_id', '!=', False)]}" readonly="1"/>
+								<field name="body" readonly="1"/>
+							</group>
+						</sheet>
+					</form>
+				</field>
+			</record>
+
+			<record model="ir.ui.view" id="messages_sent_tree_view">
+				<field name="name">messages_sent_tree_view</field>
+				<field name="model">ebay.sent.message</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="sent_to"  />
+						<field name="body" />
+
+						<field name="timestamp"  />
+
+					</tree>
+				</field>
+			</record>
+
+			<record model="ir.ui.view" id="instance_form">
+				<field name="name">instances form view</field>
+				<field name="model">ebay</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form string="Ebay instance" version="7.0">
+						<sheet>
+
+							<group string="Instance name">
+								<field name="name" string="Instance name"/>
+							</group>
+							<group string="Instance configuration">
+
+								<field name="app_id" string="Application ID"/>
+								<field name="dev_id" string="Developer ID" />
+								<field name="cert_id" string="Certificate ID"/>
+								<field name="token_id" string="Token ID" />
+							</group>
+							<group string="eBay categories and shipping services">
+								<label string="Update categories" class="oe_inline" style="font-weight:bold; font-size:16px;" />
+								<div>
+									<button name="import_categories" type="object" class="oe_highlight" string="Update" style="width:70px;"/>
+								</div>
+								<label string="Update shipping services" class="oe_inline" style="font-weight:bold; font-size:16px;" />
+								<div>
+									<button name="get_shipping_services" type="object" class="oe_highlight" string="Update" style="width:70px;"/>
+								</div>
+								<field name="import_categories_date" string="Categories last updated" readonly="True"/>
+							</group>
+							<group string="Actions" col="5">
+								<label string="Update products on eBay" class="oe_inline" style="font-weight:bold; font-size:16px;" colspan="2"/>
+								<div>
+									<button name="export_products" type="object" class="oe_highlight" string="Update" style="width:70px;"/>
+								</div>
+								<field name="products_exported_date" string="Products last updated" readonly="True"/>
+								<label string="Import orders from eBay" class="oe_inline" style="font-weight:bold; font-size:16px;" colspan="2"/>
+								<div>
+									<button name="import_orders" type="object" class="oe_highlight" string="Import " style="width:70px;"/>
+								</div>
+
+
+
+								<field name="orders_imported_date" string="Orders last imported" readonly="True"/>
+
+								<field name="orders_cron" string="Cron for orders"/>
+								<button name="create_orders_cron" type="object" string="Create cron" class="oe_inline" attrs="{'invisible':[('orders_cron', '!=', False)]}"/>
+							</group>
+							<group col="5">
+								<label string="Get messages" class="oe_inline" style="font-weight:bold; font-size:16px;" colspan="2"/>
+								<div>
+									<button name="read_messages" type="object" class="oe_highlight" string="Sync" style="width:70px;"/>
+								</div>
+
+								<field name="messages_synced_date" string="Messages last synced" readonly="True"/>
+								<field name="messages_cron" string="Cron for messages"/>
+								<button name="create_messages_cron" type="object" string="Create cron" class="oe_inline" attrs="{'invisible':[('messages_cron', '!=', False)]}"/>
+							</group>
+							<group string="Configuration" col="4">
+								<field name="ebay_pricelist_id" string="Default pricelist"/>
+								<field name="default_categ" />
+
+								<field name="ebay_warehouse_id" string="Default warehouse"/>
+
+								<field name="ebay_price_formula" string="Default eBay price formula - ListPrice - "/>
+								<field name="ebay_item_loc" string="Default item location (postal code)"/>
+								<field name="ebay_shipping_cost" string="Shipping cost"/>
+
+								<field name="ebay_shipping_additional" string="Additional item shipping cost" />
+
+								<field name="ebay_payment_inst" string="Payment instructions"/>
+
+								<field name="ebay_stock_limit" string="Stock limit" />
+
+								<field name="ebay_listing_dur" string="Listing duration" />
+
+								<field name="ebay_template_id" string="Default template" />
+
+
+								<field name="ebay_paypal_email" string="PayPal email"/>
+								<field name="override_default" string="Override current values" />
+								<field name="ebay_account_position"/>
+								<field name="ebay_payment_term_id" />
+								<field name="ebay_goods_description"/>
+								<field name="ebay_carriage_condition"/>
+								<field name="ebay_transportation_reason"/>
+								<field name="ebay_transportation_method"/>
+								<field name="default_user"/>
+							</group>
+						</sheet>
+					</form>
+				</field>
+			</record>
+
+			<record model="ir.ui.view" id="instances_tree_view">
+				<field name="name">instances_tree_view</field>
+				<field name="model">ebay</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="name" string="Name"/>
+						<field name="products_exported_date" string="Products last updates" />
+						<field name="orders_imported_date" string="Orders last imported" />
+
+					</tree>
+				</field>
+			</record>
+			<record model="ir.ui.view" id="incomplete_tree_view">
+				<field name="name">incomplete tree view</field>
+				<field name="model">ebay.incomplete.orders</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="order_id"/>
+						<field name="customer"/>
+						<field name="total_amount"/>
+						<field name="payment_status"/>
+						<field name="date"/>
+					</tree>
+				</field>
+			</record>
+
+			<record model="ir.ui.view" id="templates_form_view">
+				<field name="name">templates_form_view</field>
+				<field name="model">ebay.template</field>
+				<field name="type">form</field>
+				<field name="arch" type="xml">
+					<form>
+						<sheet>
+							<group string="Template identification">
+								<field name="name" string="Name"/>
+								<field name="id" string="ID" readonly="True"/>
+							</group>
+							<field name="template_content"/>
+						</sheet>
+					</form>
+				</field>
+			</record>
+
+
+			<record model="ir.ui.view" id="logs_view">
+				<field name="name">logs_tree_view</field>
+				<field name="model">ebay.categories.line</field>
+				<field name="type">tree</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="categoryID" string="Category ID"/>
+						<field name="name" string="Category title" />
+						<field name="level" string="Category level" />
+						<field name="parent" string="Parent ID" />
+					</tree>
+				</field>
+			</record>
+		</data>
+	</openerp>

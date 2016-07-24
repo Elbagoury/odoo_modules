@@ -1,0 +1,48 @@
+<openerp>
+<data>
+
+ 
+<template id="summary_report_test2">
+    <t t-call="report.html_container">
+        <t t-foreach="docs" t-as="o">
+          <div class="page">
+            <h1>Worker timesheet symmary</h1>
+            <t t-if="not o.exact_date">
+                <h4 style="display:inline">Summary for month:
+                <span style="display:inline" t-field="o.date" t-field-options="{&quot;format&quot;: &quot;yyyy-MM&quot;}" /></h4>
+            </t>
+            
+            <t t-if="o.exact_date">
+                <h4>Showing report only for one day: 
+                <span style="display:inline" t-field="o.date" t-field-options="{&quot;format&quot;: &quot;yyyy-MM-dd&quot;}" /></h4>
+            </t>
+
+            <table style="margin-top:20px;">
+                <tr style="border:1px solid black; background-color:lightgray">
+                    <td style="width:160px; font-weight:bold">Identification number</td>
+                    <td style="width:2000px; font-weight:bold">Name</td>
+                    <td style="width:90px; font-weight:bold">Regular</td>
+                    <td style="width:90px; font-weight:bold">Overtime</td>
+                    <td style="width:90px; font-weight:bold">Total</td>
+                </tr>
+                <t t-foreach="o.workers" t-as="w">
+                
+           
+                <tr style="border:1px solid black;">
+                    <td><p t-field="w.id_no"/></td>
+                    <td><p t-field="w.name"/></td>
+                    <!--<td><span t-field="w.regular" t-field-options="{'widget': 'time'}"></span></td>-->
+
+                    <td><t t-esc="'%02d:%02d' % (int(str(w.regular).split('.')[0]), int(float(str('%.2f' % w.regular).split('.')[1])/100*60))" />  </td>
+                    <td><t t-esc="'%02d:%02d' % (int(str(w.overtime).split('.')[0]), int(float(str('%.2f' % w.overtime).split('.')[1])/100*60))" /> </td>
+                    <td><t t-esc="'%02d:%02d' % (int(str(w.total).split('.')[0]), int(float(str('%.2f' % w.total).split('.')[1])/100*60))" /> </td>
+                </tr>
+                </t>
+            </table>
+           
+          </div>
+        </t>
+    </t>
+</template>
+</data>
+</openerp>

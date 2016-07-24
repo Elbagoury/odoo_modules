@@ -1,0 +1,33 @@
+from openerp.osv import fields, osv
+
+class product_product(osv.osv):
+
+    _inherit = "product.product"
+    
+    def name_get(self, cr, user, ids, context=None):
+        if context is None:
+            context = {}
+        res = []
+        for product in self.browse(cr, user, ids, context=context):
+            prd_temp = self.pool.get('product.template').browse(cr, user, product.id, context=context)
+            code = product.name
+            desc = prd_temp.description
+            name ='[%s] %s' % (code, desc)
+            res.append((product.id, name))
+        return res    
+
+    def name_search(self, cr, user, name='', args=None, operator='ilike', context=None, limit=100):
+         if not args:
+            args = []
+        if name:
+            ids = []
+            prd_temp = self.pool.get('product.template')
+            src_string = name.replace(' ', '%')
+            ids += self.search(cr, user, [('description','ilike',src_string)], limit=limit, context=context)
+        else:
+            ids = self.search(cr, user, args, limit=limit, context=context)
+        result = self.name_get(cr, user, ids, context=context)
+        return result
+product_product()
+
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

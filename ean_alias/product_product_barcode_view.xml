@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="bc_alias_product_product" model="ir.ui.view">
+				<field name="name">barcode.alias.product.form</field>
+				<field name="model">product.product</field>
+				<field name="inherit_id" ref="product.product_normal_form_view" />
+				<field name="arch" type="xml">
+					<field name="ean13" position="after">
+						<field name="barcode_aliases">
+              <tree>
+                <field name="ean"/>
+              
+              </tree>
+            </field>
+
+					</field>
+				</field>
+			</record>
+		</data>
+	</openerp>

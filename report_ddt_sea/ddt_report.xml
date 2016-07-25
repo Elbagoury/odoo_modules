@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="report_ddt_sea" inherit_id="l10n_it_ddt.report_ddt">
+            <xpath expr="//t[@t-call='report.external_layout']" position="replace">
+              <div class="page">
+                <p>test</p>
+              </div>
+            </xpath>
+          
+        </template>
+    </data>
+</openerp>

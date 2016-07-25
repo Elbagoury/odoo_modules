@@ -20,7 +20,7 @@
 
 					</xpath>
 					<xpath expr="//tree[@string='Invoice Lines']/field[@name='price_unit']" position="before">
-
+							<field name="custom_note"/>
 							<field name="product_price"/>
 							<field name="pricelist_discount"/>
 
@@ -42,7 +42,7 @@
 							<field name="discount_method" style="width:100px;"/>
 							<field name="invoice_discount" />
 							</group>
-						
+
 					</xpath>
 					<xpath expr="//field[@name='amount_untaxed']" position="after">
 

@@ -99,22 +99,26 @@ class ebay(models.Model):
 		if pro_ids:
 			for pro in prd_tmp.browse(cr, uid, pro_ids, context=context):
 				_logger.warning("*******INSIDE PRODUCT %s ************" % pro.name)
+
 				if pro.main_name_part:
 
-					cnt = 1
+					cnt = 0
 					for pn in pro.name_parts:
 						cnt += 1
 						code = pro.name
 						desc = "%s  %s" % (pro.main_name_part, pn.name)
 						code += "_ZW" + str(cnt)
 						_logger.warning("********* INSERTING PRODUCT %s ******** %s" % (code, len(pro.name_parts)))
-						ebay_id, ebay_date = save_product(pro, code, desc, lst_up, current_record)
+						item = save_product(pro, code, desc, lst_up, current_record)
+						ebay_id, ebay_date_added = addItem(current_record, myitem, pro, lst_up)
 						if ebay_id and ebay_date:
 							self.pool.get('ebay.ids').create(cr, uid, {'product_id': pro.id, 'ebay_id': ebay_id})
 							pro.ebay_date_added = ebay_date
 				elif len(pro.description) <= 80:
 					_logger.warning("********* INSERTING PRODUCT %s  NO NAME PARTS********" % pro.name)
-					ebay_id, ebay_date = save_product(pro, pro.name, pro.description, lst_up, current_record)
+					item = save_product(pro, pro.name, pro.description, lst_up, current_record)
+					ebay_id, ebay_date_added = addItem(current_record, myitem, pro, lst_up)
+
 					if ebay_id and ebay_date:
 						self.pool.get('ebay.ids').create(cr, uid, {'product_id': pro.id, 'ebay_id': ebay_id})
 						pro.ebay_date_added = ebay_date
@@ -976,7 +980,7 @@ def save_product(pro,  name, desc, lst_up, defs):
 		ebay_id, ebay_date_added = addItem(opts, cert, dev, app, tok, myitem, pro, lst_up)
 
 
-		return ebay_id, ebay_date_added
+		return myitem
 
 def addItem(opts, cert, dev, app, tok, myitem, pro, lst_up):
 	_logger = logging.getLogger(__name__)
@@ -989,9 +993,9 @@ def addItem(opts, cert, dev, app, tok, myitem, pro, lst_up):
 		api = Trading( debug=opts.debug, config_file=None, appid=app,
 					certid=cert, devid=dev,token=tok, warnings=False, siteid=101)
 
-		if pro.ebay_id:
-
-			api.execute('ReviseFixedPriceItem', myitem)
+		if pro.ebay_ids:
+			for e in pro.ebay_ids:
+				api.execute('ReviseFixedPriceItem', myitem)
 			#log(api.response.json())
 		else:
 

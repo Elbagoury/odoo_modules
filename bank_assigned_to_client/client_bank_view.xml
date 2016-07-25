@@ -6,7 +6,7 @@
 				<field name="inherit_id" ref="base.view_partner_form"/>
 				<field name="arch" type="xml">
 					<xpath expr='//field[@name="credit_limit"]' position="after">
-						<field name="bank_pid" attrs="{'invisible': True}"/>
+						<field name="bank_pid" attrs="{'invisible': False}"/>
 						<field name="our_bank" domain="[('partner_id.id', '=', bank_pid)]"/>
 					</xpath>
 				</field>

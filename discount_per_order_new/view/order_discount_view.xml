@@ -7,6 +7,7 @@
 				<field name="inherit_id" ref="sale.view_order_form"/>
 				<field name="arch" type="xml">
 					<xpath expr="//tree[@string='Sales Order Lines']/field[@name='price_unit']" position="before">
+						<field name="custom_note"/>
 						<field name="product_price"/>
 						<field name="pricelist_discount"/>
 
@@ -16,6 +17,7 @@
 					<xpath expr="//tree[@string='Sales Order Lines']/field[@name='price_unit']" position="after">
 						<!--<field name="with_discount"/>
 						<field name="full_subtotal"/>-->
+
 						<field name="price_subtotal"/>
 					</xpath>
 					<xpath expr="//field[@name='note']" position="before">
@@ -30,7 +32,7 @@
 									<field name="discounted" widget="monetary"/>-->
 							</xpath >
 					<xpath expr="//form[@string='Sales Order Lines']/group/group/field[@name='price_unit']" position="before">
-
+							  	<field name="custom_note"/>
 									<field name="product_price" readonly="1"/>
 									<field name="pricelist_discount" readonly="1"/>
 									<field name="is_manual_price"/>

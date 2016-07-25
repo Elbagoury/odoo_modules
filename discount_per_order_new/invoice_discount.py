@@ -13,6 +13,7 @@ class account_invoice(models.Model):
 	discount_global = fields.Float(string="Global discount")
 	product_price = fields.Float(string="Full price")
 	pricelist_discount = fields.Float(string="Pricelist discount (%)")
+	custom_note = fields.Char(string="Custom note")
 
 	@api.one
 	@api.depends('price_unit', 'discount', 'discount_global', 'invoice_id.discount_method', 'invoice_id.invoice_discount', 'invoice_line_tax_id', 'quantity',
@@ -62,7 +63,7 @@ class account_invoice(models.Model):
 			#print "NOT CHANGED"
 			#print self.price_unit
 			self.product_price = self.price_unit
-	
+
 
 
 

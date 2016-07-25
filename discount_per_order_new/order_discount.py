@@ -13,6 +13,7 @@ class SaleOrderLine(models.Model):
 	product_price = fields.Float(compute="_compute_values", string="Full price")
 	pricelist_discount = fields.Float(compute="_compute_values", string="Pricelist discount (%)")
 	is_manual_price = fields.Boolean(string="Manual price")
+	custom_note = fields.Char(string="Custom note")
 
 
 
@@ -260,8 +261,18 @@ class SaleOrder(models.Model):
 			if not account_id:
 				raise osv.except_osv(_('Error!'),
 						_('There is no Fiscal Position defined or Income category account defined for default properties of Product categories.'))
+			#TEMP - UNTIL SOL NAME IS FIXED
+			name = line.name
+			if name and len(name) > 100:
+                #_logger.info("-----IS LONG %s" % len(name))
+				text = name.split(' ')
+				new_name = ''
+				for a in text:
+					if len(new_name) < 100:
+						new_name += '%s ' % a
+					name = new_name
 			res = {
-				'name': line.name,
+				'name': name,
 				'sequence': line.sequence,
 				'origin': line.order_id.name,
 				'account_id': account_id,
@@ -281,7 +292,7 @@ class SaleOrder(models.Model):
 class StockMove(models.Model):
 	_inherit = "stock.move"
 
-	def #_create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):
+	def _create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):
 		_logger = logging.getLogger(__name__)
 		#start = datetime.now()
 		sale_line = move.procurement_id.sale_line_id
@@ -351,7 +362,19 @@ class StockMove(models.Model):
 		if pricelist_discount > 0:
 			pp = (pp * 100) / (100 - pricelist_discount)
 
+		#TEMP - UNTIL SOL NAME IS FIXED
+		name = move.name
+		if name and len(name) > 100:
+                #_logger.info("-----IS LONG %s" % len(name))
+				text = name.split(' ')
+				new_name = ''
+				for a in text:
+					if len(new_name) < 100:
+						new_name += '%s ' % a
+					name = new_name
+
 		res.update({
+				'name': name,
 				'price_unit': price_unit,
 				'pricelist_discount': pricelist_discount,
 				'product_price': pp
@@ -383,7 +406,7 @@ class stock_pck_test(models.Model):
 			'transportation_reason_id': sale_id.transportation_reason_id.id if sale_id else None,
 			'transportation_method_id':sale_id.transportation_method_id.id if sale_id else None,
 			'parcels': sale_id.parcels if sale_id else None,
-			'partner_bank_id': partner.bank_ids[0] if partner.bank_ids else None
+			'partner_bank_id': partner.bank_ids[0].id if partner.bank_ids else None
 		})
 
 		return res

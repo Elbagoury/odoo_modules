@@ -98,21 +98,30 @@ class SaleOrderLine(models.Model):
 			line.product_price = product_price
 			#print pricelist_disc
 			line.pricelist_discount = pricelist_disc
+class ProcurementOrder(models.Model):
+	_inherit = "procurement.order"
 
+	custom_note = fields.Char(string="Custom note")
+
+	def _run_move_create(self, cr, uid, procurement, context=None):
+		res = super(ProcurementOrder, self)._run_move_create(cr, uid, procurement, context=context)
+		res.update({
+			'custom_note': procurement.custom_note
+		})
+		print "_run_move_create"
+		print res['custom_note']
+		return res
 class SaleOrder(models.Model):
 	_inherit = "sale.order"
-	#TEMP
-	def action_button_confirm(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
-		if not context:
-			context = {}
-		assert len(ids) == 1, 'This option should only be used for a single id at a time.'
-		self.signal_workflow(cr, uid, ids, 'order_confirm')
+	def _prepare_order_line_procurement(self, cr, uid, order, line, group_id=False, context=None):
+		vals = super(SaleOrder, self)._prepare_order_line_procurement(cr, uid, order, line, group_id=group_id, context=context)
+		vals.update({
+			'custom_note': line.custom_note
+		})
+		print "_prepare_order_line_procurement"
+		print vals['custom_note']
+		return vals
 
-		if context.get('send_email'):
-			_logger.info("SHOULD SEND MAIL")
-            #self.force_quotation_send(cr, uid, ids, context=context)
-		return True
 
 
 	def _amount_all_wrapper(self, cr, uid, ids, field_name, arg, context=None):
@@ -226,6 +235,7 @@ class SaleOrder(models.Model):
 			'transportation_method_id': order.transportation_method_id.id if order.transportation_method_id else None,
 			'parcels': order.parcels,
 
+
 		}
 
 		# Care for deprecated _inv_get() hook - FIXME: to be removed after 6.1
@@ -285,13 +295,15 @@ class SaleOrder(models.Model):
 				'product_id': line.product_id.id or False,
 				'invoice_line_tax_id': [(6, 0, [x.id for x in line.tax_id])],
 				'account_analytic_id': line.order_id.project_id and line.order_id.project_id.id or False,
+				'custom_note': line.custom_note
 			}
-
+		print "_prepare_order_line_invoice_line"
+		print res['custom_note']
 		return res
 
 class StockMove(models.Model):
 	_inherit = "stock.move"
-
+	custom_note = fields.Char(string="Custom note")
 	def _create_invoice_line_from_vals(self, cr, uid, move, invoice_line_vals, context=None):
 		_logger = logging.getLogger(__name__)
 		#start = datetime.now()
@@ -350,7 +362,7 @@ class StockMove(models.Model):
 
 		#_logger = logging.getLogger(__name__)
 
-
+		print move.name
 		res = super(StockMove, self)._get_invoice_line_vals(cr, uid, move, partner, inv_type)
 
 		####
@@ -377,7 +389,8 @@ class StockMove(models.Model):
 				'name': name,
 				'price_unit': price_unit,
 				'pricelist_discount': pricelist_discount,
-				'product_price': pp
+				'product_price': pp,
+				'custom_note': move.custom_note
 			})
 
 		return res
@@ -406,6 +419,7 @@ class stock_pck_test(models.Model):
 			'transportation_reason_id': sale_id.transportation_reason_id.id if sale_id else None,
 			'transportation_method_id':sale_id.transportation_method_id.id if sale_id else None,
 			'parcels': sale_id.parcels if sale_id else None,
+
 			'partner_bank_id': partner.bank_ids[0].id if partner.bank_ids else None
 		})
 

@@ -19,8 +19,11 @@
 
 
 					</xpath>
+					<xpath expr="//tree[@string='Invoice Lines']/field[@name='account_id']" position="before">
+						<field name="custom_note"/>
+					</xpath>
 					<xpath expr="//tree[@string='Invoice Lines']/field[@name='price_unit']" position="before">
-							<field name="custom_note"/>
+
 							<field name="product_price"/>
 							<field name="pricelist_discount"/>
 

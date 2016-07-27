@@ -5,22 +5,22 @@
             <xpath expr="//t[@t-call='report.external_layout']" position="replace">
               <div class="page">
                 <div style="font-family: Times, sans-serif; font-size:12px; width:826px; height:1142px; padding:15px 30px;">
-                  <header style="margin-bottom:10px;">
+                  <header style="margin-bottom:20px;width:100%; ">
                      <div style="float:left; width:35%; height:90px;">
 
                      </div>
-                     <div style="float:left; width:45%; padding-top:10px; color:#0028bd;">
-                         <h1 style="margin:0">S.E.A. <span style="font-weight:normal;">S.r.l.</span></h1>
-                         <p style="margin:0; padding:0;"><b>Sede Legale: </b>Via A, De Gasperi, 51 80024 Cardito (NA)</p>
-                         <p style="margin:0; padding:0; display:inline;"><b>Stabilimento: </b>Via S, Antonio, 51 82030 Limatola (BN)</p>
-                         <p style="margin:0; padding:0; display:inline;">R. Impr. NA REA n. 733520 Cap. Soc. Int. Vers. € 3000.000,00 - P. IVA e C.F. 05102851218</p>
-
-
+                     <div style="float:left; width:45%; padding-top:10px; color:#1e8bcb;">
+                         <p style="margin:0; padding:0;">Buyonline s.r.l. Unipersonale</p>
+                         <p style="margin:0; padding:0;">Sede legale</p>
+                         <p style="margin:0; padding:0;">Viale Abruzzi, 13/A - 20131 Milano (MI)</p>
+                         <p style="margin:0; padding:0;">Cod. Fisc. - P. Iva 06285520968 - Reg. IMp. REA No MI-2056107</p>
+                         <p style="margin:0; padding:0;">Cap. Soc. Int. Vers. E 10.000,00</p>
                      </div>
-                     <div style="float:left; width:20%; padding-top:36px; color:#0028bd; text-align:right;">
-                         <p style="margin:0; padding:0;">Phone <span>++39 (0) 823.484101</span></p>
-                         <p style="margin:0; padding:0;">Fax <span>++39 (0) 823.487244</span></p>
-                         <p style="margin:0; padding:0;">www.free-tech.com</p>
+                     <div style="float:right; width:20%; padding-top:10px; color:#1e8bcb; text-align:right;">
+                         <p style="margin:0; padding:0;">Tel. ++39(0)1 199 53 943</p>
+                         <p style="margin:0; padding:0;">Fax. ++39(0)2 455 00 806</p>
+                         <p style="margin:0; padding:0;">www.buyonlinesrl.com</p>
+                         <p style="margin:0; padding:0;">info@buyonlinesrl.com</p>
                      </div>
                      <div style="clear:both;"></div>
                  </header>
@@ -37,7 +37,7 @@
              </div>
 
              <div style="width:49%; float:right; margin-left:1%;">
-
+                 <h2 style="float:right; margin:0; font-size:14px;">Documento di transporto</h2>
                  <h3 style="margin:15px 0 0 5px;">Luogo di consegna:</h3>
                  <div style="width:100%; height:70px; border:1px solid black;">
                      <p t-field="o.partner_shipping_id.name" style="margin:5px"></p>
@@ -50,9 +50,6 @@
                  </div>
              </div>
              <div style="clear:both;"></div>
-             <div>
-               <h3 style="margin:12px 5px; font-size:14px;"><b>Order Number:</b><span> #123456789</span></h3>
-           </div>
              <div style="margin-top:10px;">
                  <table style="border-collapse: collapse; margin:0; padding:0;  width:100%; font-size:12px;  border:1px solid black;">
                      <tr style="text-align:center;height:40px;">
@@ -79,60 +76,61 @@
                      </tr>
                  </table>
              </div>
-             <div style="margin-top:10px; min-height:620px; margin-bottom:10px;">
-                <table style="border-collapse: collapse; margin:0; padding:0; width:100%; font-size:11px;border:1px solid black;">
-                    <tr style="border:1px solid black;">
-                        <th style="border-right:1px solid black;padding:5px">Codice Articolo</th>
-                        <th colspan="3" style="border-right:1px solid black;padding:5px">Descrizione</th>
-                        <th style="border-right:1px solid black;padding:5px">U.M.</th>
-                        <th style="border-right:1px solid black;padding:5px">Quantità</th>
-                        <th style="border-right:1px solid black;padding:5px">Prezzo</th>
-                        <th style="border-right:1px solid black;padding:5px">Sconti</th>
-                        <th style="border-right:1px solid black;padding:5px">Importo</th>
-                        <th>C.I.</th>
-                    </tr>
+             <div style="margin-top:10px;">
+                 <table style="border-collapse: collapse; margin:0; padding:0; width:100%; ; font-size:11px;border:1px solid black;">
+                     <tr style="border:1px solid black;">
+                         <th style="border-right:1px solid black;padding:5px;">Codice Articolo</th>
+                         <th colspan="3" style="border-right:1px solid black;padding:5px;">Descrizione</th>
+                         <th style="border-right:1px solid black;padding:5px;">U.M.</th>
+                         <th style="border-right:1px solid black;padding:5px; ">Quantità</th>
+                         <th style="border-right:1px solid black;padding:5px;">Prezzo</th>
+                         <th style="border-right:1px solid black;padding:5px;">Sconti</th>
+                         <th style="border-right:1px solid black;padding:5px;">Importo</th>
+                         <th>C.I.</th>
+                     </tr>
+                     <tr t-foreach="o.line_ids" t-as="ln">
+                         <td style="border-right:1px solid black; padding:5px;"><span t-field="ln.product_id.name" ></span></td>
+                         <td colspan="3" style="border-right:1px solid black; padding:5px;"><span  t-field="ln.name"></span>
+                         </td>
+                         <td style="border-right:1px solid black; text-align: center; padding:5px;"><span  t-field="ln.product_uom"></span></td>
+                         <td style="border-right:1px solid black; text-align: center; padding:5px;"><span t-field="ln.product_uom_qty"></span></td>
+                         <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
+                         <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
+                         <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
+                         <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
+                     </tr>
 
-                    <tr t-foreach="o.line_ids" t-as="ln" style="">
-                        <td style="border-right:1px solid black; padding:5px;"><span t-field="ln.product_id.name" ></span></td>
-                        <td colspan="3" style="border-right:1px solid black; padding:5px;"><span  t-field="ln.name"></span>
-                        </td>
-                        <td style="border-right:1px solid black; text-align: center; padding:5px;"><span  t-field="ln.product_uom"></span></td>
-                        <td style="border-right:1px solid black; text-align: center; padding:5px;"><span t-field="ln.product_uom_qty"></span></td>
-                        <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
-                        <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
-                        <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
-                        <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
-                    </tr>
-                </table>
-            </div>
 
+
+
+
+
+
+                     <tr style="border-top:1px solid black;text-align:center;">
+                         <td style="border-right:1px solid black; padding:0 5px;">Sconti</td>
+                         <td style="border-right:1px solid black;">Spese Trasporto</td>
+                         <td style="border-right:1px solid black; text-align: center;">Spese Incasso</td>
+                         <td style="border-right:1px solid black; text-align: center;">Spese Imballo</td>
+                         <td colspan="2" style="border-right:1px solid black; text-align: center; ">Cod. I.V.A.</td>
+                         <td style="text-align: right; width:11%;">Imponibile I.V.A.</td>
+                         <td style="text-align: right; padding:0 5px;">Imposta</td>
+                         <td colspan="2" style="text-align: right; width:12%;font-size:12px"><b>Totale DDT EU</b>
+                         </td>
+                     </tr>
+                     <tr style="text-align:center;">
+                         <td style="border-right:1px solid black;"></td>
+                         <td style="border-right:1px solid black;">
+                         </td>
+                         <td style="border-right:1px solid black; text-align: center;"></td>
+                         <td style="border-right:1px solid black; text-align: center;"></td>
+                         <td colspan="2" style="border-right:1px solid black; text-align: center; "></td>
+                         <td style="text-align: right;"></td>
+                         <td style="text-align: right; padding:0 5px;"></td>
+                         <td colspan="2" style="text-align: right; background-color:rgba(1,1,1,.2);font-size:12px; font-weight:bold;">1</td>
+                     </tr>
+                 </table>
+             </div>
              <div style="margin-top:5px;">
-               <div>
-                    <table style="border-collapse: collapse; margin:0; padding:0; width:100%; ; font-size:11px;border:1px solid black; margin-bottom:10px;">
-                        <tr style="border-top:1px solid black;text-align:center; ">
-                            <td style="border-right:1px solid black; padding:0 5px;">Sconti</td>
-                            <td style="border-right:1px solid black;">Spese Trasporto</td>
-                            <td style="border-right:1px solid black; text-align: center;">Spese Incasso</td>
-                            <td style="border-right:1px solid black; text-align: center;">Spese Imballo</td>
-                            <td colspan="2" style="border-right:1px solid black; text-align: center; ">Cod. I.V.A.</td>
-                            <td style="text-align: right; width:11%;">Imponibile I.V.A.</td>
-                            <td style="text-align: right; padding:0 5px;">Imposta</td>
-                            <td colspan="2" style="text-align: right; width:12%;font-size:12px"><b>Totale DDT EU</b>
-                            </td>
-                        </tr>
-                        <tr style="text-align:center;">
-                            <td style="border-right:1px solid black;"></td>
-                            <td style="border-right:1px solid black;">
-                            </td>
-                            <td style="border-right:1px solid black; text-align: center;"></td>
-                            <td style="border-right:1px solid black; text-align: center;"></td>
-                            <td colspan="2" style="border-right:1px solid black; text-align: center; "></td>
-                            <td style="text-align: right;"></td>
-                            <td style="text-align: right; padding:0 5px;"></td>
-                            <td colspan="2" style="text-align: right; background-color:rgba(1,1,1,.2);font-size:12px; font-weight:bold;"></td>
-                        </tr>
-                    </table>
-                </div>
                  <table style="border-collapse: collapse; margin:0; padding:0; width:100%; ; font-size:11px;border:1px solid black;">
                      <tr style="border-top:1px solid black;text-align:left;">
                          <td style="padding:0 5px;">Trasporto a mezzo</td>
@@ -182,7 +180,7 @@
                  <div style="clear:both;"></div>
              </div>
 
-             <p style="text-align:center;font-size:8px; width:70%; margin: 0 auto;">La merce viaggia a rischio e pericolo del Destinatario.Non verranno accettate contestazioni trascorsi 8 gg dalla data di consegna.
+             <p style="text-align:center;font-size:10px; width:70%; margin: 0 auto;">La merce viaggia a rischio e pericolo del Destinatario.Non verranno accettate contestazioni trascorsi 8 gg dalla data di consegna.
  Eventuali loghi , nomi e marchi inseriti nella presente documentazione sono registrati e appartengono ai rispettivi proprietari.</p>
          </div>
               </div>

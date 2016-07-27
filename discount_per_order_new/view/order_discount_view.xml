@@ -6,8 +6,11 @@
 				<field name="model">sale.order</field>
 				<field name="inherit_id" ref="sale.view_order_form"/>
 				<field name="arch" type="xml">
-					<xpath expr="//tree[@string='Sales Order Lines']/field[@name='price_unit']" position="before">
+					<xpath expr="//tree[@string='Sales Order Lines']/field[@name='product_uom_qty']" position="before">
 						<field name="custom_note"/>
+
+					</xpath>
+					<xpath expr="//tree[@string='Sales Order Lines']/field[@name='price_unit']" position="before">
 						<field name="product_price"/>
 						<field name="pricelist_discount"/>
 

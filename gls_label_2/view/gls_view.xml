@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="gls_invoice_inherited" model="ir.ui.view">
+    <field name="name">gls.invoice.form</field>
+    <field name="model">account.invoice</field>
+    <field name="inherit_id" ref="l10n_it_ddt.invoice_form_view_ddt"/>
+    <field name="arch" type="xml">
+
+        <xpath expr="//field[@name='parcels']" position="after">
+
+                <field name="total_weight"/>
+                <field name="net_weight"/>
+                <field name="gls_config_id"/>
+                <field name="transportation_note"/>
+                <field name="gls_parcel" >
+                  <tree string="GLS parcels" editable="bottom">
+                                   <field name="name" />
+                                   <field name="label_binary" filename="label_filename" />
+
+
+                  </tree>
+
+                </field>
+
+
+                <group colspan='2'>
+                 <button name="gls_print" string="Print GLS label" type="object"  />
+               </group>
+
+        </xpath>
+    </field>
+</record>
+<record id="gls_ddt_inherited" model="ir.ui.view">
+    <field name="name">gls.ddt.form</field>
+    <field name="model">stock.picking.package.preparation</field>
+    <field name="inherit_id" ref="l10n_it_ddt.ddt_stock_picking_package_preparation_form"/>
+    <field name="arch" type="xml">
+        <field name="weight" position="replace">
+          <field name="total_weight" readonly="False"/>
+        </field>
+        <field name="net_weight" position="replace">
+          <field name="net_weight_gls" readonly="False"/>
+        </field>
+        <xpath expr="//field[@name='invoice_id']" position="before">
+
+
+                <field name="gls_config_id"/>
+                <field name="transportation_note"/>
+                <field name="gls_parcel" >
+                  <tree string="GLS parcels" editable="bottom">
+                                   <field name="name" />
+                                   <field name="label_binary" filename="label_filename" />
+
+
+                  </tree>
+
+                </field>
+
+
+                <group colspan='2'>
+                 <button name="gls_print" string="Print GLS label" type="object"  />
+               </group>
+
+        </xpath>
+    </field>
+</record>
+        </data>
+    </openerp>

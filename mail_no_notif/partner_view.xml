@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="no_notif_partner_inherited" model="ir.ui.view">
+    <field name="name">partner.no.notif.form</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+   <field name="active" position="after">
+
+       <field name="no_notifications" />
+    </field>
+
+    </field>
+</record>
+        </data>
+    </openerp>

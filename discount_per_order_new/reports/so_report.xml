@@ -137,8 +137,10 @@
                     </table>
                 </div>
             </div>
-
+            <p>Note:</p>
             <p t-field="o.note"/>
+
+            <p t-field="o.box_note"/>
             <p t-if="o.payment_term.note">
                 <strong>Payment Term:</strong>
                 <span t-field="o.payment_term.note"/>

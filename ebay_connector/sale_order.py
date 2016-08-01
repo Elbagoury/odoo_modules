@@ -5,7 +5,7 @@ from openerp.osv import osv
 
 class ebay_sale_order(models.Model):
 	_inherit = "sale.order"
-	
+
 	ebay_id = fields.Char(string="Ebay ID")
 	ebay_date = fields.Datetime(string="Create date on ebay")
 	ebay_username = fields.Char(string="Ebay customer username")
@@ -31,22 +31,31 @@ class ebay_sale_order(models.Model):
 		dev = r.dev_id
 		app = r.app_id
 		tok = r.token_id
-		
+
 		order_line_item_ids = [x.order_line_item_id for x in sf.order_line]
 		print order_line_item_ids
-		
+
 
 		if r._cancel_order(cert, dev, app, tok, order_line_item_ids):
 			_logger.info("********ORDERED CANCELED")
 			sf.write({'state':'cancel', 'ebay_id': False})
 		else:
-			raise osv.except_osv(_('Error canceling order'), _('This order cannot be canceled at a moment'))		
+			raise osv.except_osv(_('Error canceling order'), _('This order cannot be canceled at a moment'))
 		return True
 
 	def ebay_is_canceled_order(self, cr, uid, ids, context=None):
 		return self.write(cr, uid, ids, {'state': 'cancel'}, context=None)
-		
-	
+
+	def _prepare_order_line_procurement(self, cr, uid, order, line, group_id=False, context=None):
+		vals = super(SaleOrder, self)._prepare_order_line_procurement(cr, uid, order, line, group_id=group_id, context=context)
+		vals.update({
+			'ebay_transaction_id': line.transaction_id,
+			'ebay_order_id': order.ebay_id,
+			'ebay_item_id': line.ebay_item_id
+		})
+
+		return vals
+
 
 class ebay_sale_order_line(models.Model):
 	_inherit = "sale.order.line"
@@ -55,5 +64,3 @@ class ebay_sale_order_line(models.Model):
 	order_line_item_id = fields.Char(sting="Ebay OLID")
 	ebay_item_id = fields.Char(string="Ebay Item ID")
 	tmp_combine = fields.Integer(string="Wizard id - tmp")
-
-

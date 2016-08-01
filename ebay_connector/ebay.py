@@ -84,6 +84,70 @@ class ebay(models.Model):
 		for s in services:
 			self.pool.get('ebay.shipping.service').create(cr, uid, s, context=None)
 		return True
+	def remove_product(self, cr, uid, ids, context=None):
+		instance_id = self.pool.get('ebay').search(cr,uid, [], context=None)
+		i = self.browse(cr, uid, instance_id, context=None)
+		i = i[0]
+		cert = i.cert_id
+		dev = i.dev_id
+		app = i.app_id
+		tok = i.token_id
+		(opts, args) = init_options()
+
+		product_ids = ids
+		if len(invoice_ids) > 1:
+			raise osv.except_osv(_("Warning"), _("You can remove only one product at a time"))
+		product = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)[0]
+		ebay_ids = product.ebay_id
+		if not ebay_ids:
+			product.ebay_sync = False
+			return True
+		eids = [e.ebay_id for e in ebay_ids]
+		res = removeFromEbay(opts, cert, dev, app, tok, eids)
+
+		for zeid in product.ebay_id:
+			zeid.unlink()
+		product.sync_ebay = False
+		for np in product.name_parts:
+			np.ebay_id = None
+			np.suffix = None
+
+	def complete_sale(self, cr, uid, ids, context=None):
+		instance_id = self.pool.get('ebay').search(cr,uid, [], context=None)
+		i = self.browse(cr, uid, instance_id, context=None)
+		i = i[0]
+		cert = i.cert_id
+		dev = i.dev_id
+		app = i.app_id
+		tok = i.token_id
+		(opts, args) = init_options()
+
+		invoice_ids = ids
+		if len(invoice_ids) > 1:
+			raise osv.except_osv(_("Warning"), _("You can complete sale for one invoice at a time"))
+		invoice = self.pool.get('account.invoice').browse(cr, uid, invoice_ids, context=None)[0]
+		invoice_lines = invoice.invoice_lines
+		gls_parcels = invoice.gls_parcel
+		if not gls_parcels:
+			raise osv.except_osv(_("Warning"), _("No tracking numbers available"))
+		gls_parcel = gls_parcels[0]
+		for line in invoice_lines:
+			if line.ebay_item_id and line.ebay_order_id:
+				item = {
+					'ItemID': line.ebay_item_id,
+					'OrderID': line.ebay_order_id,
+					'Shipment': {
+						'ShipmentTrackingDetails':{
+							'ShipmentTrackingNumber': gls_parcel.name,
+							'ShippingCarrierUsed': invoice.carrier_id.name
+						}
+					},
+					'Shipped': True
+				}
+				ack = completeSale(opts, cert, dev, app, tok, item)
+				if ack = "Success":
+					invoice.tracking_sent_to_ebay = True
+
 
 	def export_products(self, cr, uid, ids, context=None):
 		_logger = logging.getLogger(__name__)
@@ -105,23 +169,37 @@ class ebay(models.Model):
 					cnt = 0
 					for pn in pro.name_parts:
 						cnt += 1
+						suffix = "_ZW" + str(cnt)
 						code = pro.name
 						desc = "%s  %s" % (pro.main_name_part, pn.name)
-						code += "_ZW" + str(cnt)
+						code += suffix
 						_logger.warning("********* INSERTING PRODUCT %s ******** %s" % (code, len(pro.name_parts)))
 						item = save_product(pro, code, desc, lst_up, current_record)
-						ebay_id, ebay_date_added = addItem(current_record, myitem, pro, lst_up)
-						if ebay_id and ebay_date:
-							self.pool.get('ebay.ids').create(cr, uid, {'product_id': pro.id, 'ebay_id': ebay_id})
-							pro.ebay_date_added = ebay_date
+						if not pn.ebay_id:
+							ebay_id, ebay_date_added = addItem(current_record, myitem)
+
+							if ebay_id and ebay_date:
+								pn.suffix = suffix
+								pn.ebay_id = ebay_id
+								self.pool.get('ebay.ids').create(cr, uid, {'product_id': pro.id, 'ebay_id': ebay_id})
+								pro.ebay_date_added = ebay_date
+
+						else:
+							addItem(current_record, myitem, pn.ebay_id)
 				elif len(pro.description) <= 80:
 					_logger.warning("********* INSERTING PRODUCT %s  NO NAME PARTS********" % pro.name)
 					item = save_product(pro, pro.name, pro.description, lst_up, current_record)
-					ebay_id, ebay_date_added = addItem(current_record, myitem, pro, lst_up)
 
-					if ebay_id and ebay_date:
-						self.pool.get('ebay.ids').create(cr, uid, {'product_id': pro.id, 'ebay_id': ebay_id})
-						pro.ebay_date_added = ebay_date
+					if pro.ebay_id:
+						ebay_id = pro.ebay_id[0].ebay_id
+						addItem(current_record, myitem, ebay_id)
+					else:
+
+						ebay_id, ebay_date_added = addItem(current_record, myitem)
+
+						if ebay_id and ebay_date:
+							self.pool.get('ebay.ids').create(cr, uid, {'product_id': pro.id, 'ebay_id': ebay_id})
+							pro.ebay_date_added = ebay_date
 				else:
 					_logger.warning("********* Skipping %s ********" % pro.name)
 					continue
@@ -401,7 +479,8 @@ class ebay_name_parts(models.Model):
 
 	np_id = fields.Integer()
 	name = fields.Char(string="Other parts of name")
-
+	ebay_id = fields.Char(string="EbayID")
+	suffix = fiels.Char(string="Suffix")
 
 class ebay_log(models.Model):
 	_name = 'ebay.log'
@@ -976,13 +1055,20 @@ def save_product(pro,  name, desc, lst_up, defs):
 			}
 		}
 
-
-		ebay_id, ebay_date_added = addItem(opts, cert, dev, app, tok, myitem, pro, lst_up)
-
-
 		return myitem
+def completeSale(opts, cert, dev, app, tok, data):
+	try:
+		api = Trading( debug=opts.debug, config_file=None, appid=app,
+					certid=cert, devid=dev,token=tok, warnings=False, siteid=101)
+		api.execute('CompleteSale', data)
+		resp = json.loads(api.response.json())
+		return resp['Ack']
+	except ConnectionError as e:
+		error = json.loads(e.response.json())
 
-def addItem(opts, cert, dev, app, tok, myitem, pro, lst_up):
+		_logger.warning("*****ERROR: %s" % error)
+
+def addItem(opts, cert, dev, app, tok, myitem, ebay_id=None):
 	_logger = logging.getLogger(__name__)
 	ebay_id = None
 	ebay_date = None
@@ -993,27 +1079,42 @@ def addItem(opts, cert, dev, app, tok, myitem, pro, lst_up):
 		api = Trading( debug=opts.debug, config_file=None, appid=app,
 					certid=cert, devid=dev,token=tok, warnings=False, siteid=101)
 
-		if pro.ebay_ids:
-			for e in pro.ebay_ids:
-				api.execute('ReviseFixedPriceItem', myitem)
-			#log(api.response.json())
+		if ebay_id:
+
+			api.execute('ReviseFixedPriceItem', myitem)
+			return True, True
 		else:
 
 			api.execute('AddFixedPriceItem', myitem)
-			resp = json.loads(api.response.json())
-			#_logger.info('----response: %s' % resp)
-			ebay_id = resp["ItemID"]
 
+		resp = json.loads(api.response.json())
 
-		ebay_date_added = datetime.datetime.now()
-
+		ebay_id = resp["ItemID"]
+		ebay_date = datetime.datetime.now()
+		return ebay_id, ebay_date
 
 	except ConnectionError as e:
 		error = json.loads(e.response.json())
 		#eCode = error["Errors"]["ErrorCode"]
 		_logger.warning("*****ERROR: %s" % error)
+		return None, None
 
-	return ebay_id, ebay_date
+def removeFromEbay(opts, cert, dev, app, tok, ebay_ids):
+	try:
+		api = Trading( debug=opts.debug, config_file=None, appid=app,
+					certid=cert, devid=dev,token=tok, warnings=False, siteid=101)
+		res = {}
+		for eid in ebay_ids:
+			api.execute('EndFixedPricesItem', {'EndingReason': 'NotAvailable', 'ItemID': eid})
+			resp = json.loads(api.response.json())
+			res[eid] = resp['Ack']
+
+		return res
+	except ConnectionError as e:
+		error = json.loads(e.response.json())
+		#eCode = error["Errors"]["ErrorCode"]
+		_logger.warning("*****ERROR: %s" % error)
+		return False
 
 def uploadPictureFromFilesystem(opts,cert, app, dev, tok, code, image):
 	api = Trading( debug=opts.debug, config_file=None, appid=app,
@@ -1114,7 +1215,7 @@ def getOrders(opts, cert, dev, app, tok, order_id=None):
 			api.execute('GetOrders', {'OrderIDArray': {'OrderID':order_id}})
         	#api.execute('GetOrderTransactions', {'OrderIDArray': {'OrderID':order_id}})
 		else:
-			api.execute('GetOrders', {'NumberOfDays': 1, 'OrderStatus': 'All',  'DetailLevel': 'ReturnAll'})
+			api.execute('GetOrders', {'NumberOfDays': 2, 'OrderStatus': 'All',  'DetailLevel': 'ReturnAll'})
         #api.execute('GetOrderTransactions', {'OrderIDArray': {'OrderID':'131201365591-1190809310003'}})
 		res = api.response.json()
 		res = json.loads(res)
@@ -1125,7 +1226,7 @@ def getOrders(opts, cert, dev, app, tok, order_id=None):
 		_logger.info('---- TOTALS: %s %s' % (total_pages, total_entries))
 		if total_pages > 1:
 			for i in range(2,total_pages+1):
-				api.execute('GetOrders', {'NumberOfDays': 1, 'OrderStatus': 'All',  'Pagination': {'PageNumber': i, 'EntriesPerPage': 100}, 'DetailLevel': 'ReturnAll'})
+				api.execute('GetOrders', {'NumberOfDays': 2, 'OrderStatus': 'All',  'Pagination': {'PageNumber': i, 'EntriesPerPage': 100}, 'DetailLevel': 'ReturnAll'})
 				new_res = api.response.json()
 				new_res = json.loads(new_res)
 				for x in new_res["OrderArray"]["Order"]:
@@ -1396,7 +1497,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 			if not partner_id:
 				raise osv.except_osv(_('Error importing orders'), _('Error creating or finding client %s on odoo' % new_part['name']))
 
-
+			partner = self.pool.get('res.partner').browse(cr, uid, partner_id, context=None)
 
 			amount_total = float(o["Total"]["value"])
 
@@ -1406,9 +1507,17 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 			else:
 				pricelist_id = 1
 
+			payment_method = o['CheckoutStatus']['PaymentMethod'] if 'PaymentMethod' in o['CheckoutStatus'] else None
+			pm_id = 4
+			if payment_method:
+				pm_ids = self.pool.get('payment.method').search(cr, uid, [('name', '=', payment_method)], context=None)
+				if pm_ids:
+					pm_id = pm_ids[0]
 			for ol in o["TransactionArray"]["Transaction"]:
 
-
+				buyer_email = ol['Buyer']['Email'] if 'Email' in ol['Buyer'] else None
+				if buyer_email and buyer_email != partner.email:
+					partner.email = buyer_email
 
 				pro_name = ol["Item"]["SKU"]
 				pro_name = pro_name.split("_")[0]
@@ -1509,7 +1618,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 				'tax_receipt': True,
 				'order_policy':'picking',
 				'ebay_username': uname,
-				'payment_method_id': 4, #paypal,
+				'payment_method_id': pm_id,
 				'note': note,
 				'ebay_instance_id': r.id
 			}
@@ -1539,3 +1648,47 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 					order_line.create(cr, uid, x, context)
 
 			return {'order':order_id, 'paid': paid, 'delivered': delivered}
+
+class AccountInvoice(models.Model):
+	_inherit = "account.invoice"
+	tracking_sent_to_ebay = fields.Boolean(string="Tracking sent to ebay")
+	def complete_sale_ebay(self, cr, uid, ids, context):
+		res = self.pool.get('ebay').complete_sale(cr, uid, ids, context=None)
+class AccountInvoiceLine(models.Model):
+	_inherit = "account.invoice.line"
+
+	ebay_transaction_id = fields.Char(string="Ebay transaction ID")
+	ebay_order_id = fields.Char(string="Ebay Order ID")
+	ebay_item_id = fields.Char(string="Ebay Item ID")
+class ProcurementOrder(models.Model):
+	_inherit = "procurement.order"
+
+	ebay_transaction_id = fields.Char(string="Ebay transaction ID")
+	ebay_order_id = fields.Char(string="Ebay Order ID")
+	ebay_item_id = fields.Char(string="Ebay Item ID")
+
+	def _run_move_create(self, cr, uid, procurement, context=None):
+		res = super(ProcurementOrder, self)._run_move_create(cr, uid, procurement, context=context)
+		res.update({
+			'ebay_transaction_id': procurement.ebay_transaction_id,
+			'ebay_order_id': procurement.ebay_order_id,
+			'ebay_item_id': procurement.ebay_item_id
+		})
+
+		return res
+class StockMove(models.Model):
+	_inherit = "stock.move"
+	ebay_transaction_id = fields.Char(string="Ebay transaction ID")
+	ebay_order_id = fields.Char(string="Ebay Order ID")
+	ebay_item_id = fields.Char(string="Ebay Item ID")
+	def _get_invoice_line_vals(self, cr, uid, move, partner, inv_type, context=None):
+
+		res = super(StockMove, self)._get_invoice_line_vals(cr, uid, move, partner, inv_type)
+
+		res.update({
+				'ebay_transaction_id': move.ebay_transaction_id,
+				'ebay_order_id': move.ebay_order_id,
+				'ebay_item_id': move.ebay_item_id
+			})
+
+		return res

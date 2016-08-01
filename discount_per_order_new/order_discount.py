@@ -108,8 +108,7 @@ class ProcurementOrder(models.Model):
 		res.update({
 			'custom_note': procurement.custom_note
 		})
-		print "_run_move_create"
-		print res['custom_note']
+
 		return res
 class SaleOrder(models.Model):
 	_inherit = "sale.order"
@@ -118,8 +117,8 @@ class SaleOrder(models.Model):
 		vals.update({
 			'custom_note': line.custom_note
 		})
-		print "_prepare_order_line_procurement"
-		print vals['custom_note']
+		#print "_prepare_order_line_procurement"
+		#print vals['custom_note']
 		return vals
 
 
@@ -362,7 +361,7 @@ class StockMove(models.Model):
 
 		#_logger = logging.getLogger(__name__)
 
-		print move.name
+
 		res = super(StockMove, self)._get_invoice_line_vals(cr, uid, move, partner, inv_type)
 
 		####

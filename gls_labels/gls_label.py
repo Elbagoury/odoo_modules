@@ -13,7 +13,7 @@ class StockPickingPackagePreparation(models.Model):
 
 	total_weight = fields.Float(string="Weight")
 	net_weight_gls = fields.Float(string="Net weight")
-	gls_parcel = fields.One2many('gls.parcel', 'invoice_id', string="GLS parcel")
+	gls_parcel = fields.One2many('gls.parcel', 'ddt_id', string="GLS parcel")
 	label_binary = fields.Binary(string="GLS label binary")
 	label_filename = fields.Char(string="GLS label")
 	transportation_note = fields.Text(string="Transportation note")
@@ -101,7 +101,7 @@ class StockPickingPackagePreparation(models.Model):
 				'contatore_progressivo': progressive_counter,
 				'colli': 1,
 				'note': vnote,
-				'invoice_id': curr_invoice.id,
+				'ddt_id': curr_invoice.id,
 				'config_id': config.id
 			}
 			counter = self.pool.get('gls.parcel').create(cr, uid, vals, context=context)
@@ -427,6 +427,7 @@ class gls_parcel(models.Model):
 	note = fields.Text(string="Transportation note")
 	status = fields.Char(string="Status")
 	invoice_id = fields.Integer(string="Invoice ID")
+	ddt_id = fields.Integer(string="DDT ID")
 	magento_id = fields.Integer(string="magento_id")
 	label_binary = fields.Binary(string="GLS label binary")
 	label_filename = fields.Char(string="GLS label")

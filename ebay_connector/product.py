@@ -33,7 +33,8 @@ class product_ebay(osv.osv):
 		'ebay_custom_desc': fields.text(string="Custom description")
 
 	}
-
+	def remove_product(self, cr, uid, ids, context=None):
+		self.pool.get('ebay').remove_product(cr, uid, ids, context=None)
 	def open_on_ebay(self, cr, uid, ids, context=None):
 		#This opens link for product on ebay
 		product = self.browse(cr, uid, ids, context=context)

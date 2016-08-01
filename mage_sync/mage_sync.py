@@ -531,7 +531,7 @@ class Magento_sync(models.Model):
 								pm_id = 5
 
 
-							pid = self.pool.get('res.partner').search(cr, uid, [('magento_id', '=', o['customer_id']), ('active', '=', True)], context=context)
+							pid = self.pool.get('res.partner').search(cr, uid, [('magento_id', '=', o['customer_id']), ('active', '=', True), ('is_company', '=', True)], context=context)
 							if not pid:
 								country_ids = self.pool.get('res.country').search(cr, uid, [("code", "=", o['shipping_address']['country_id'])], context=None)
 								country_id = False

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<act_window id="create_help_request"
+				name="Create help request"
+				res_model="create.help.request"
+				src_model="sale.order"
+				key2="client_action_multi"
+				target="new" view_type="form" view_mode="form"/>
+
+
+      <record id="request_from_so_wizard" model="ir.ui.view">
+  				<field name="name">Request from  wizard form</field>
+  				<field name="model">create.help.request</field>
+  				<field name="type">form</field>
+  				<field name="arch" type="xml">
+  					<form string="Create help request" version="7.0">
+              <group string="Create help requestodoo ">
+              <field name="query"/>
+              <field name="sale_order"/>
+              <button name="create_request" string="Create request" type="object" class="oe_highlight"/>
+            </group>
+  					</form>
+  				</field>
+  			</record>
+
+        <record id="crm_helpdesk_so" model="ir.ui.view">
+    				<field name="name">crm helpdesk form</field>
+    				<field name="model">crm.helpdesk</field>
+    			     <field name="inherit_id" ref="crm_helpdesk.crm_case_form_view_helpdesk"/>
+    				<field name="arch" type="xml">
+    					<field name="email_from" position="after">
+                <field name="phonenumber"/>
+              </field>
+    				</field>
+    			</record>
+
+    </data>
+  </openerp>

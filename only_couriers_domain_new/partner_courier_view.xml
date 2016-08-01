@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+	<openerp>
+		<data>
+      <record id="delivery_grid_default" model="ir.ui.view">
+				<field name="name">delivery.default.form</field>
+				<field name="model">delivery.grid</field>
+				<field name="inherit_id" ref="delivery.view_delivery_grid_form" />
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='sequence']" position="before">
+
+							<field name="is_default" />
+
+
+					</xpath>
+				</field>
+				</record>
+
+      
+    </data>
+  </openerp>

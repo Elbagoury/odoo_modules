@@ -47,7 +47,7 @@ class ebay_sale_order(models.Model):
 		return self.write(cr, uid, ids, {'state': 'cancel'}, context=None)
 
 	def _prepare_order_line_procurement(self, cr, uid, order, line, group_id=False, context=None):
-		vals = super(SaleOrder, self)._prepare_order_line_procurement(cr, uid, order, line, group_id=group_id, context=context)
+		vals = super(ebay_sale_order, self)._prepare_order_line_procurement(cr, uid, order, line, group_id=group_id, context=context)
 		vals.update({
 			'ebay_transaction_id': line.transaction_id,
 			'ebay_order_id': order.ebay_id,

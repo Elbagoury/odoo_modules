@@ -95,7 +95,7 @@ class ebay(models.Model):
 		(opts, args) = init_options()
 
 		product_ids = ids
-		if len(invoice_ids) > 1:
+		if len(product_ids) > 1:
 			raise osv.except_osv(_("Warning"), _("You can remove only one product at a time"))
 		product = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)[0]
 		ebay_ids = product.ebay_id
@@ -145,7 +145,7 @@ class ebay(models.Model):
 					'Shipped': True
 				}
 				ack = completeSale(opts, cert, dev, app, tok, item)
-				if ack = "Success":
+				if ack == "Success":
 					invoice.tracking_sent_to_ebay = True
 
 
@@ -175,9 +175,11 @@ class ebay(models.Model):
 						code += suffix
 						_logger.warning("********* INSERTING PRODUCT %s ******** %s" % (code, len(pro.name_parts)))
 						item = save_product(pro, code, desc, lst_up, current_record)
+						if not item:
+							continue
 						if not pn.ebay_id:
-							ebay_id, ebay_date_added = addItem(current_record, myitem)
-
+							ebay_id, ebay_date = addItem(current_record, item)
+							_logger.info("Product has no ebay_id, inserting new")
 							if ebay_id and ebay_date:
 								pn.suffix = suffix
 								pn.ebay_id = ebay_id
@@ -185,17 +187,19 @@ class ebay(models.Model):
 								pro.ebay_date_added = ebay_date
 
 						else:
-							addItem(current_record, myitem, pn.ebay_id)
+							_logger.info("This one has ebay_id %s" % pn.ebay_id)
+							addItem(current_record, item, pn.ebay_id)
 				elif len(pro.description) <= 80:
 					_logger.warning("********* INSERTING PRODUCT %s  NO NAME PARTS********" % pro.name)
 					item = save_product(pro, pro.name, pro.description, lst_up, current_record)
-
+					if not item:
+						continue
 					if pro.ebay_id:
 						ebay_id = pro.ebay_id[0].ebay_id
-						addItem(current_record, myitem, ebay_id)
+						addItem(current_record, item, ebay_id)
 					else:
 
-						ebay_id, ebay_date_added = addItem(current_record, myitem)
+						ebay_id, ebay_date = addItem(current_record, item)
 
 						if ebay_id and ebay_date:
 							self.pool.get('ebay.ids').create(cr, uid, {'product_id': pro.id, 'ebay_id': ebay_id})
@@ -480,7 +484,7 @@ class ebay_name_parts(models.Model):
 	np_id = fields.Integer()
 	name = fields.Char(string="Other parts of name")
 	ebay_id = fields.Char(string="EbayID")
-	suffix = fiels.Char(string="Suffix")
+	suffix = fields.Char(string="Suffix")
 
 class ebay_log(models.Model):
 	_name = 'ebay.log'
@@ -1068,8 +1072,13 @@ def completeSale(opts, cert, dev, app, tok, data):
 
 		_logger.warning("*****ERROR: %s" % error)
 
-def addItem(opts, cert, dev, app, tok, myitem, ebay_id=None):
+def addItem(i, myitem, ebay_id=None):
 	_logger = logging.getLogger(__name__)
+	cert = i.cert_id
+	dev = i.dev_id
+	app = i.app_id
+	tok = i.token_id
+	(opts, args) = init_options()
 	ebay_id = None
 	ebay_date = None
 	#DEBUG - DEBUG - DEBUG
@@ -1082,6 +1091,8 @@ def addItem(opts, cert, dev, app, tok, myitem, ebay_id=None):
 		if ebay_id:
 
 			api.execute('ReviseFixedPriceItem', myitem)
+			resp = json.loads(api.response.json())
+			_logger.info("RESPONSE REVISE: %s" % resp)
 			return True, True
 		else:
 

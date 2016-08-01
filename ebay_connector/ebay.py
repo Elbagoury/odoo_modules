@@ -126,7 +126,7 @@ class ebay(models.Model):
 		if len(invoice_ids) > 1:
 			raise osv.except_osv(_("Warning"), _("You can complete sale for one invoice at a time"))
 		invoice = self.pool.get('account.invoice').browse(cr, uid, invoice_ids, context=None)[0]
-		invoice_lines = invoice.invoice_lines
+		invoice_lines = invoice.invoice_line
 		gls_parcels = invoice.gls_parcel
 		if not gls_parcels:
 			raise osv.except_osv(_("Warning"), _("No tracking numbers available"))
@@ -188,7 +188,7 @@ class ebay(models.Model):
 
 						else:
 							_logger.info("This one has ebay_id %s" % pn.ebay_id)
-							addItem(current_record, item, pn.ebay_id)
+							addItem(current_record, item, ebay_id=pn.ebay_id)
 				elif len(pro.description) <= 80:
 					_logger.warning("********* INSERTING PRODUCT %s  NO NAME PARTS********" % pro.name)
 					item = save_product(pro, pro.name, pro.description, lst_up, current_record)
@@ -196,7 +196,7 @@ class ebay(models.Model):
 						continue
 					if pro.ebay_id:
 						ebay_id = pro.ebay_id[0].ebay_id
-						addItem(current_record, item, ebay_id)
+						addItem(current_record, item, ebay_id=ebay_id)
 					else:
 
 						ebay_id, ebay_date = addItem(current_record, item)
@@ -1079,8 +1079,7 @@ def addItem(i, myitem, ebay_id=None):
 	app = i.app_id
 	tok = i.token_id
 	(opts, args) = init_options()
-	ebay_id = None
-	ebay_date = None
+
 	#DEBUG - DEBUG - DEBUG
 	with open('/opt/odoo/gigra_addons/ebay_connector/item.txt', 'w') as outfile:
 		json.dump(myitem, outfile)
@@ -1089,17 +1088,18 @@ def addItem(i, myitem, ebay_id=None):
 					certid=cert, devid=dev,token=tok, warnings=False, siteid=101)
 
 		if ebay_id:
-
+			_logger.info("GOING TO REVISE %s" % ebay_id)
 			api.execute('ReviseFixedPriceItem', myitem)
 			resp = json.loads(api.response.json())
 			_logger.info("RESPONSE REVISE: %s" % resp)
 			return True, True
 		else:
-
+			_logger.info("GOING TO INSERT NEW %s" % ebay_id)
 			api.execute('AddFixedPriceItem', myitem)
 
 		resp = json.loads(api.response.json())
-
+		ebay_id = None
+		ebay_date = None
 		ebay_id = resp["ItemID"]
 		ebay_date = datetime.datetime.now()
 		return ebay_id, ebay_date
@@ -1111,12 +1111,13 @@ def addItem(i, myitem, ebay_id=None):
 		return None, None
 
 def removeFromEbay(opts, cert, dev, app, tok, ebay_ids):
+	_logger = logging.getLogger(__name__)
 	try:
 		api = Trading( debug=opts.debug, config_file=None, appid=app,
 					certid=cert, devid=dev,token=tok, warnings=False, siteid=101)
 		res = {}
 		for eid in ebay_ids:
-			api.execute('EndFixedPricesItem', {'EndingReason': 'NotAvailable', 'ItemID': eid})
+			api.execute('EndFixedPriceItem', {'EndingReason': 'NotAvailable', 'ItemID': eid})
 			resp = json.loads(api.response.json())
 			res[eid] = resp['Ack']
 

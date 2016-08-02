@@ -636,6 +636,7 @@ class Magento_sync(models.Model):
 									'user_id': user_id,
 									'order_policy':'picking',
 									'company_id': company,
+									'note':o['comment'] if 'comment' in o else '',
 									#'payment_method_id': pm_id,
 									#'workflow_process_id':1,
 									'magento_id': order['increment_id'],
@@ -1055,7 +1056,6 @@ def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):
 			if tran_ids:
 				trans = self.pool.get('ir.translation').browse(cr, uid, tran_ids, context=None)
 				translated_description = trans.value
-
 			_logger.warning("******************* %s" % p.name)
 			#p.magento_id = None
 			sku = p.id
@@ -1065,17 +1065,9 @@ def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):
 				name_trans = self.pool.get('ir.translation').browse(cr, uid, name_trans_id, context=None)
 				name = name_trans.value
 			desc = translated_description or p.description
-
-			short_desc = translated_description or p.description
 			if p.oem_code:
-				short_desc += "\nOEM CODE: %s" % p.oem_code
-				desc += "\nOEM CODE: %s" % p.oem_code
-			if p.no_of_copies:
-				short_desc += "\nNumber of copies: %s" % p.no_of_copies
-				desc += "\nNumber of copies: %s" % p.no_of_copies
-			if p.cart_color:
-				short_desc += "\nCartridge color: %s" % p.cart_color.name
-				desc += "\nCartridge color: %s" % p.cart_color.name
+				desc += " OEM CODE: %s" % p.oem_code
+			short_desc = translated_description or p.description
 			price = p.list_price
 			tax_class_id = 0 #none
 			visibility = 4 #catalog, search

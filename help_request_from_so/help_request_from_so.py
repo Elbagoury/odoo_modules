@@ -32,13 +32,36 @@ class CreateHelpRequest(models.TransientModel):
 
 class crm_helpdesk_extended(models.Model):
     _inherit = 'crm.helpdesk'
-    state = fields.Selection([('draft', 'New'),
-     ('open', 'Managed'),
-     ('pending', 'Pending'),
-     ('done', 'Closed'),
-     ('cancel', 'Back Order Cancelled')], 'Status', readonly=True, track_visibility='onchange',
+    state = fields.Selection([('draft', 'Warehouse'),
+     ('time_preview', 'Time previewing'),
+     ('open', 'Production check'),
+     ('sales_call', 'Sales call'),
+     ('pending', 'Waiting for customer'),
+     ('complete_info', 'Complete info'),
+     ('done', 'Closed')], 'Status', readonly=True, track_visibility='onchange',
                       help='The status is set to \'Draft\', when a case is created.\
                       \nIf the case is in progress the status is set to \'Open\'.\
                       \nWhen the case is over, the status is set to \'Done\'.\
                       \nIf the case needs to be reviewed then the status is set to \'Pending\'.')
     phonenumber = fields.Char(string="Phone number")
+
+
+class SaleOrder(models.Model):
+  _inherit = "sale.order"
+
+  @api.multi
+  def _get_helpdesk(self):
+    for order in self:
+        helpdesk_obj = self.pool.get('crm.helpdesk')
+        key = "sale.order,%s" % order.id
+        helpdesks = helpdesk_obj.search(self._cr, self._uid, [('ref', '=', key)], context=None)
+        if helpdesks:
+          hdid = helpdesks[0]
+          helpdesk = helpdesk_obj.browse(self._cr, self._uid, hdid, context=None)
+          if helpdesk:
+            order.helpdesk_note = helpdesk.name
+            order.helpdesk_state = helpdesk.state
+
+    
+  helpdesk_note = fields.Char(string="Helpdesk note", compute="_get_helpdesk")
+  helpdesk_state = fields.Char(string="Helpdesk state", compute="_get_helpdesk")

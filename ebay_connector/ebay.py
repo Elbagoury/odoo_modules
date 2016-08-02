@@ -113,6 +113,7 @@ class ebay(models.Model):
 			np.suffix = None
 
 	def complete_sale(self, cr, uid, ids, context=None):
+		_logger = logging.getLogger(__name__)
 		instance_id = self.pool.get('ebay').search(cr,uid, [], context=None)
 		i = self.browse(cr, uid, instance_id, context=None)
 		i = i[0]
@@ -138,7 +139,7 @@ class ebay(models.Model):
 					'OrderID': line.ebay_order_id,
 					'Shipment': {
 						'ShipmentTrackingDetails':{
-							'ShipmentTrackingNumber': gls_parcel.name,
+							'ShipmentTrackingNumber': "CE %s" % gls_parcel.numero_spedizione,
 							'ShippingCarrierUsed': invoice.carrier_id.name
 						}
 					},

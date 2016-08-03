@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<report 
+            id="report_picking2_id"
+            model="stock.picking"
+            string="Back order"
+            report_type="qweb-pdf"
+            name="picking_report.picking_report2"
+            attachment_use="False"
+            file="picking_report.picking_report"
+        />
+		</data>
+	</openerp>

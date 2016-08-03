@@ -140,7 +140,7 @@ class ebay(models.Model):
 					'Shipment': {
 						'ShipmentTrackingDetails':{
 							'ShipmentTrackingNumber': "CE %s" % gls_parcel.numero_spedizione,
-							'ShippingCarrierUsed': invoice.carrier_id.name
+							'ShippingCarrierUsed': invoice.carrier_id.carrier_id.name
 						}
 					},
 					'Shipped': True
@@ -150,7 +150,7 @@ class ebay(models.Model):
 					invoice.tracking_sent_to_ebay = True
 
 
-	def export_products(self, cr, uid, ids, context=None):
+	def export_products(self, cr, uid, ids, product_id=None,context=None):
 		_logger = logging.getLogger(__name__)
 		(opts, args) = init_options()
 		current_record = None
@@ -159,7 +159,12 @@ class ebay(models.Model):
 
 		lst_up = current_record.products_exported_date
 		prd_tmp = self.pool.get('product.template')
-		pro_ids = prd_tmp.search(cr, uid, [('ebay_sync', '=', True)], context=context)
+		if product_id:
+			pro_ids = product_id
+		else:
+
+			pro_ids = prd_tmp.search(cr, uid, [('ebay_sync', '=', True)], context=context)
+
 		_logger.warning("***EBAY: Product count: %s********" % len(pro_ids))
 		if pro_ids:
 			for pro in prd_tmp.browse(cr, uid, pro_ids, context=context):
@@ -176,8 +181,9 @@ class ebay(models.Model):
 						code += suffix
 						_logger.warning("********* INSERTING PRODUCT %s ******** %s" % (code, len(pro.name_parts)))
 						item = save_product(pro, code, desc, lst_up, current_record)
-						if not item:
-							continue
+						if "Error" in item:
+							raise osv.except_osv(_(code), _(item['Error']))
+
 						if not pn.ebay_id:
 							ebay_id, ebay_date = addItem(current_record, item)
 							_logger.info("Product has no ebay_id, inserting new")
@@ -193,8 +199,8 @@ class ebay(models.Model):
 				elif len(pro.description) <= 80:
 					_logger.warning("********* INSERTING PRODUCT %s  NO NAME PARTS********" % pro.name)
 					item = save_product(pro, pro.name, pro.description, lst_up, current_record)
-					if not item:
-						continue
+					if "Error" in item:
+						raise osv.except_osv(_(code), _(item['Error']))
 					if pro.ebay_id:
 						ebay_id = pro.ebay_id[0].ebay_id
 						addItem(current_record, item, ebay_id=ebay_id)
@@ -906,7 +912,7 @@ def save_product(pro,  name, desc, lst_up, defs):
 			qty = pro.qty_available
 		else:
 			_logger.warning("***NO Stock***")
-			return None, None
+			return {'Error':"INSUFFICIENT STOCK"}
 
 		if not pro.stock_limit or defs.override_default:
 			stock_limit = defs.ebay_stock_limit
@@ -931,7 +937,7 @@ def save_product(pro,  name, desc, lst_up, defs):
 		cat_id = pro.categ_id.ebay_category_id.categoryID
 		if not cat_id:
 			_logger.warning("***NO CATEGORY***")
-			return None, None
+			return {'Error': "EBAY CATEGORY NOT SPECIFIED"}
 
 		cd = name
 
@@ -939,13 +945,13 @@ def save_product(pro,  name, desc, lst_up, defs):
 
 		if not desc:
 			_logger.warning("***NO TITLE***")
-			return None, None
+			return {'Error':"ITEM HAS NO TITLE"}
 
 
 		image_url = uploadPictureFromFilesystem(opts,cert, app, dev, tok, pro.name, pro.image)
 		if not image_url:
 			_logger.warning("***NO IMG**")
-			return None, None
+			return {'Error':"FAILED TO UPLOAD IMAGE"}
 
 		if pro.ebay_template_id:
 			template = pro.ebay_template_id.template_content
@@ -1061,6 +1067,7 @@ def save_product(pro,  name, desc, lst_up, defs):
 		}
 
 		return myitem
+
 def completeSale(opts, cert, dev, app, tok, data):
 	try:
 		api = Trading( debug=opts.debug, config_file=None, appid=app,
@@ -1093,7 +1100,7 @@ def addItem(i, myitem, ebay_id=None):
 			api.execute('ReviseFixedPriceItem', myitem)
 			resp = json.loads(api.response.json())
 			_logger.info("RESPONSE REVISE: %s" % resp)
-			return True, True
+			return 1, resp
 		else:
 			_logger.info("GOING TO INSERT NEW %s" % ebay_id)
 			api.execute('AddFixedPriceItem', myitem)
@@ -1109,7 +1116,7 @@ def addItem(i, myitem, ebay_id=None):
 		error = json.loads(e.response.json())
 		#eCode = error["Errors"]["ErrorCode"]
 		_logger.warning("*****ERROR: %s" % error)
-		return None, None
+		return None, error
 
 def removeFromEbay(opts, cert, dev, app, tok, ebay_ids):
 	_logger = logging.getLogger(__name__)

@@ -991,7 +991,7 @@ def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):
 
 		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ('state', 'not in', ['draft', 'obsolete']),("do_not_publish_mage", "=", False)], context=None) # , ("do_not_publish_mage", "!=", True)
 		to_remove_ids = self.pool.get('product.template').search(cr, uid, ['|', ("categ_id.magento_id", "=", 0), ('categ_id.do_not_publish_mage', '=', True), ('state', 'in', ['draft', 'obsolete']),("do_not_publish_mage", "=", True)], context=None)
-		to_remove = self.pool.get('product.template').search(cr, uid, to_remove_ids, context=None)
+		to_remove = self.pool.get('product.template').browse(cr, uid, to_remove_ids, context=None)
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
 
 

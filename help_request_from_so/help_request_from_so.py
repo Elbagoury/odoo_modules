@@ -33,8 +33,8 @@ class CreateHelpRequest(models.TransientModel):
 class crm_helpdesk_extended(models.Model):
     _inherit = 'crm.helpdesk'
     state = fields.Selection([('draft', 'Warehouse'),
-     ('time_preview', 'Time previewing'),
      ('open', 'Production check'),
+     ('time_preview', 'Time previewing'),
      ('sales_call', 'Sales call'),
      ('pending', 'Waiting for customer'),
      ('complete_info', 'Complete info'),
@@ -64,4 +64,10 @@ class SaleOrder(models.Model):
 
     
   helpdesk_note = fields.Char(string="Helpdesk note", compute="_get_helpdesk")
-  helpdesk_state = fields.Char(string="Helpdesk state", compute="_get_helpdesk")
+  helpdesk_state = fields.Selection([('draft', 'Warehouse'),
+     ('open', 'Production check'),
+     ('time_preview', 'Time previewing'),
+     ('sales_call', 'Sales call'),
+     ('pending', 'Waiting for customer'),
+     ('complete_info', 'Complete info'),
+     ('done', 'Closed')], string="Helpdesk state", compute="_get_helpdesk")

@@ -67,12 +67,16 @@ class account_invoice(models.Model):
 class account_invoice(models.Model):
 	_inherit = "account.invoice"
 
-	#@api.multi
-	#def invoice_validate(self):
-	#	for invoice in self:
-	#		if invoice.type == 'out_invoice':
-	#			self.pool.get('email.template').send_mail(self._cr, self._uid, 12, invoice.id)
-	#	return self.write({'state': 'open'})
+	#def test_mail(self, cr, uid, ids, context=None):
+	#	return self.pool.get('email.template').send_mail(cr, uid, 12, ids[0])
+	
+		
+	@api.multi
+	def invoice_validate(self):
+		for invoice in self:
+			if invoice.type == 'out_invoice' and invoice.state not in ['draft', 'cancel']:
+				self.pool.get('email.template').send_mail(self._cr, self._uid, 12, invoice.id)
+		return self.write({'state': 'open'})
 
 	discount_method = fields.Selection([('fixed','Fixed'), ('percent','Percent')], string="Discount method")
 	invoice_discount = fields.Float(string="Invoice discount")

@@ -33,6 +33,8 @@ class product_ebay(osv.osv):
 		'ebay_custom_desc': fields.text(string="Custom description")
 
 	}
+	def export_now(self, cr, uid, ids, context=None):
+		self.pool.get('ebay').export_products(cr, uid, ids, product_id=ids, context=None)
 	def remove_product(self, cr, uid, ids, context=None):
 		self.pool.get('ebay').remove_product(cr, uid, ids, context=None)
 	def open_on_ebay(self, cr, uid, ids, context=None):

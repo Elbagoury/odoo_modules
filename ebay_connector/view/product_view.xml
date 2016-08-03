@@ -20,6 +20,7 @@
 									</field>
 									<!--<button name="open_on_ebay" string="Open on ebay" type="object" class="oe_hightlight" style="margin:0px; margin-left:15px;" />-->
 									<button name="remove_product" string="Remove from EBAY" type="object" class="oe_hightlight" style="margin:0px; margin-left:15px;" />
+									<button name="export_now" string="EXPORT TO EBAY" type="object" class="oe_hightlight" style="margin:0px; margin-left:15px;" />
 								</group>
 
 								<field name="ebay_date_added" string="Added or last modified" readonly="True"/>

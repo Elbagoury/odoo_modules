@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="delivery_cost_precision" model="ir.ui.view">
+				<field name="name">delivery.cost.precision.form</field>
+				<field name="model">delivery.grid.line</field>
+				<field name="inherit_id" ref="delivery_master_grid.view_delivery_grid_line_form" />
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='list_price']" position="replace">
+
+							<field name="list_price" />
+							
+					</xpath>
+
+				</field>
+				</record>
+
+		</data>
+	</openerp>

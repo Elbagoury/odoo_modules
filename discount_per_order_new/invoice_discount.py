@@ -73,10 +73,11 @@ class account_invoice(models.Model):
 		
 	@api.multi
 	def invoice_validate(self):
+		self.write({'state': 'open'})
 		for invoice in self:
-			if invoice.type == 'out_invoice' and invoice.state not in ['draft', 'cancel']:
+			if invoice.type == 'out_invoice':
 				self.pool.get('email.template').send_mail(self._cr, self._uid, 12, invoice.id)
-		return self.write({'state': 'open'})
+		return True
 
 	discount_method = fields.Selection([('fixed','Fixed'), ('percent','Percent')], string="Discount method")
 	invoice_discount = fields.Float(string="Invoice discount")

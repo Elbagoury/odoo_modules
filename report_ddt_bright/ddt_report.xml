@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <openerp>
+        <data>
+            <template id="report_ddt_sea" inherit_id="l10n_it_ddt.report_ddt">
+                <xpath expr="//t[@t-call='report.external_layout']" position="replace">
+                    <div class="page">
+                        <div style="font-family: Times, sans-serif; font-size:12px; width:826px; height:1142px; padding:15px 30px;">
+                            <header style="margin-bottom:10px; width:800px;min-width:800px">
+                                <div style="float:left; width:200px; margin:20px; margin-right:40px;">
+                                    <img src="http://www.brightimage.eu/images/banners/brightlogo01.png" style="width:150px; " />
+                                </div>
+                                <div style="float:left; width:200px; padding-top:10px; color:#0028bd; font-size:12px;display:inline">
+                                    <h1 style="margin:0; font-size:12px;"><span style="font-weight:normal;">BRIGHT IMAGE s.r.l. Unipersonale</span></h1>
+                                    <p style="margin:0; padding:0; font-size:12px;">Sede Legale: Via Luzzatti No 7</p>
+                                    <p style="margin:0; padding:0; font-size:12px;">20133 Milano (MI)</p>
+                                    <p style="margin:0; padding:0; font-size:12px;">Cod. Fisc. - P- Iva 06285510969</p>
+                                    <p style="margin:0; padding:0; font-size:12px; ">Reg. Imo. REA No MI-1882234</p>
+                                    <p style="margin:0; padding:0; font-size:12px; ">Cap. Soc, Int Vers. 10.000,00</p>
+                                </div>
+                                <div style="float:right; width:280px; padding-top:10px; color:#0028bd; text-align:right;display:inline">
+                                    <p style="margin:0; padding:0; font-size:12px;">Tel ++39 (0)2 40705469</p>
+                                    <p style="margin:0; padding:0; font-size:12px;">Fax ++39 (0)2 40705715</p>
+                                    <p style="margin:0; padding:0; font-size:12px;">Web: www.brightimage.it</p>
+                                    <p style="margin:0; padding:0; font-size:12px;">www.brightimage.eu</p>
+                                    <p style="margin:0; padding:0; font-size:12px;">E-mail: info@brightimage.it</p>
+                                    <p style="margin:0; padding:0; font-size:12px;">info@brightimage.eu</p>
+                                </div>
+                                <div style="clear:both;"></div>
+                            </header>
+                            <div style="width:49%; float:left; margin-right:1%;">
+                                <h3 style="margin:15px 0 0 5px; font-size:15px">Destinatario:</h3>
+                                <div style="width:100%; height:120px; border:1px solid black;">
+
+                                    <p t-field="o.partner_id.name" style="margin:5px"> </p>
+                                    <p t-field="o.partner_id.street" style="margin:5px"></p>
+                                    <p t-field="o.partner_id.city" style="margin:5px"><span t-field="o.partner_id.zip"></span> <span t-field="o.partner_id.city"></span> <span t-field="o.partner_id.state_id.code"></span> <span t-field="o.partner_id.country_id.code"></span></p>
+                                    <p style="margin:5px"><b>Partita IVA e Codice Fiscale</b></p>
+                                    <p style="margin:5px"><span t-field="o.partner_id.vat" /> - <span t-field="o.partner_id.fiscalcode" /></p>
+                                </div>
+                            </div>
+
+                            <div style="width:49%; float:right; margin-left:1%;">
+                                <h2 style="float:right; font-size:18px; margin-top:5px">Documento di Transporto</h2>
+                                <h3 style="margin:15px 0 0 5px; font-size:15px">Luogo di consegna:</h3>
+                                <div style="width:100%; height:70px; border:1px solid black;">
+                                    <p t-field="o.partner_shipping_id.name" style="margin:5px"></p>
+                                    <p t-field="o.partner_shipping_id.street" style="margin:5px"></p>
+                                    <p style="margin:5px"><span t-field="o.partner_shipping_id.zip"></span> <span t-field="o.partner_shipping_id.city"></span> <span t-field="o.partner_shipping_id.state_id.code"></span> <span t-field="o.partner_shipping_id.country_id.code"></span></p>
+
+                                </div>
+                                <div style="width:100%; height:40px; border:1px solid black; margin-top:8px">
+                                    <h3 style="margin:12px 5px; font-size:14px;"><b>ORARI CONSEGNA :</b></h3>
+                                </div>
+                            </div>
+                            <div style="clear:both;"></div>
+
+                            <div style="margin-top:10px;">
+                                <table style="border-collapse: collapse; margin:0; padding:0;  width:100%; font-size:12px;  border:1px solid black;">
+                                    <tr style="text-align:center;height:40px;">
+                                        <td style="border-right:1px solid black;">
+                                            <p style="margin:0;padding:0;"><b>Data DDT</b></p>
+                                            <p t-field="o.date" t-field-options='{"format": "d/MM/yyyy"}' style="margin:0;padding:5px;height:14px;"></p>
+                                        </td>
+                                        <td style="border-right:1px solid black; width:120px;">
+                                            <p style="margin:0;padding:0;"><b>N.DDT</b></p>
+                                            <p t-field="o.ddt_number" style="margin:0;padding:5px; height:14px;"></p>
+                                        </td>
+                                        <!--<td style="border-right:1px solid black;">
+                             <p style="margin:0;padding:0;"><b>Pag.</b></p>
+                             <p style="margin:0;padding:5px;height:14px;">1</p>
+                         </td>-->
+                                        <td style="border-right:1px solid black;">
+                                            <p style="margin:0;padding:0;"><b>Valuta</b></p>
+                                            <p style="margin:0;padding:5px;height:14px;"></p>
+                                        </td>
+                                        <td style="border-right:1px solid black; width:65%; text-align:left;padding-left:10px">
+                                            <p style="margin:0;padding:0;"><b>Causale del trasporto</b></p>
+                                            <p t-field="o.transportation_reason_id.name" style="margin:0;padding:5px; height:14px;"></p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="margin-top:10px; min-height:640px; margin-bottom:10px;">
+                                <table style="border-collapse: collapse; margin:0; padding:0; width:100%; font-size:11px;border:1px solid black;">
+                                    <tr style="border:1px solid black;">
+                                        <th style="border-right:1px solid black;padding:5px">Codice Articolo</th>
+                                        <th style="border-right:1px solid black;padding:5px">Descrizione</th>
+                                        <th style="border-right:1px solid black;padding:5px">Codice cliente</th>
+                                        <th style="border-right:1px solid black;padding:5px">Riferimento ordini</th>
+                                        <th style="border-right:1px solid black;padding:5px">U.M.</th>
+                                        <th style="border-right:1px solid black;padding:5px">Quantità</th>
+                                        <th style="border-right:1px solid black;padding:5px">Prezzo</th>
+                                        <th style="border-right:1px solid black;padding:5px">Sconti</th>
+                                        <th style="border-right:1px solid black;padding:5px">Importo</th>
+                                        <th>C.I.</th>
+                                    </tr>
+
+                                    <tr t-foreach="o.picking_ids" t-as="pick" style="">
+                                        <tr t-foreach="pick.move_lines" t-as="ln" style="">
+                                            <td style="border-right:1px solid black; padding:5px;"><span t-field="ln.product_id.name"></span></td>
+                                            <td style="border-right:1px solid black; padding:5px;"><span t-field="ln.product_id.description"></span>
+                                            </td>
+                                            <td style="border-right:1px solid black; padding:5px;"><span t-field="ln.custom_note"></span>
+                                            </td>
+                                            <td style="border-right:1px solid black; padding:5px;"><span t-field="ln.picking_id.origin"></span>
+                                            </td>
+                                            <td style="border-right:1px solid black; text-align: center; padding:5px;"><span t-field="ln.product_uom"></span></td>
+                                            <td style="border-right:1px solid black; text-align: center; padding:5px;"><span t-field="ln.product_uom_qty"></span></td>
+                                            <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
+                                            <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
+                                            <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
+                                            <td style="border-right:1px solid black; text-align: center; padding:5px;"></td>
+                                        </tr>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style="margin-top:5px;">
+                                
+                                <table style="border-collapse: collapse; margin:0; padding:0; width:100%; ; font-size:11px;border:1px solid black;">
+                                    <tr style="border-top:1px solid black;text-align:left;">
+                                        <td style="padding:0 5px;">Trasporto a mezzo</td>
+                                        <td style="">Porto</td>
+                                        <td style="">N.Colli</td>
+                                        <td style="">Peso netto</td>
+                                        <td style="border-right:1px solid black;">Peso lordo</td>
+                                        <td style="padding:0px 5px;">Data e Ora del Trasporto</td>
+                                        <td style="">Aspetto esteriore dei beni</td>
+                                    </tr>
+                                    <tr style="text-align:left;">
+                                        <td style="padding:7px 5px;"><span t-field="o.transportation_method_id.name"></span></td>
+                                        <td style=""><span t-field="o.carriage_condition_id.name"></span></td>
+                                        <td style=""><span t-field="o.parcels"></span></td>
+                                        <td style=""><span t-field="o.net_weight_gls"></span></td>
+                                        <td style="border-right:1px solid black;"><span t-field="o.total_weight"></span></td>
+                                        <td style="padding:7px 5px; height:26px;"><span t-field="o.date"></span></td>
+                                        <td style="text-align:left;"><span t-field="o.goods_description_id.name"></span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="margin-top:5px; font-size:11px;">
+                                <div style="width:49%; float:left; margin-right:1%;">
+                                    <div style="width:100%; height:35px; border:1px solid black;">
+                                        <p style="margin:0;padding:2px;">Vettore</p>
+                                        <p style="margin:0;padding-left:5px;"><span t-field="o.carrier_id.name"></span></p>
+                                    </div>
+                                </div>
+                                <div style="width:49%; float:right; margin-left:1%;">
+                                    <div style="width:100%; height:35px; border:1px solid black;">
+                                        <p style="margin:0;padding:2px;">Firma Vettore</p>
+
+                                    </div>
+                                </div>
+                                <div style="width:49%; float:left; margin-right:1%;margin-top:5px;">
+                                    <div style="width:100%; height:35px; border:1px solid black;">
+                                        <p style="margin:0;padding:2px;">Firma Conducente</p>
+
+                                    </div>
+                                </div>
+                                <div style="width:49%; float:right; margin-left:1%; margin-top:5px;">
+                                    <div style="width:100%; height:35px; border:1px solid black;">
+                                        <p style="margin:0;padding:2px;">Firma Destinatario</p>
+
+                                    </div>
+                                </div>
+                                <div style="clear:both;"></div>
+                            </div>
+
+                            <p style="text-align:center;font-size:8px; width:70%; margin: 0 auto;">La merce viaggia a rischio e pericolo del Destinatario.Non verranno accettate contestazioni trascorsi 8 gg dalla data di consegna. Eventuali loghi , nomi e marchi inseriti nella presente documentazione sono registrati e appartengono ai rispettivi proprietari.</p>
+                        </div>
+                    </div>
+                </xpath>
+
+            </template>
+        </data>
+    </openerp>

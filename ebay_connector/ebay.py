@@ -154,6 +154,8 @@ class ebay(models.Model):
 		_logger = logging.getLogger(__name__)
 		(opts, args) = init_options()
 		current_record = None
+		if product_id:
+			ids = self.pool.get('ebay').search(cr, uid, [], context=None)[0]
 		for record in self.browse(cr, uid, ids, context=context):
 			current_record = record
 
@@ -167,6 +169,7 @@ class ebay(models.Model):
 
 		_logger.warning("***EBAY: Product count: %s********" % len(pro_ids))
 		if pro_ids:
+
 			for pro in prd_tmp.browse(cr, uid, pro_ids, context=context):
 				_logger.warning("*******INSIDE PRODUCT %s ************" % pro.name)
 
@@ -178,11 +181,15 @@ class ebay(models.Model):
 						suffix = "_ZW" + str(cnt)
 						code = pro.name
 						desc = "%s  %s" % (pro.main_name_part, pn.name)
+						if len(desc) > 80:
+							self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s" % code, 'error': 'Title too long / Il tilolo tropo lungo', 'datetime': datetime.datetime.now()}, context=None)
+
 						code += suffix
 						_logger.warning("********* INSERTING PRODUCT %s ******** %s" % (code, len(pro.name_parts)))
 						item = save_product(pro, code, desc, lst_up, current_record)
 						if "Error" in item:
-							raise osv.except_osv(_(code), _(item['Error']))
+							self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s" % code, 'error': item['Error'], 'datetime': datetime.datetime.now()}, context=None)
+							#raise osv.except_osv(_(code), _(item['Error']))
 
 						if not pn.ebay_id:
 							ebay_id, ebay_date = addItem(current_record, item)
@@ -195,15 +202,21 @@ class ebay(models.Model):
 
 						else:
 							_logger.info("This one has ebay_id %s" % pn.ebay_id)
-							addItem(current_record, item, ebay_id=pn.ebay_id)
+							res, mess = addItem(current_record, item, ebay_id=pn.ebay_id)
+							if not res:
+								self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s (ebay side)" % code, 'error': mess, 'datetime': datetime.datetime.now()}, context=None)
 				elif len(pro.description) <= 80:
 					_logger.warning("********* INSERTING PRODUCT %s  NO NAME PARTS********" % pro.name)
 					item = save_product(pro, pro.name, pro.description, lst_up, current_record)
 					if "Error" in item:
-						raise osv.except_osv(_(code), _(item['Error']))
+						self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s" % code, 'error': item['Error'], 'datetime': datetime.datetime.now()}, context=None)
+						#raise osv.except_osv(_(code), _(item['Error']))
+
 					if pro.ebay_id:
 						ebay_id = pro.ebay_id[0].ebay_id
-						addItem(current_record, item, ebay_id=ebay_id)
+						res, mess = addItem(current_record, item, ebay_id=ebay_id)
+						if not res:
+							self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s (ebay side)" % code, 'error': mess, 'datetime': datetime.datetime.now()}, context=None)
 					else:
 
 						ebay_id, ebay_date = addItem(current_record, item)
@@ -214,6 +227,8 @@ class ebay(models.Model):
 				else:
 					_logger.warning("********* Skipping %s ********" % pro.name)
 					continue
+
+
 
 		current_record.products_exported_date = datetime.datetime.now()
 
@@ -314,7 +329,7 @@ class ebay(models.Model):
 
 	def import_orders(self, cr, uid, ids, context=None):
 		_logger = logging.getLogger(__name__)
-		_logger.info("STARTING_IMPORT_ORDERS")
+		_logger.info("STARTINGS")
 		#ids = self.pool.get('ebay').search(cr, uid, ids, [], context=None)
 		r = self.browse(cr, uid, ids, context=context)
 		if not r:
@@ -1100,7 +1115,7 @@ def addItem(i, myitem, ebay_id=None):
 			api.execute('ReviseFixedPriceItem', myitem)
 			resp = json.loads(api.response.json())
 			_logger.info("RESPONSE REVISE: %s" % resp)
-			return 1, resp
+			return True, resp
 		else:
 			_logger.info("GOING TO INSERT NEW %s" % ebay_id)
 			api.execute('AddFixedPriceItem', myitem)
@@ -1116,7 +1131,7 @@ def addItem(i, myitem, ebay_id=None):
 		error = json.loads(e.response.json())
 		#eCode = error["Errors"]["ErrorCode"]
 		_logger.warning("*****ERROR: %s" % error)
-		return None, error
+		return False, error
 
 def removeFromEbay(opts, cert, dev, app, tok, ebay_ids):
 	_logger = logging.getLogger(__name__)
@@ -1375,9 +1390,17 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 			res_par = self.pool.get('res.partner')
 
 			pro_tmp = self.pool.get('product.template')
-			#SELECT WHICH IS THE CASE
-			#NOT PAID, CANCELED
+			canceled = False
 			extra_note = ''
+			if o["OrderStatus"] == "Completed" and o['CheckoutStatus']['Status'] == "Complete" and "PaidTime" in o:
+				paid = True
+				delivered = False
+				print "PAID"
+				print o["OrderID"], o['BuyerUserID']
+			else:
+				return True
+			#elif canceled = True
+			"""
 			if o["OrderStatus"] == "Active" and o["CheckoutStatus"]["Status"] == "Incomplete" and "PaidTime" not in o:
 				paid = False
 				delivered = False
@@ -1402,13 +1425,17 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 				print o["OrderID"], o['BuyerUserID']
 				extra_note = "****ODOO IMPORT MESSAGE**** THIS ONE DOES NOT BELONG ANYWHERE"
 				#return False
-
+			"""
 
 			#check if exists
 			xid = self.pool.get('sale.order').search(cr, uid, [('ebay_id', '=', o["OrderID"])], context=context)
 			if xid:
 				this_so = self.pool.get('sale.order').browse(cr, uid, xid, context=None)
 
+			if canceled:
+				if this_so:
+					this_so.state = 'cancel'
+				return True
 			user_id = r.default_user.id if r.default_user else uid
 			eb_order_id = o['OrderID']
 			ebay_date = o['CreatedTime']

@@ -1,6 +1,6 @@
 {
     'name': 'Carrier ID from delivery',
     'author': 'GigraphixDevOps',
-    'depends': ['account', 'delivery', 'base'],
+    'depends': ['account', 'delivery_master_grid', 'base'],
     'data':[]
 }

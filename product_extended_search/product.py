@@ -27,6 +27,10 @@ class SaleOrderLine(models.Model):
             		if len(new_name) < 100:
             			new_name += '%s ' % a
                 name = new_name
+                if product_obj.oem_code:
+                    name += " - OEM: %s" % product_obj.oem_code
+                if product_obj.no_of_copies:
+                    name += " - Copies: %s" % product_obj.no_of_copies
                 #_logger.info(name)
             res['value'].update(
                 {

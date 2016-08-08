@@ -636,6 +636,7 @@ class Magento_sync(models.Model):
 									'user_id': user_id,
 									'order_policy':'picking',
 									'company_id': company,
+									'carrier_id': partner.property_delivery_carrier.id or None,
 									'note':o['comment'] if 'comment' in o else '',
 									#'payment_method_id': pm_id,
 									#'workflow_process_id':1,

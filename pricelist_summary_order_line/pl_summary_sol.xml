@@ -16,5 +16,48 @@
   					</xpath>
   				</field>
   			</record>
+
+				<record id="pricelist_summary_form_product" model="ir.ui.view">
+	  				<field name="name">pricelist.summary.form.p.t</field>
+	  				<field name="model">product.template</field>
+	  				<field name="inherit_id" ref="product.product_template_only_form_view" />
+	  				<field name="arch" type="xml">
+	            <xpath expr="//page[@string='Sales']" position="before">
+								<page string="Prices">
+	  							<field name="pricelist_discount_summary" readonly="1"/>
+								</page>
+	  					</xpath>
+	  				</field>
+	  			</record>
+
+					<record id="pricelist_form_summary" model="ir.ui.view">
+		  				<field name="name">pricelist.form.summary</field>
+		  				<field name="model">product.pricelist</field>
+		  				<field name="inherit_id" ref="product.product_pricelist_view" />
+		  				<field name="arch" type="xml">
+		            <xpath expr="//field[@name='type']" position="before">
+
+		  							<field name="is_main"/>
+
+		  					</xpath>
+		  				</field>
+		  			</record>
+
+						<record id="pricelist_form_summary_partner" model="ir.ui.view">
+								<field name="name">pricelist.form.summary.partner</field>
+								<field name="model">res.partner</field>
+								<field name="inherit_id" ref="product.view_partner_property_form" />
+								<field name="arch" type="xml">
+									<xpath expr="//field[@name='property_product_pricelist']" position="after">
+
+											<field name="pricelist_summary_product_id"/>
+											<button name="get_prices" type="object" string="Get prices" class="oe_highlight"/>
+											<group colspan='2'>
+													<field name="pricelist_summary"/>
+											</group>
+
+									</xpath>
+								</field>
+							</record>
 		</data>
 	</openerp>

@@ -1250,7 +1250,7 @@ def getOrders(opts, cert, dev, app, tok, order_id=None):
 			api.execute('GetOrders', {'OrderIDArray': {'OrderID':order_id}})
         	#api.execute('GetOrderTransactions', {'OrderIDArray': {'OrderID':order_id}})
 		else:
-			api.execute('GetOrders', {'NumberOfDays': 2, 'OrderStatus': 'All',  'DetailLevel': 'ReturnAll'})
+			api.execute('GetOrders', {'NumberOfDays': 5, 'OrderStatus': 'All',  'DetailLevel': 'ReturnAll'})
         #api.execute('GetOrderTransactions', {'OrderIDArray': {'OrderID':'131201365591-1190809310003'}})
 		res = api.response.json()
 		res = json.loads(res)
@@ -1261,7 +1261,7 @@ def getOrders(opts, cert, dev, app, tok, order_id=None):
 		_logger.info('---- TOTALS: %s %s' % (total_pages, total_entries))
 		if total_pages > 1:
 			for i in range(2,total_pages+1):
-				api.execute('GetOrders', {'NumberOfDays': 2, 'OrderStatus': 'All',  'Pagination': {'PageNumber': i, 'EntriesPerPage': 100}, 'DetailLevel': 'ReturnAll'})
+				api.execute('GetOrders', {'NumberOfDays': 5, 'OrderStatus': 'All',  'Pagination': {'PageNumber': i, 'EntriesPerPage': 100}, 'DetailLevel': 'ReturnAll'})
 				new_res = api.response.json()
 				new_res = json.loads(new_res)
 				for x in new_res["OrderArray"]["Order"]:

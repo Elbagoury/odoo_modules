@@ -234,6 +234,7 @@ def _sync(self, cr, uid, ids, context=None):
 					models.execute_kw(db, uid, password, 'product.template', 'create', [vals])
 				else:
 					f_id = f_id[0]
+					vals.pop('categ_id')
 					updated = models.execute_kw(db, uid, password, 'product.template', 'write', [[f_id], vals])
 					_logger.info("************** %s" % updated)
 

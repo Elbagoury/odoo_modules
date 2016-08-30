@@ -381,10 +381,9 @@ class gls_invoice(models.Model):
 					#swith open(label_name, 'w') as p:
 					#	p.write(decoded)
 					print "OK"
-		if prcls > 0:
-			email_template = config.confirmation_email_template
-			if email_template:
-				self.pool.get('email.template').send_mail(cr, uid, email_template.id, curr_invoice.id)
+		if not curr_invoice.sent:
+			self.pool.get('email.template').send_mail(cr, uid, 12, curr_invoice.id)
+			self.write({'send': True})
 		#except:
 		#	print "Fatal: Error writing xml/pdf file to disk!"
 		#	return False

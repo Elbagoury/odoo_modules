@@ -69,14 +69,19 @@ class account_invoice(models.Model):
 
 	#def test_mail(self, cr, uid, ids, context=None):
 	#	return self.pool.get('email.template').send_mail(cr, uid, 12, ids[0])
-	
-		
+
+
 	@api.multi
 	def invoice_validate(self):
 		self.write({'state': 'open'})
 		for invoice in self:
-			if invoice.type == 'out_invoice':
+			delivery_grid_obj = self.pool.get('delivery.grid')
+			default_id = delivery_grid_obj.search(self._cr, self._uid, [('default_courier', '=', True)], context=None)
+			if default_id:
+				default_id == default_id[0]
+			if invoice.type == 'out_invoice' and invoice.courier_id != default_id:
 				self.pool.get('email.template').send_mail(self._cr, self._uid, 12, invoice.id)
+				self.write({'send': True})
 		return True
 
 	discount_method = fields.Selection([('fixed','Fixed'), ('percent','Percent')], string="Discount method")

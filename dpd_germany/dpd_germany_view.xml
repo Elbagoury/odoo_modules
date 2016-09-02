@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<menuitem id="menu_dpd" parent="base.menu_administration" name="DPD Germany" sequence="3" groups="base.group_no_one"/>
+
+
+      <record model="ir.actions.act_window" id="action_dpd_inst">
+    		<field name="name">Instances</field>
+    		<field name="res_model">dpd.germany</field>
+    		<field name="view_model">tree, form</field>
+    	</record>
+		<menuitem id="menu_dpd_inst" parent="menu_dpd" name="Instances" action="action_dpd_inst"/>
+    	<record model="ir.actions.act_window" id="action_dpd_parcel">
+    		<field name="name">Parcels</field>
+    		<field name="res_model">dpd.parcel</field>
+    		<field name="view_model">tree, form</field>
+    	</record>
+		<menuitem id="menu_dpd_parcels" parent="menu_dpd" name="Parcels" action="action_dpd_parcel"/>
+    <record model="ir.actions.act_window" id="action_dpd_log">
+      <field name="name">Logs</field>
+      <field name="res_model">dpd.log</field>
+      <field name="view_model">tree, form</field>
+    </record>
+  <menuitem id="menu_dpd_log" parent="menu_dpd" name="Logs" action="action_dpd_log"/>
+  <record model="ir.ui.view" id="dpd_parcel_form">
+    <field name="name">dpd parcel form</field>
+    <field name="model">dpd.parcel</field>
+    <field name="type">form</field>
+    <field name="arch" type="xml">
+      <form string="DPD parcel" version="7.0">
+        <sheet>
+          <group string="DPD parcel">
+            <field name="company" />
+            <field name="name" />
+            <field name="type" />
+            <field name="parcels" />
+            <field name="weight" />
+            <field name="address" />
+            <field name="town" />
+            <field name="postcode" />
+            <field name="country" />
+            <field name="telephone" />
+            <field name="ref" />
+        </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="dpd_parcel_tree" model="ir.ui.view">
+    <field name="name">dpd parcel tree</field>
+    <field name="model">dpd.parcel</field>
+    <field name="type">tree</field>
+    <field name="arch" type="xml">
+      <tree>
+        <field name="company" />
+        <field name="name" />
+        <field name="ref" />
+        <field name="type" />
+        <field name="parcels" />
+        <field name="weight" />
+      </tree>
+    </field>
+  </record>
+
+  <record model="ir.ui.view" id="dpd_log_form">
+    <field name="name">dpd log form</field>
+    <field name="model">dpd.log</field>
+    <field name="type">form</field>
+    <field name="arch" type="xml">
+      <form string="DPD log" version="7.0">
+        <sheet>
+          <group string="DPD log">
+            <field name="datetime"/>
+            <field name="name"/>
+            <field name="message"/>
+        </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="dpd_log_tree" model="ir.ui.view">
+    <field name="name">dpd log tree</field>
+    <field name="model">dpd.log</field>
+    <field name="type">tree</field>
+    <field name="arch" type="xml">
+      <tree>
+        <field name="datetime"/>
+        <field name="name"/>
+        <field name="message"/>
+      </tree>
+    </field>
+  </record>
+  <record id="dpd_create_form" model="ir.ui.view">
+    <field name="name">dpd.create.form</field>
+    <field name="model">delivery.grid</field>
+    <field name="inherit_id" ref="delivery_master_grid.view_delivery_grid_form" />
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='sequence']" position="before">
+
+          <field name="generate_file_for" />
+
+
+      </xpath>
+    </field>
+    </record>
+
+    <record model="ir.ui.view" id="dpd_inst_form">
+      <field name="name">dpd inst form</field>
+      <field name="model">dpd.germany</field>
+      <field name="type">form</field>
+      <field name="arch" type="xml">
+        <form string="DPD Instance" version="7.0">
+          <sheet>
+            <group string="DPD Instance">
+
+              <field name="name" />
+              <field name="host" />
+              <field name="user" />
+              <field name="password" />
+              <field name="port" />
+              <field name="path"/>
+              <field name="local_file_path"/>
+              <field name="last_gen"/>
+              <button name="generate_file" type="object" string="Generate file!" class="oe_highlight"/>
+
+          </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+  </data>
+</openerp>

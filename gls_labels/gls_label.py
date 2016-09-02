@@ -273,7 +273,7 @@ class gls_invoice(models.Model):
 				'contatore_progressivo': progressive_counter,
 				'colli': 1,
 				'note': vnote,
-				'invoice_id': curr_invoice.id,
+
 				'config_id': config.id
 			}
 			counter = self.pool.get('gls.parcel').create(cr, uid, vals, context=context)
@@ -364,26 +364,25 @@ class gls_invoice(models.Model):
 					dest = child.find('SiglaSedeDestino')
 					date = child.find('DataSpedizione')
 					comp_sped = "%s %s %s %s %s" % (sigla.text, sped_num.text, tot_colli.text, t_collo.text, dest.text)
-					self.pool.get('gls.parcel').write(cr, uid, counter, {'date':date,'numero_spedizione': sped_num.text, 'name': comp_sped, 'status': 'Pending closure', 'magento_id': mage_shipp_id or 0}, context=context)
-					print "SPED NUMBER: " + sped_num.text
+					parcel.date = date
+					parcel.numero_spedizione = sped_num.text
+					parcel.name = comp_sped
+					parcel.status = 'Pending closure'
+					parcel.magento_id = mage_shipp_id or 0
+					#self.pool.get('gls.parcel').write(cr, uid, counter, {'date':date,'numero_spedizione': sped_num.text, 'name': comp_sped, 'status': 'Pending closure', 'magento_id': mage_shipp_id or 0}, context=context)
+					#print "SPED NUMBER: " + sped_num.text
 
-					print child.tag
+					#print child.tag
 					label = child.find('PdfLabel')
 					decoded = base64.b64decode(label.text)
 
 					parcel.label_binary = label.text
 					parcel.label_filename = "gls-%s.pdf" % invoice_name
-
-
-
-
-					#label_name = '/home/testserver/odoo/ebay_temp/gls-%s.pdf' % invoice_name
-					#swith open(label_name, 'w') as p:
-					#	p.write(decoded)
-					print "OK"
+					curr_invoice.gls_parcel = [[4,parcel.id]]
+					#print "OK"
 		if not curr_invoice.sent:
 			self.pool.get('email.template').send_mail(cr, uid, 12, curr_invoice.id)
-			self.write({'send': True})
+			curr_invoice.sent = True
 		#except:
 		#	print "Fatal: Error writing xml/pdf file to disk!"
 		#	return False

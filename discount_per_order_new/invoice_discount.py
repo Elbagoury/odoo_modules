@@ -79,7 +79,7 @@ class account_invoice(models.Model):
 			default_id = delivery_grid_obj.search(self._cr, self._uid, [('default_courier', '=', True)], context=None)
 			if default_id:
 				default_id == default_id[0]
-			if invoice.type == 'out_invoice' and invoice.courier_id != default_id:
+			if invoice.type == 'out_invoice' and invoice.carrier_id != default_id:
 				self.pool.get('email.template').send_mail(self._cr, self._uid, 12, invoice.id)
 				self.write({'send': True})
 		return True

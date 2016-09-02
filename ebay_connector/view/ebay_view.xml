@@ -371,7 +371,7 @@
 						<button name="gls_print" position="after">
 
 							<field name="tracking_sent_to_ebay" invisible="1"/>
-							<button name="complete_sale_ebay" string="Send tracking to ebay - Experimental DO NOT TOUCH" type="object" class="oe_highlight" attrs="{'invisible': [('tracking_sent_to_ebay', '=', True)]}"/>
+							<button name="complete_sale_ebay" string="Send tracking to ebay" type="object" class="oe_highlight" attrs="{'invisible': [('tracking_sent_to_ebay', '=', True)]}"/>
 							<p attrs="{'invisible': [('tracking_sent_to_ebay', '=', False)]}">Tracking is sent to ebay</p>
 						</button>
 					</field>

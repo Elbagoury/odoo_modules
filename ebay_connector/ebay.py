@@ -1398,6 +1398,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 				print "PAID"
 				print o["OrderID"], o['BuyerUserID']
 			else:
+				_logger.info("------- ITS LIKE NOT PAYED %s" % o['BuyerUserID'])
 				return True
 			#elif canceled = True
 			"""
@@ -1431,10 +1432,12 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 			xid = self.pool.get('sale.order').search(cr, uid, [('ebay_id', '=', o["OrderID"])], context=context)
 			if xid:
 				this_so = self.pool.get('sale.order').browse(cr, uid, xid, context=None)
-
+			#get username (unique identifier)
+			uname = o['BuyerUserID']
 			if canceled:
 				if this_so:
 					this_so.state = 'cancel'
+				_logger.info("------- THIS ORDER IS CANCELED ON EBAY: %s (%s)" % (uname, float(o["Total"]["value"])) )
 				return True
 			user_id = r.default_user.id if r.default_user else uid
 			eb_order_id = o['OrderID']
@@ -1453,8 +1456,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 			if not ebay_pay_term:
 				raise osv.except_osv(_('Error importing orders'), _('Default payment term is not defined! \nGo on instance configuration and set Default Payment Term'))
 			#define partner
-			#get username (unique identifier)
-			uname = o['BuyerUserID']
+
 			_logger.info("---- IMPORTING ORDER %s (%s)" % (o['BuyerUserID'], float(o["Total"]["value"])))
 			#namex = o['ShippingAddress']['Name'] if 'ShippingAddress' in o else ''
 			p_ids = res_par.search(cr, uid, [("ebay_id", "=", uname)], context=context)

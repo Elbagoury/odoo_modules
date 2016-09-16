@@ -69,7 +69,7 @@ class account_invoice(models.Model):
 
 	@api.multi
 	def invoice_validate(self):
-		self.write({'state': 'open'})
+		res = super(account_invoice, self).invoice_validate(self._cr, self._uid, self._ids, context=None)
 		for invoice in self:
 			if invoice.type == 'out_invoice' and not invoice.carrier_id.default_courier:
 				self.pool.get('email.template').send_mail(self._cr, self._uid, 12, invoice.id)

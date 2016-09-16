@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+      <menuitem id="menu_base_var_import" parent="base.menu_administration" name="Variant import" sequence="3" groups="base.group_no_one"/>
+
+    	<record model="ir.actions.act_window" id="action_import_vars">
+    		<field name="name">Variant import</field>
+    		<field name="res_model">import.variants</field>
+    		<field name="view_model">tree, form</field>
+    	</record>
+		<menuitem id="menu_var_import" parent="menu_base_var_import" name="Import vars" action="action_import_vars"/>
+
+    <record model="ir.ui.view" id="var_import_form">
+        <field name="name">var import form</field>
+        <field name="model">import.variants</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Import variants" version="7.0">
+              <h1><field name="name"/></h1>
+              <p>Put file named 'variants.csv' in /home/gigra/ folder</p>
+                <group string="CSV File ">
+
+                  <field name="delimiter"/>
+                  <field name="quote"/>
+                  <field name="sea_code_col"/>
+                  <field name="client_code_col"/>
+                </group>
+                <group string="Import parameters">
+                  <field name="partner_id"/>
+                  <field name="attribute_id"/>
+                  <field name="sea_value_id"/>
+                  <field name="client_value_id"/>
+                </group>
+
+                <button name="import_file" string="START IMPORT" type="object" class="oe_highlight"/>
+            </form>
+        </field>
+    </record>
+    </data>
+  </openerp>

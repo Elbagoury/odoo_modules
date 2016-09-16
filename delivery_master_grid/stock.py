@@ -87,6 +87,8 @@ class stock_picking(osv.osv):
                 for inv_line in invoice.invoice_line):
             return None
         grid_id = picking.carrier_id.id
+        if not invoice.carrier_id:
+            self.pool.get('account.invoice').write(cr, uid, [invoice.id], {'carrier_id': grid_id}, context=None)
         if not grid_id:
             raise osv.except_osv(_('Warning!'),
                     _('The carrier %s (id: %d) has no delivery grid!') \
@@ -142,7 +144,10 @@ class stock_picking(osv.osv):
 
     def _get_default_uom(self, cr, uid, context=None):
         uom_categ_id = self.pool.get('ir.model.data').xmlid_to_res_id(cr, uid, 'product.product_uom_categ_kgm')
-        return self.pool.get('product.uom').search(cr, uid, [('category_id', '=', uom_categ_id), ('factor', '=', 1)])[0]
+        res=  self.pool.get('product.uom').search(cr, uid, [('category_id', '=', uom_categ_id), ('factor', '=', 1)])[0]
+        if not res:
+            return 1
+        return res
 
     _defaults = {
         'weight_uom_id': lambda self, cr, uid, c: self._get_default_uom(cr, uid, c),

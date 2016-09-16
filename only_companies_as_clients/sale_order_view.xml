@@ -6,22 +6,30 @@
 				<field name="model">sale.order</field>
 				<field name="inherit_id" ref="sale.view_order_form" />
 				<field name="arch" type="xml">
-					<field name="partner_id" position="replace">
-						<field name="partner_id" on_change="onchange_partner_id(partner_id, context)" domain="[('customer','=',True), ('is_company', '=', True), ('active', '=', True)]" context="{'search_default_customer':1, 'show_address': 1}" options='{"always_reload": True}'/>
-
+					<field name="partner_id" position="attributes">
+						<attribute name="context">{'search_default_customer':1, 'show_address': 0}</attribute>
+						<attribute name="domain">[('customer','=',True), ('is_company', '=', True), ('active', '=', True)]</attribute>
+						<!--<field name="partner_id" on_change="onchange_partner_id(partner_id, context)" domain="[('customer','=',True), ('is_company', '=', True), ('active', '=', True)]" context="" options='{"always_reload": True}'/>-->
 					</field>
-				</field>
+
+						<field name="partner_shipping_id" position="attributes">
+						  <attribute name="context">{'show_address':1,'default_type':'delivery'}</attribute>
+						  <attribute name="options">{"always_reload": True}</attribute>
+						</field>
+					</field>
+
 			</record>
 			<record id="account_invoice" model="ir.ui.view">
 				<field name="name">account.invoice.supp.alter.form</field>
 				<field name="model">account.invoice</field>
 				<field name="inherit_id" ref="account.invoice_supplier_form" />
 				<field name="arch" type="xml">
-					<field name="partner_id" position="replace">
-						<field string="Supplier" name="partner_id"
+					<field name="partner_id" position="attributes">
+						<attribute name="domain">[('supplier', '=', True), ('is_company', '=', True), ('active', '=', True)]</attribute>
+					<!--	<field string="Supplier" name="partner_id"
                               on_change="onchange_partner_id(type, partner_id, date_invoice, payment_term, partner_bank_id, company_id, context)"
                               context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1}"
-                              domain="[('supplier', '=', True), ('is_company', '=', True), ('active', '=', True)]"/>
+                              domain="[('supplier', '=', True), ('is_company', '=', True), ('active', '=', True)]"/>-->
 
 					</field>
 				</field>
@@ -31,16 +39,35 @@
 				<field name="model">account.invoice</field>
 				<field name="inherit_id" ref="account.invoice_form" />
 				<field name="arch" type="xml">
-					<field name="partner_id" position="replace">
-						<field string="Customer" name="partner_id"
+					<field name="partner_id" position="attributes">
+						<attribute name="context">{'search_default_customer':1, 'show_address': 0}</attribute>
+						<attribute name="options">{"always_reload": True}</attribute>
+						<attribute name="domain">[('customer', '=', True), ('is_company', '=', True), ('active', '=', True)]</attribute>
+					<!--	<field string="Customer" name="partner_id"
                                 on_change="onchange_partner_id(type, partner_id, date_invoice, payment_term, partner_bank_id, company_id, context)"
-                                context="{'search_default_customer':1, 'show_address': 1}"
+                                context="{'search_default_customer':1, 'show_address': 0}"
                                 options='{"always_reload": True}'
-                                domain="[('customer', '=', True), ('is_company', '=', True), ('active', '=', True)]"/>
+                                domain="[('customer', '=', True), ('is_company', '=', True), ('active', '=', True)]"/>-->
+					</field>
+					<!--<field name="address_shipping_id" position="attributes">
+						<attribute name="context">{'search_default_customer':1, 'show_address': 0}</attribute>
+						<attribute name="options">{"always_reload": True}</attribute>
+					</field>-->
+				</field>
+			</record>
 
+			<record id="account_invoice_shipping" model="ir.ui.view">
+				<field name="name">account.invoice.alter.shipping.form</field>
+				<field name="model">account.invoice</field>
+				<field name="inherit_id" ref="account_invoice_shipping_address.invoice_form_shipping_address" />
+				<field name="arch" type="xml">
+					<field name="address_shipping_id" position="attributes">
+						<attribute name="context">{'show_address': 1}</attribute>
+						<attribute name="options">{"always_reload": True}</attribute>
 					</field>
 				</field>
 			</record>
+
 			<record id="purchase_order" model="ir.ui.view">
 				<field name="name">purchase.order.alter.form</field>
 				<field name="model">purchase.order</field>
@@ -68,4 +95,3 @@
 			</record>
 		</data>
 	</openerp>
-

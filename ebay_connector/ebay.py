@@ -172,21 +172,22 @@ class ebay(models.Model):
 
 			for pro in prd_tmp.browse(cr, uid, pro_ids, context=context):
 				_logger.warning("*******INSIDE PRODUCT %s ************" % pro.name)
-
+				code = pro.name
 				if pro.main_name_part:
 
 					cnt = 0
 					for pn in pro.name_parts:
+						code_tmp = code
 						cnt += 1
 						suffix = "_ZW" + str(cnt)
-						code = pro.name
+
 						desc = "%s  %s" % (pro.main_name_part, pn.name)
 						if len(desc) > 80:
 							self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s" % code, 'error': 'Title too long / Il tilolo tropo lungo', 'datetime': datetime.datetime.now()}, context=None)
 
-						code += suffix
-						_logger.warning("********* INSERTING PRODUCT %s ******** %s" % (code, len(pro.name_parts)))
-						item = save_product(pro, code, desc, lst_up, current_record)
+						code_tmp += suffix
+						_logger.warning("********* INSERTING PRODUCT %s ******** %s" % (code_tmp, len(pro.name_parts)))
+						item = save_product(pro, code_tmp, desc, lst_up, current_record)
 						if "Error" in item:
 							self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s" % code, 'error': item['Error'], 'datetime': datetime.datetime.now()}, context=None)
 							#raise osv.except_osv(_(code), _(item['Error']))
@@ -1392,13 +1393,15 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 			pro_tmp = self.pool.get('product.template')
 			canceled = False
 			extra_note = ''
-			if o["OrderStatus"] == "Completed" and o['CheckoutStatus']['Status'] == "Complete" and "PaidTime" in o:
+			if o["OrderStatus"] == "Completed" and o['CheckoutStatus']['Status'] == "Complete" and 'PaidTime' not in o:
+				paid = False
+				delivered = False
+				return True
+			elif o["OrderStatus"] == "Completed" and o['CheckoutStatus']['Status'] == "Complete" and 'PaidTime' in o:
 				paid = True
 				delivered = False
-				print "PAID"
-				print o["OrderID"], o['BuyerUserID']
 			else:
-				_logger.info("------- ITS LIKE NOT PAYED %s" % o['BuyerUserID'])
+				_logger.info("------- ITS NOT COMPLETED %s" % o['BuyerUserID'])
 				return True
 			#elif canceled = True
 			"""
@@ -1614,7 +1617,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 					"delay": 0,
 					"transaction_id": ol["TransactionID"],
 					"order_line_item_id": ol["OrderLineItemID"],
-					"salesman_id": uid,
+					"salesman_id": user_id,
 					#"pricelist_id": pricelist_id,
 					'tax_id': [[4,1]],
 					'ebay_item_id': ol['Item']['ItemID']
@@ -1637,7 +1640,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 						"product_tmpl_id": [t.product_tmpl_id.id for t in self.pool.get('product.product').browse(cr, uid, self.pool.get('product.product').search(cr, uid, [("name", '=', 'Delivery cost')], context=None), context=None)][0] ,
 						"delay": 0,
 						#"state": state,
-						"salesman_id": uid,
+						"salesman_id": user_id,
 						"pricelist_id": pricelist_id,
 						'tax_id': [[4,1]]
 					}

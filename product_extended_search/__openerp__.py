@@ -11,10 +11,7 @@
         'product_template_search_view.xml',
         'product_template_tree_view.xml'
     ],
-    'test' : [
-    ],
+    
     'auto_install': False,
     'installable': True,
 }
-
-

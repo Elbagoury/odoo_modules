@@ -26,6 +26,8 @@ class dpd_germany(models.Model):
         inv_obj = self.pool.get('account.invoice')
         invoice_ids = inv_obj.search(cr, uid, [('dpd_bot_passed', '=', False)], context=None)
         invoices = inv_obj.browse(cr, uid, invoice_ids, context=None)
+        if not invoices:
+            return
         record = self.browse(cr, uid, ids, context=None)[0]
         values = []
         for invoice in invoices:
@@ -33,7 +35,7 @@ class dpd_germany(models.Model):
                 continue
             if invoice.carrier_id.generate_file_for:
                 valx = {
-                    'type': "NP,PAN,%s" % 'B2B' if invoice.partner_id.vat else 'NP',
+                    'type': "NP,PAN,B2B" if invoice.partner_id.vat else 'NP,PAN,B2C',
                     'parcels': invoice.parcels,
                     'weight': invoice.total_weight,
                     'ref': invoice.number or 'N/A',
@@ -61,6 +63,8 @@ class dpd_germany(models.Model):
             with open(record.local_file_path, 'wb') as csvfile:
                 writer = csv.writer(csvfile, delimiter=';',quotechar='\"', quoting=csv.QUOTE_MINIMAL)
                 _logger.info("2: %s" % values)
+                writer.writerow(['Versandart'] + ['Anzahl Pakete']+ ['Gewicht (kg)']+ ['Referenznr. 1:'] + ['Referenznr. 2:'] + ['Sendungs ID'] +['Firma'] + ['Name']+['Zu Haenden']+ ['Adresse 1']+['Adresse 2']+ ['Land']+['Region']+ ['PLZ']+['MSGVALUE']+ ['Stadt']+ ['Tel.']+['Ref. (Adresse)']+['NN-Betrag']+['Waehrung']+['Verwendungszweck']+['Benachrichtigungstyp 1']+ ['Kontaktdaten 1 ']+['Benachrichtigungsereignis 1']+ ['Proaktive Benachr. Sprache 1 ']+['ID Check'] + ['ABT Gebaeude'] + ['ABT Stockwerk']+['ABT Abteilung']+['Hoeherversicherung Betrag']+['Hoeherversicherung Waehrung'] + ['Hoeherversicherung Wareninhalt'] + ['Export: Inhalt']+['Enthaelt Begleitpapiere']+['Export: Laenge']+['Export: Breite']+['Export: Hoehe']+['Export: Inhaltsbeschreibung 1']+['Export: Rechnungsempfaenger']+['Export: Rechnungsadresse 1']+['Export: Rechnungsland']+['Export: Region']+['Export: Rechnung PLZ']+['Export: Stadt']+['Export: Warenwert']+['Export: Waehrung'])
+
                 for val in values:
                     _logger.info(val)
                     writer.writerow([val['type']] + [val['parcels']]+ [val['weight']]+ [val['ref']] + [''] + [''] +[val['company']] + [val['name']]+['']+ [val['address']]+['']+ [val['country']]+['']+ [val['postcode']]+[val['email']]+ [val['town']]+ [val['telephone']]+['']+['']+['']+['']+['']+ [val['msgtype1']]+['']+ [val['msglang1']])
@@ -69,8 +73,8 @@ class dpd_germany(models.Model):
         except:
             _logger.info("FAILED WRITING TO FILE")
             message += "Writing to file: FAILED "
-        #try:
-        if True:
+        try:
+
             #Transfer the file
             host = record.host
             user = record.user
@@ -81,7 +85,7 @@ class dpd_germany(models.Model):
             ftp = ftplib.FTP(host)
             ftp.set_pasv(False)
             ftp.login(user=user, passwd=password)
-            
+
             filename = record.local_file_path
             fn = 'file.csv'
             if path:
@@ -91,8 +95,8 @@ class dpd_germany(models.Model):
             _logger.info(response)
             message += "Tranfer to ftp: %s" % response
             ftp.quit()
-        #except:
-        #    message += "Transfering: FAILED"
+        except:
+            message += "Transfering: FAILED"
 
         record.last_gen = datetime.now()
         log_vals = {

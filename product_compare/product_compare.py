@@ -53,7 +53,7 @@ class product_compare(models.Model):
 				'product.template', 'search', [[['default_code', '=', p.default_code]]])
 			if rem_p_id:
 				models.execute_kw(db, uid, password,
-					'product.template', 'write', [rem_p_id, {'list_price': p.list_price}])
+					'product.template', 'write', [rem_p_id, {'list_price': p.list_price, 'net_price': p.net_price}])
 				cnt += 1
 				_logger.info("----UPDATED %s (%s)" % (p.default_code, cnt))
 

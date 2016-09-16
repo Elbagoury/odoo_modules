@@ -508,9 +508,7 @@ class Magento_sync(models.Model):
 
 							inc_id = order['increment_id']
 							exist_ids = self.pool.get('sale.order').search(cr, uid, [('magento_id', '=', inc_id)], context=context)
-							if len(exist_ids) > 0:
-
-
+							if exist_ids:
 								continue
 
 
@@ -689,7 +687,7 @@ class Magento_sync(models.Model):
 											"delay": 0,
 											#"route_id": 7, #Dropshipping
 											"salesman_id": user_id,
-											'tax_id': [[4,tax_id]]
+											"tax_id": [[4,tax_id]]
 										}
 
 										so_lines.append(line)
@@ -990,15 +988,16 @@ def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):
 
 	if not instant_product:
 
-		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ('state', 'not in', ['draft', 'obsolete']),("do_not_publish_mage", "=", False), ('can_be_sold', '=', True)], context=None) # , ("do_not_publish_mage", "!=", True)
-		to_remove_ids = self.pool.get('product.template').search(cr, uid, ['|', ("categ_id.magento_id", "=", 0), ('categ_id.do_not_publish_mage', '=', True), ('state', 'in', ['draft', 'obsolete']),("do_not_publish_mage", "=", True)], context=None)
+		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ('state', 'not in', ['draft', 'obsolete']),("do_not_publish_mage", "=", False), ('sale_ok', '=', True)], context=None) # , ("do_not_publish_mage", "!=", True)
+		to_remove_ids = self.pool.get('product.template').search(cr, uid, ['|', ("categ_id.magento_id", "=", 0), ('categ_id.do_not_publish_mage', '=', True), ('state', 'in', ['draft', 'obsolete']),("do_not_publish_mage", "=", True), ('sale_ok', '=',False)], context=None)
 		to_remove = self.pool.get('product.template').browse(cr, uid, to_remove_ids, context=None)
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
 
 
 		for tr in to_remove:
 			if tr.magento_id > 0:
-				_logger.info("---_%s" % _remove_product(self, cr, uid, ids, tr, magento))
+				rm_res = _remove_product(self, cr, uid, ids, tr, magento)
+				_logger.info("---_%s" % rm_res)
 
 		if not full:
 			ps = []
@@ -1022,7 +1021,7 @@ def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):
 
 	mage_cats = _sort_categories(mage_cats_raw)
 	counter = 0
-	_logger.warning("**************************** PRODUCT COUNT: %s" % len(products))
+	_logger.warning("***Magento export PRODUCT COUNT: %s" % len(products))
 
 
 	attr_set = magento.catalog_product_attribute_set.list()[0]
@@ -1036,18 +1035,15 @@ def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):
 		if cntx - last == 200:
 			_logger.info("----------- %s" % cntx)
 			last = cntx
+			magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
+
 
 		try:
-
-
 			#If failed to store locally, try to get over ws
 			mage_id = p.magento_id or None
 			if not mage_id:
 				mage_id = _get_mage_id(self, cr, uid, p.id, magento)
 				p.magento_id = mage_id
-
-
-
 
 			#Benchmark
 			starttime = datetime.datetime.now()
@@ -1184,7 +1180,7 @@ def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):
 						_logger.warning("PRODUCT UPDATED TO MAGENTO WITH ID %s" % p.magento_id)
 
 
-				_export_pricelists(self, cr, uid, p.magento_id, p, cs)
+				_export_pricelists(self, cr, uid, p, magento)
 
 			mi = None
 
@@ -1519,8 +1515,6 @@ class product_template(models.Model):
 	def unlink(self, cr, uid, ids, context=None):
 
 		products = self.browse(cr, uid, ids, context=None)
-
-		res = super(product_template, self).unlink(cr, uid, ids, context=None)
 		if True:
 			r = self.pool.get('magento_sync').search(cr, uid, [], context=None)
 			if r:
@@ -1534,6 +1528,8 @@ class product_template(models.Model):
 				for p in products:
 					if p.magento_id:
 						_delete_product_from_mage(cs, p.magento_id)
+		res = super(product_template, self).unlink(cr, uid, ids, context=None)
+
 
 		return res
 

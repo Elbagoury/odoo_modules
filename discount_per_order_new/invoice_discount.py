@@ -67,19 +67,11 @@ class account_invoice(models.Model):
 class account_invoice(models.Model):
 	_inherit = "account.invoice"
 
-	#def test_mail(self, cr, uid, ids, context=None):
-	#	return self.pool.get('email.template').send_mail(cr, uid, 12, ids[0])
-
-
 	@api.multi
 	def invoice_validate(self):
 		self.write({'state': 'open'})
 		for invoice in self:
-			delivery_grid_obj = self.pool.get('delivery.grid')
-			default_id = delivery_grid_obj.search(self._cr, self._uid, [('default_courier', '=', True)], context=None)
-			if default_id:
-				default_id == default_id[0]
-			if invoice.type == 'out_invoice' and invoice.carrier_id != default_id:
+			if invoice.type == 'out_invoice' and not invoice.carrier_id.default_courier:
 				self.pool.get('email.template').send_mail(self._cr, self._uid, 12, invoice.id)
 				self.write({'send': True})
 		return True

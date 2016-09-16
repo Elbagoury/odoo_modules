@@ -397,9 +397,18 @@ class StockMove(models.Model):
 class stock_pck_test(models.Model):
 	_inherit = "stock.picking"
 
+	def _default_uom(self):
+		_logger = logging.getLogger(__name__)
+		res = super(stock_pck_test, self)._default_uom()
+
+		if not res:
+			res = [1]
+
+		_logger.info("GETTING DEFAULT UOM %s" % res)
+		return res
+
 	def _get_invoice_vals(self, cr, uid, key, inv_type, journal_id, move, context=None):
 		_logger = logging.getLogger(__name__)
-
 
 		res = super(stock_pck_test, self)._get_invoice_vals(cr, uid, key, inv_type, journal_id, move, context=context)
 		partner, currency_id, company_id, user_id = key

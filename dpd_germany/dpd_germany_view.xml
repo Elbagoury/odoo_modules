@@ -128,5 +128,17 @@
         </form>
       </field>
     </record>
+
+
+    <record id="dpd_invoice" model="ir.ui.view">
+        <field name="name">dpd invoice</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="l10n_it_ddt.invoice_form_view_ddt"/>
+        <field name="arch" type="xml">
+        <xpath expr="//field[@name='parcels']" position="after">
+          <field name="dpd_bot_passed" string="Included in DPD file"/>
+        </xpath>
+      </field>
+      </record>
   </data>
 </openerp>

@@ -32,6 +32,9 @@
     					<field name="email_from" position="after">
                 <field name="phonenumber"/>
               </field>
+							<field name="description" position="after">
+								<field name="order" string=""/>
+							</field>
     				</field>
     			</record>
           <record id="help_sale_order_tree" model="ir.ui.view">

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+      <report
+          id="invoice_report_material"
+          model="account.invoice"
+          string="Material report"
+          report_type="qweb-pdf"
+          name="invoice_report_material.invoice_report_material_doc"
+          attachment_use="False"
+          file="invoice_report_material.invoice_report_material_doc"
+      />
+    </data>
+  </openerp>

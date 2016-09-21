@@ -1,7 +1,7 @@
 from openerp import models, fields, api, _
 from openerp.osv import osv
 import urllib2, urllib
-from openerp.osv import osv
+
 import datetime
 from magento_api import MagentoAPI
 import base64
@@ -502,16 +502,16 @@ class Magento_sync(models.Model):
 				orders = magento.sales_order.list()
 
 				for order in orders:
-
+							#retirieve order info
 							o = magento.sales_order.info(order['increment_id'])
 
-
 							inc_id = order['increment_id']
+							#check if exists
 							exist_ids = self.pool.get('sale.order').search(cr, uid, [('magento_id', '=', inc_id)], context=context)
 							if exist_ids:
 								continue
 
-
+							#if already done or cancelled, ignore
 							if o['status_history'][0]['status'] != 'pending':
 								continue
 
@@ -550,7 +550,7 @@ class Magento_sync(models.Model):
 									'invoice_warn': 'no-message',
 									'property_account_receivable':938,
 									'property_account_payable':993,
-									'notify_email':'always',
+									'notify_email':'never',
 									'magento_id': o['customer_id']
 								}
 								partner_id = self.pool.get('res.partner').create(cr, uid, par_vals, context=context)
@@ -567,7 +567,7 @@ class Magento_sync(models.Model):
 								if method.payment_term_id:
 									payment_term = method.payment_term_id.id
 
-							company_ids = self.pool.get('res.company').search(cr, uid, [], context=None)
+							#company_ids = self.pool.get('res.company').search(cr, uid, [], context=None)
 							shipping_partner = partner_id
 							if o['shipping_address']:
 
@@ -615,26 +615,27 @@ class Magento_sync(models.Model):
 
 
 
-
-							company = company_ids[0]
+							dc = self.pool.get('delivery.grid').search(cr, uid, [('default_courier', '=', True)], context=None)
+							dc = dc[0] if dc else None
+							#company = company_ids[0]
 							order_tmp = self.pool.get('sale.order')
 							vals = {
 									'partner_id': partner_id,
-									'amount_tax': float(o['base_tax_amount']),
-									'amount_untaxed': float(o['subtotal_incl_tax'])-float(o['base_tax_amount']),
+									#'amount_tax': float(o['base_tax_amount']),
+									#'amount_untaxed': float(o['subtotal_incl_tax'])-float(o['base_tax_amount']),
 									'pricelist_id': partner.property_product_pricelist.id or 1,
-									'amount_total': float(o['subtotal_incl_tax']),
+									#'amount_total': float(o['subtotal_incl_tax']),
 									#'name': so_name,
 									'partner_invoice_id': partner_id,
 									'partner_shipping_id': shipping_partner,
-									'order_policy': 'manual',
+									'order_policy': 'picking',
 									'picking_policy': 'direct',
 									'warehouse_id': 1,
 									'create_uid': user_id,
 									'user_id': user_id,
-									'order_policy':'picking',
-									'company_id': company,
-									'carrier_id': partner.property_delivery_carrier.id or None,
+
+									#'company_id': company,
+									'carrier_id': partner.property_delivery_carrier.id or dc,
 									'note':o['comment'] if 'comment' in o else '',
 									#'payment_method_id': pm_id,
 									#'workflow_process_id':1,
@@ -650,16 +651,34 @@ class Magento_sync(models.Model):
 
 							for ol in o['items']:
 										product_template_id = int(ol['sku'])
-										pro_ids = self.pool.get('product.product').search(cr, uid, [('product_tmpl_id', '=', product_template_id)], context=context)
-										if len(pro_ids) > 0:
-											pro_id = pro_ids[0]
-										else:
+										template = self.pool.get('product.template').browse(cr, uid, product_template_id, context=None)
+										if not template:
+											raise osv.except_osv(_("Error"), _("Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id)))
+										pros = template.product_variant_ids
+										if not pros:
+											raise osv.except_osv(_("Error"), _("No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name)))
 
-											_logger.warning("**********CANT FIND %s" % product_template_id)
-											continue
-										product = self.pool.get('product.product').browse(cr, uid, pro_id, context=None)[0]
-										pricelist =  partner.property_product_pricelist or None
+										company_id = self.pool.get('res.company').search(cr, uid, [], context=None)[0]
+										company = self.pool.get('res.company').browse(cr, uid, company_id, context=None)
+										company= company[0]
+										company_defs = [x.id for x in company.value_ids] if company.value_ids else []
+										categ_defs = [x.id for x in template.categ_id.value_ids]
+										product = None
+										for p in pros:
+											if any(x.id in categ_defs for x in p.attribute_value_ids):
+												product = p
+											if any(x.id in company_defs for x in p.attribute_value_ids):
+												product = p
+
+										if not product:
+											for p in pros:
+												if not p.attribute_value_ids:
+													product = p
+										if not product:
+											raise osv.except_osv(_("Error"), _("No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name)))
+										pricelist =  partner.property_product_pricelist or 1
 										discount_rate = 0
+										categ_ids = self.pool.get('sale.order.line')._get_categ_ids(product.categ_id) or []
 										if pricelist:
 
 											if len(pricelist.version_id):
@@ -667,29 +686,36 @@ class Magento_sync(models.Model):
 												items = version.items_id
 												qty = 0
 												for item in items:
-													if float(ol["qty_ordered"]) >= item.min_quantity and item.min_quantity >= qty:
-														discount_rate = (item.price_discount * -1) * 100
-														qty = item.min_quantity
+													if item.product_id and item.product_id.id != product.id:
+														continue
+													if item.categ_id and item.categ_id.id not in categ_ids:
+														continue
 
-										tax_id = product.product_tmpl_id.taxes_id[0].id if product.product_tmpl_id.taxes_id else 0
+													if float(ol["qty_ordered"]) >= item.min_quantity and item.min_quantity >= qty:
+															discount_rate = (item.price_discount * -1) * 100
+															qty = item.min_quantity
+
+
+
+										tax_id =template.taxes_id[0].id if template.taxes_id else None
 										line = {
 											"name": product.description,
 											"magento_id": ol['quote_item_id'],
-											"product_uom": 1,
+											"product_uom": product.uom_id.id,
 											"product_uos_qty": ol["qty_ordered"],
 											"price_unit": float(ol["original_price"]),
 											"product_uom_qty": float(ol["qty_ordered"]),
-											"pricelist_discount": discount_rate,
+											#"pricelist_discount": discount_rate,
 											"order_partner_id": partner_id,
 											"order_id": order_id,
-											"product_id": pro_id,
-											"product_template": product.product_tmpl_id.id,
+											"product_id": product.id,
+											"product_template": template.id,
 											"delay": 0,
 											#"route_id": 7, #Dropshipping
 											"salesman_id": user_id,
 											"tax_id": [[4,tax_id]]
 										}
-
+										_logger.info("----LINE %s" % line)
 										so_lines.append(line)
 
 							if 'shipping_amount' in o and o['shipping_amount'] and r.import_delivery_cost:
@@ -889,7 +915,7 @@ def _translate_category(self, cr, uid, cat_id, name,  cs):
 
 	return True
 def _export_pricelists(self, cr, uid, product, magento):
-	_logger = logging.getLogger(__name__)
+	#_logger = logging.getLogger(__name__)
 	pl_ids = self.pool.get('product.pricelist').search(cr, uid, [("mage_cat", ">", 0)], context=None)
 	pls = self.pool.get('product.pricelist').browse(cr, uid, pl_ids, context=None)
 
@@ -901,72 +927,63 @@ def _export_pricelists(self, cr, uid, product, magento):
 
 		categ_ids = {}
 
-		categ = product.categ_id
-		while categ:
-			categ_ids[categ.id] = True
-			categ = categ.parent_id
-		categ_ids = categ_ids.keys()
+		categ_ids = self.pool.get('sale.order.line')._get_categ_ids(product.categ_id) or []
 
 		items = v.items_id
 
 
 		for i in items:
-			if i.min_quantity == 0:
-				if i.categ_id.id and i.categ_id.id not in categ_ids:
+			mq = -1
+			price = 0
+			if i.product_tmpl_id:
+				if i.product_tmpl_id == product.id:
+					mq = i.min_quantity
+					price = (1+i.price_discount) * product.list_price + i.price_surcharge
 
-					continue
-				else:
-					curr = {
-
-						'group_id': p.mage_cat,
-						'qty': i.min_quantity,
-						'price': 1 + i.price_discount
-					}
-
-					res.append(curr)
-
+			elif i.categ_id:
+				if i.categ_id.id in categ_ids:
+					mq = i.min_quantity
+					price = (1+i.price_discount) * product.list_price + i.price_surcharge
 			else:
-				if i.categ_id.id and i.categ_id.id not in categ_ids:
+				mq = i.min_quantity
+				price = (1+i.price_discount) * product.list_price + i.price_surcharge
 
-					continue
-				else:
-					curr = {
+			curr = {
 
-						'group_id': p.mage_cat,
-						'qty': i.min_quantity,
-						'price': 1 + i.price_discount
-					}
-					res.append(curr)
+				'group_id': p.mage_cat,
+				'qty': mq,
+				'price':price
+			}
 
-
-
-	_logger.info("----- PRICELIST: %s" % res)
-
+			res.append(curr)
+	#_logger.info("====R0: %s" % res)
 	#magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
 
 	groups = []
 	tiers = []
 	for r in res:
 		if r['qty'] == 0:
-			if True:#r['categ_id'] and r['categ_id'] == p_cid:
-				mage_group = {
-					'cust_group': r['group_id'],
-					'website_id':'all',
 
-					'price': product.list_price * r['price']
-				}
-				groups.append(mage_group)
+			mage_group = {
+				'cust_group': r['group_id'],
+				'website_id':'all',
+
+				'price': r['price']
+			}
+			groups.append(mage_group)
 		else:
 			mage_tier = {
 				'customer_group_id': r['group_id'],
 				'website':'all',
 				'qty': r['qty'],
-				'price': product.list_price * r['price']
+				'price': r['price']
 			}
 			tiers.append(mage_tier)
 
 	try:
+		#_logger.info("----vals: %s, %s" % (groups, tiers) )
 		res = magento.catalog_product.update(product.id, {'group_price':groups, 'tier_price':tiers, 'price':product.list_price}, '', 'sku')
+		#_logger.info("----- RES %s" % res)
 		return res
 	except:
 		return True

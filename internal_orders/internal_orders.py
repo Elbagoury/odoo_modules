@@ -50,20 +50,39 @@ class InternalOrders(models.Model):
 
         for line in order.order_line:
             remote_product_id = models.execute_kw(db, uidx, password,
-                'product.product', 'search_read', [[['default_code', '=', line.product_id.default_code]]], {'fields': ['property_product_uom']})
+                'product.product', 'search_read', [[['default_code', '=', line.product_id.default_code]]], {'fields': ['uom_id']})
+            remote_uom = models.execute_kw(db, uidx, password,
+                'product.uom', 'search', [[['name', '=', remote_product_id[0]['uom_id'][1]]]])
+
             vals = {
                 'product_id': remote_product_id[0]['id'],
                 'name': line.name,
-                'product_uom': remote_product_id[0]['property_product_uom']['0'],
+                'product_uom': remote_uom[0] if len(remote_uom) else 1,
+                'product_qty': line.product_uom_qty,
+                'date_planned': datetime.now().strftime('%d/%m/%Y'),
                 'price_unit': line.price_unit,
-                'order_id': po
+                'order_id': po,
+                'taxes_id': [[6, False, [x.id for x in line.tax_id]]]
             }
             models.execute_kw(db, uidx, password,
                 'purchase.order.line', 'create', [vals])
 
+        order.remote_order_id = po
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    def transfer(self, cr, uid, ids, context=None):
+
+    remote_order_id = fields.Integer(string="Remote Order ID")
+    transfer_remotely = fields.Boolean(string="Transfer remotely", default="True")
+
+    def action_button_confirm(self, cr, uid, ids, context=None):
+        super(SaleOrder, self).action_button_confirm(cr, uid, ids, context=None)
+        order = self.browse(cr, uid, ids, context=None)
+        for o in order:
+            if o.transfer_remotely:
+                o.transfer_order()
+
+
+    def transfer_order(self, cr, uid, ids, context=None):
         self.pool.get('internal.moves').transfer(cr, uid, ids, context=None)

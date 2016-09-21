@@ -1625,6 +1625,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 				}
 				sols.append(line)
 			if 'ShippingServiceCost' in o['ShippingServiceSelected']:
+				#ugly, but what ya gonna do
 				untaxed_shipping = (float(o['ShippingServiceSelected']['ShippingServiceCost']['value']) / 122) * 100
 				if o['ShippingServiceSelected']['ShippingServiceCost']['value']:
 					delivery = {
@@ -1657,7 +1658,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 
 				'partner_invoice_id': partner_id,
 				'partner_shipping_id': shipping_partner_id or partner_id,
-				'order_policy': 'manual',
+
 				'picking_policy': 'direct',
 				'warehouse_id': 1,
 				'create_uid': user_id,

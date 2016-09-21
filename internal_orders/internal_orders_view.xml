@@ -6,8 +6,10 @@
 				<field name="model">sale.order</field>
 				<field name="inherit_id" ref="sale.view_order_form"/>
 				<field name="arch" type="xml">
-					<xpath expr="//field[@name='order_line']" position="after">
-						<button name="transfer" type="object" string="transfer - test"/>
+					<xpath expr="//field[@name='company_id']" position="after">
+						<field name="transfer_remotely"/>
+						<field name="remote_order_id" attrs="{'invisible': [('remote_order_id', '=', False)]}"/>
+
 
 					</xpath>
 

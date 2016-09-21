@@ -19,6 +19,7 @@
 from openerp import models, fields, api, exceptions, _
 from openerp.addons import decimal_precision as dp
 import logging
+from openerp.osv import osv
 
 
 class ProductAttributeValueSaleLine(models.Model):
@@ -125,7 +126,6 @@ class SaleOrderLine(models.Model):
     def onchange_product_template(self):
         _logger = logging.getLogger(__name__)
 
-        _logger.warning("----------*-*-*-*-*- CUSTOM_REPS/MRP-WIP/SALE_PRODUCT_VARIANTS")
 
         self.ensure_one()
         self.name = self.product_template.name
@@ -155,34 +155,37 @@ class SaleOrderLine(models.Model):
             partner = item.order_id.partner_id if item.order_id else None
             product_template = item.product_template
             products = product_template.product_variant_ids
-            company_id = self.pool.get('res.company').search(self._cr, self._uid, [], context=None)[0]
+            company = item.order_id.company_id
+            defaults_c = [x.id for x in company.value_ids] if company.value_ids else []
 
-            company = self.pool.get('res.company').browse(self._cr, self._uid, company_id or [], context=None)[0]
-            if company and company.value_ids:
-                defaults = [x.id for x in company.value_ids]
-            else:
-                defaults = []
             if not partner:
-                _logger.info("No partner")
                 return None
 
-            if not partner.value_ids and not defaults:
-                _logger.info("NO VALUE IDS")
-                return None
+            if product_template and not products:
+                raise osv.osv_except(_('Error'), _('This product template have no variants, which are required/nQuesto prodotto non ha varianti, e sono necessari'))
+
 
             values = [x.id for x in partner.value_ids]
-            _logger.info("=%s, %s" % (partner.name, values))
+            #_logger.info("=%s, %s" % (partner.name, values))
             for product in products:
                 if not product.attribute_value_ids:
                     continue
-                _logger.info("-2-- %s" % product.attribute_value_ids)
+                #_logger.info("-2-- %s" % product.attribute_value_ids)
                 if any(x.id in values for x in product.attribute_value_ids):
-                    _logger.info("-3-- %s, %s product_FOUND: " % (product.name, product.id))
+                    #_logger.info("-3-- %s, %s product_FOUND: " % (product.name, product.id))
                     self.product_id = product.id
-                if not self.product_id and defaults:
-                    if any(x.id in defaults for x in product.attribute_value_ids):
-                        _logger.info("-4-- %s, %s product_FOUND: " % (product.name, product.id))
+                    return None
+                categ_defs = [x.id for x in product.categ_id.value_ids]
+                if categ_defs:
+                    if any(x.id in categ_defs for x in product.attribute_value_ids):
                         self.product_id = product.id
+                        return None
+                if defaults_c:
+                    if any(x.id in defaults_c for x in product.attribute_value_ids):
+                        self.product_id = product.id
+                        return None
+            if products:
+                self.product_id = products[0].id
 
     @api.one
     @api.onchange('product_attributes')

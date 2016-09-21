@@ -89,9 +89,14 @@ class SaleOrderLine(models.Model):
 						if line.product_uom_qty >= item.min_quantity and item.min_quantity >= qty:
 							discount_rate = (item.price_discount * -1) * 100
 							qty = item.min_quantity
+							if item.base > 0:
+								price_type = self.pool.get('product.price.type').browse(self._cr, self._uid, item.base, context=None)[0]
+								field = price_type.field
+							product_price = line.product_id[field]
 
-							product_price = line.product_id.list_price
 							pricelist_disc = discount_rate
+
+
 
 
 

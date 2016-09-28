@@ -57,7 +57,7 @@
                         <th>Taxes</th>
                         <th class="text-right">Quantity</th>
                         <th class="text-right">Full price</th>
-                        <th class="text-right">Sconto da listino (%)</th>
+                        <th class="text-right">Discount from list (%)</th>
                         <th class="text-right">Unit Price</th>
                         <th groups="sale.group_discount_per_so_line">Disc.(%)</th>
                         <th class="text-right">Price</th>

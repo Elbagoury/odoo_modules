@@ -17,6 +17,27 @@ class product_compare(models.Model):
 
 	lines = fields.One2many('product.compare.line', 'compare_id')
 	categories = fields.One2many('product.compare.category', 'compare_id')
+	def refreshFromProduct(self, cr, uid, ids, context=None, product_id = None):
+		_logger = logging.getLogger(__name__)
+		line_ids = self.pool.get('product.compare').search(cr, uid, [], context=None)
+		_logger.info("---------- LINE_IDS: %s" % line_ids)
+		for line in line_ids:
+			_refresh_all(self, cr, uid, [line], context=context, product_id = product_id)
+
+
+	def syncFromProduct(self, cr, uid, ids, context=None, product_id=None):
+		_logger = logging.getLogger(__name__)
+
+		line_ids = self.pool.get('product.compare').search(cr, uid, [], context=None)
+		_logger.info("---------- LINE_IDS SYNC: %s" % line_ids)
+
+		for line in line_ids:
+			_sync(self, cr, uid, [line], context=None, product_id=product_id)
+
+	def updatePricesFromProduct(self, cr, uid, ids, context=None, product_id=None):
+		line_ids = self.pool.get('product.compare').search(cr, uid, [], context=None)
+		for line in line_ids:
+			self.pool.get('product.compare').updatePrices(cr, uid, [line], context=None, product_id = ids)
 
 	def getList(self, cr, uid, ids, context=None):
 		_refresh_all(self, cr, uid, ids, context=context)
@@ -25,12 +46,11 @@ class product_compare(models.Model):
 		_sync(self, cr, uid, ids, context=context)
 		return True
 	def refreshCats(self, cr, uid, ids, context=None):
-		print "Here"
 		_refresh_cats(self, cr, uid, ids, context=None)
 		return True
-	def updatePrices(self, cr, uid, ids, context=None):
+	def updatePrices(self, cr, uid, ids, context=None, product_id=None):
 		_logger = logging.getLogger(__name__)
-		product_ids = self.pool.get('product.template').search(cr, uid, [('active', '=', True)], context=None)
+		product_ids = product_id or self.pool.get('product.template').search(cr, uid, [('active', '=', True)], context=None)
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
 
 		record = self.browse(cr, uid, ids, context)[0]
@@ -65,16 +85,21 @@ class product_compare_line(models.Model):
 	description = fields.Char(string="Description")
 	default_code = fields.Char(string="Internal reference")
 	code_for_foreign = fields.Char(string="Product code on remote odoo")
-
+	category_foreign = fields.Char(string="Category foreign")
 	info_diff = fields.Boolean(string="Only info diff")
 	compare_id = fields.Integer()
 
 
-def _refresh_all(self, cr, uid, ids, context=None):
+def _refresh_all(self, cr, uid, ids, context=None, product_id = None):
 		_logger = logging.getLogger(__name__)
 		record = self.browse(cr, uid, ids, context)[0]
 		for item in record.lines:
-			item.unlink()
+			if product_id:
+				if item.product_id.id in product_id:
+					item.unlink()
+			else:
+				item.unlink()
+
 		addAll = record.add_all
 		url = record.url
 		db = record.db
@@ -86,8 +111,16 @@ def _refresh_all(self, cr, uid, ids, context=None):
 		rem_uid =  common.authenticate(db, username, password, {})
 		print "USER ID ON REMOTE ODOO FOR USER admin is: %s" % rem_uid
 		models = xmlrpclib.ServerProxy('{}/xmlrpc/2/object'.format(url))
+		if product_id:
+			products = self.pool.get('product.template').browse(cr, uid, product_id, context=None)
+			pro_ids = []
+			for p in products:
+				categ_ids = [x.id for x in p.categ_id.foreign_binding]
+				if record.id in categ_ids:
+					pro_ids.append(p.id)
+		else:
+			pro_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.foreign_binding", "ilike", record.id), ('active', '=', True)])
 
-		pro_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.foreign_binding", "ilike", record.id), ('active', '=', True)])
 		_logger.info("***********PRODUCTS THAT SHOULD BE ON THIS COMPANY: %s" % len(pro_ids))
 		#return True
 		#DEBUGGING
@@ -96,9 +129,11 @@ def _refresh_all(self, cr, uid, ids, context=None):
 		if not record.field_to_check:
 			print "NO FIELDS TO CHECK"
 			return True
+
 		to_check = [x for x in record.field_to_check]
 		to_retrieve = [x.name for x in record.field_to_check]
 		to_retrieve.append('name')
+		to_retrieve.append('categ_id')
 
 		#ENDING
 		#return True
@@ -110,7 +145,7 @@ def _refresh_all(self, cr, uid, ids, context=None):
 			if not p.default_code:
 				_logger.info("skipping %s" % p.name)
 				continue
-			print "going with %s" % p.name
+			_logger.info("going with %s" % p.name)
 			f_ids = models.execute_kw(db, uid, password, 'product.template', 'search', [[['default_code', '=', p.default_code]]])
 
 			if f_ids:
@@ -118,6 +153,7 @@ def _refresh_all(self, cr, uid, ids, context=None):
 				#continue
 				#BREAKER#BREAKER#BREAKER#BREAKER
 				f_pro = models.execute_kw(db, uid, password, 'product.template', 'read', [f_ids], {'fields': to_retrieve})[0]
+				_logger.info("exists %s" % f_pro)
 				hasDifference = False
 				for field in to_check:
 
@@ -141,7 +177,7 @@ def _refresh_all(self, cr, uid, ids, context=None):
 
 
 				if hasDifference or addAll:
-					print "******** in setting %s" % p.default_code
+					_logger.info("******** in setting %s" % p.default_code)
 
 					vals = {
 						'product_id': p.id,
@@ -149,11 +185,13 @@ def _refresh_all(self, cr, uid, ids, context=None):
 						'default_code': p.default_code,
 						'code_for_foreign': f_pro['name'],
 						'info_diff': True,
-						'compare_id': record.id
+						'compare_id': record.id,
+						'category_foreign': f_pro['categ_id'][1]
 					}
 					self.pool.get('product.compare.line').create(cr, uid, vals, context=context)
+				_logger.info("Exists but no diff")
 			else:
-				print "dont exist %s" % p.name
+				_logger.info("dont exist %s" % p.name)
 				vals = {
 					'product_id': p.id,
 					'description': p.description,
@@ -166,7 +204,7 @@ def _refresh_all(self, cr, uid, ids, context=None):
 
 		return True
 
-def _sync(self, cr, uid, ids, context=None):
+def _sync(self, cr, uid, ids, context=None, product_id = None):
 	_logger = logging.getLogger(__name__)
 	record = self.browse(cr, uid, ids, context)[0]
 
@@ -184,15 +222,22 @@ def _sync(self, cr, uid, ids, context=None):
 
 	to_check = [x for x in record.field_to_check]
 	cat_map_obj = self.pool.get('product.compare.category')
-	_logger.info(cat_map_obj)
+
 	cat_map = cat_map_obj.browse(cr, uid, cat_map_obj.search(cr, uid, [], context=None), context=None)
 
 	if len(record.lines) == 0:
 		return True
 
 	counter = 0
-	_logger.info("**** %s" % len(record.lines))
-	for p in record.lines:
+	r_lines = []
+	if product_id:
+		for p in record.lines:
+			if p.product_id.id in product_id:
+				r_lines.append(p)
+
+	else:
+		r_lines = record.lines
+	for p in r_lines:
 
 		#if counter > 200:
 			#break
@@ -302,6 +347,14 @@ class product_compare_category(models.Model):
 class product_template(models.Model):
 	_inherit = "product.template"
 
+	compare_lines = fields.One2many('product.compare.line', 'product_id', string="Compare lines")
+
+	def refresh_lines(self, cr, uid, ids, context=None):
+		self.pool.get('product.compare').refreshFromProduct(cr, uid, ids, context=None, product_id=ids)
+	def sync_lines(self, cr, uid, ids, context=None):
+		self.pool.get('product.compare').syncFromProduct(cr, uid, ids, context=None, product_id=ids)
+	def update_prices(self, cr, uid, ids, context=None):
+		self.pool.get('product.compare').updatePrices(cr, uid, ids, context=None, product_id=ids)
 
 class category_mapping(models.Model):
 	_name = "product.compare.category.mapping"

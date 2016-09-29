@@ -94,6 +94,7 @@
                     <field name="description" string="Description"/>
                     <field name="code_for_foreign" string="Code for other company"/>
                     <field name="info_diff" string="Difference only in info"/>
+                    <field name="category_foreign"/>
                     <field name="compare_id" string="Company ID"/>
                 </tree>
             </field>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="po_so_transfer_form" model="ir.ui.view">
+				<field name="name">po.so.transfer.form</field>
+				<field name="model">purchase.order</field>
+				<field name="inherit_id" ref="purchase.purchase_order_form"/>
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='company_id']" position="after">
+						<field name="transfer_remotely"/>
+						<field name="remote_order_id" attrs="{'invisible': [('remote_order_id', '=', False)]}"/>
+						<!--<button name="transfer_ord" type="object" string="Transfer" />-->
+
+					</xpath>
+
+        </field>
+      </record>
+
+      <menuitem id="menu_posot" parent="base.menu_administration" name="PO->SO transfer" sequence="3" groups="base.group_no_one"/>
+
+
+      <record model="ir.actions.act_window" id="action_posot_conf">
+        <field name="name">Configuration</field>
+        <field name="res_model">po.so.transfer</field>
+        <field name="view_model">tree, form</field>
+      </record>
+      <menuitem id="menu_posot_conf" parent="menu_posot" name="Configuration" action="action_posot_conf"/>
+      </data>
+      </openerp>

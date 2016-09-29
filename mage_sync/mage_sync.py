@@ -502,6 +502,8 @@ class Magento_sync(models.Model):
 				orders = magento.sales_order.list()
 
 				for order in orders:
+					order_id = None
+					try:
 							#retirieve order info
 							o = magento.sales_order.info(order['increment_id'])
 
@@ -633,7 +635,7 @@ class Magento_sync(models.Model):
 									'warehouse_id': 1,
 									'create_uid': user_id,
 									'user_id': user_id,
-
+									'section_id': partner.section_id.id if partner.section_id else 0,
 									#'company_id': company,
 									'carrier_id': partner.property_delivery_carrier.id or dc,
 									'note':o['comment'] if 'comment' in o else '',
@@ -653,9 +655,15 @@ class Magento_sync(models.Model):
 										product_template_id = int(ol['sku'])
 										template = self.pool.get('product.template').browse(cr, uid, product_template_id, context=None)
 										if not template:
+											if order_id:
+												order_tmp.unlink(cr, uid, order_id, context=None)
+											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id)))
 										pros = template.product_variant_ids
 										if not pros:
+											if order_id:
+												order_tmp.unlink(cr, uid, order_id, context=None)
+											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name)))
 
 										company_id = self.pool.get('res.company').search(cr, uid, [], context=None)[0]
@@ -675,6 +683,9 @@ class Magento_sync(models.Model):
 												if not p.attribute_value_ids:
 													product = p
 										if not product:
+											if order_id:
+												order_tmp.unlink(cr, uid, order_id, context=None)
+											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name)))
 										pricelist =  partner.property_product_pricelist or 1
 										discount_rate = 0
@@ -743,7 +754,14 @@ class Magento_sync(models.Model):
 							if email_template:
 
 								self.pool.get('email.template').send_mail(cr, uid, email_template.id, order_id)
-
+					except:
+						e = sys.exc_info()[0]
+						t = sys.stderr
+						z = traceback.format_exc()
+						if order_id:
+							self.pool.get('sale.order').unlink(cr, uid, order_id, context=None)
+						self.pool.get('cron.log').create(cr, uid, {'name':'Magento Order Import', 'description': e, 'status':1, 'date': datetime.datetime.now()}, context=None)
+						continue
 				r.so_imported = datetime.datetime.now()
 
 def _export_invoice(increment_id, items, cs):

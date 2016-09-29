@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+<record id="compare_product_view" model="ir.ui.view">
+    <field name="name">compare.product.form</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_only_form_view"/>
+    <field name="arch" type="xml">
+
+       <xpath expr="//page[@string='Sales']" position="after">
+         <page string="Sync" name="sync">
+           <button name="refresh_lines" type="object" string="Refresh"/>
+           <button name="sync_lines" type="object" string="Sync"/>
+           <button name="update_prices" type="object" string="Update prices"/>
+           <field name="compare_lines"/>
+         </page>
+
+    </xpath>
+    </field>
+</record>
+        </data>
+    </openerp>

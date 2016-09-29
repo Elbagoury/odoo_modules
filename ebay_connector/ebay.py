@@ -150,7 +150,7 @@ class ebay(models.Model):
 					invoice.tracking_sent_to_ebay = True
 
 
-	def export_products(self, cr, uid, ids, product_id=None,context=None):
+	def export_products(self, cr, uid, ids, context=None, product_id=None):
 		_logger = logging.getLogger(__name__)
 		(opts, args) = init_options()
 		current_record = None
@@ -160,17 +160,22 @@ class ebay(models.Model):
 			current_record = record
 
 		lst_up = current_record.products_exported_date
-		prd_tmp = self.pool.get('product.template')
+
 		if product_id:
 			pro_ids = product_id
 		else:
 
-			pro_ids = prd_tmp.search(cr, uid, [('ebay_sync', '=', True)], context=context)
+			pro_ids = self.pool.get('product.template').search(cr, uid, [('ebay_sync', '=', True)], context=context)
 
-		_logger.warning("***EBAY: Product count: %s********" % len(pro_ids))
-		if pro_ids:
+		#_logger.warning("***EBAY: Product count: %s********" % len(pro_ids))
 
-			for pro in prd_tmp.browse(cr, uid, pro_ids, context=context):
+		products = self.pool.get('product.template').browse(cr, uid, pro_ids, context=None)
+
+
+		if products:
+
+			for pro in products:
+				_logger.info("------- %s" % pro)
 				_logger.warning("*******INSIDE PRODUCT %s ************" % pro.name)
 				code = pro.name
 				if pro.main_name_part:

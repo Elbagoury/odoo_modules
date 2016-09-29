@@ -84,6 +84,10 @@ class SaleOrderLine(models.Model):
 
 					qty = 0
 					for item in items:
+						if item.product_tmpl_id and item.product_tmpl_id.id not line.product_tmpl_id.id:
+							continue
+						if item.product_id and item.product_id.id not line.product_id.id:
+							continue
 						if item.categ_id.id and item.categ_id.id not in categ_ids:
 							continue
 						if line.product_uom_qty >= item.min_quantity and item.min_quantity >= qty:
@@ -92,7 +96,15 @@ class SaleOrderLine(models.Model):
 							if item.base > 0:
 								price_type = self.pool.get('product.price.type').browse(self._cr, self._uid, item.base, context=None)[0]
 								field = price_type.field
-							product_price = line.product_id[field]
+								product_price = line.product_id[field]
+							elif item.base == -1:
+								if item.base_pricelist_id:
+									price_temp = self.pool.get('product.pricelist')._price_get_multi(self._cr, self._uid,
+										item.base_pricelist_id, [(line.product_id, line.product_uom_qty, line.order_id.partner_id)], context=context)[line.product_id.id]
+									ptype_src = item.base_pricelist_id.currency_id.id
+									price = self.pool.get('res.currency').compute(self._cr, self._uid, ptype_src, pricelist.currency_id.id, price_tmp, round=False, context=context)
+							else:
+								product_price = line.product_id.list_price
 
 							pricelist_disc = discount_rate
 

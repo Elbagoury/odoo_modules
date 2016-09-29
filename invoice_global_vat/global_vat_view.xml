@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="global_vat_view" model="ir.ui.view">
+				<field name="name">global.vat.invoice.form</field>
+				<field name="model">account.invoice</field>
+				<field name="inherit_id" ref="account.invoice_form"/>
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='comment']" position="before">
+						<field name="global_vat"/>
+
+
+					</xpath>
+
+        </field>
+      </record>
+
+    </data>
+  </openerp>

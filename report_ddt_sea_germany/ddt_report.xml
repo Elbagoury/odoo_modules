@@ -179,8 +179,8 @@
                          <td style="padding:7px 5px;"><span t-field="o.transportation_method_id.name"></span></td>
                          <td style=""><span t-field="o.carriage_condition_id.name"></span></td>
                          <td style=""><span t-field="o.parcels"></span></td>
-                         <td style=""><span t-field="o.net_weight"></span></td>
-                         <td style="border-right:1px solid black;"><span t-field="o.weight"></span></td>
+                         <td style=""><span t-field="o.net_weight_dpd"></span></td>
+                         <td style="border-right:1px solid black;"><span t-field="o.weight_dpd"></span></td>
                          <td style="padding:7px 5px; height:26px;"><span t-field="o.date"></span></td>
                          <td style="text-align:left;"><span t-field="o.goods_description_id.name"></span></td>
                      </tr>

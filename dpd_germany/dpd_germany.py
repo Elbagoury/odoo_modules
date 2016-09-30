@@ -138,3 +138,8 @@ class account_invoice(models.Model):
     _inherit = "account.invoice"
 
     dpd_bot_passed = fields.Boolean(string="DPD bot passed")
+
+class stock_picking_package_preparation(models.Model):
+    _inherit = 'stock.picking.package.preparation'
+
+    net_weight = fields.Float(string="Net weight")

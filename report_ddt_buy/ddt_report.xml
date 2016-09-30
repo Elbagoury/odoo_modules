@@ -24,14 +24,14 @@
                </div>
                <div style="clear:both;"></div>
            </header>
-           <div style="width:100%; text-align:right">Documento di transporto</div>
+           <div style="width:100%; text-align:right">Documento di trasporto</div>
              <div style="width:49%; float:left; margin-right:1%;">
                  <h3 style="margin:15px 0 0 5px;">Destinatario:</h3>
                  <div style="width:100%; height:120px; border:1px solid black;">
 
                      <p t-field="o.partner_id.name" style="margin:5px"> </p>
                      <p t-field="o.partner_id.street" style="margin:5px"></p>
-                     <p t-field="o.partner_id.city" style="margin:5px"><span t-field="o.partner_id.zip"></span> <span t-field="o.partner_id.city"></span> <span t-field="o.partner_id.state_id.code"></span> <span t-field="o.partner_id.country_id.code"></span></p>
+                     <p t-field="o.partner_id.zip" style="margin:5px; display:inline"></p><p style="margin:5px; margin-left:0px; display:inline" t-field="o.partner_id.city"></p><p style="margin:5px; margin-left:0px; display:inline" t-if="o.partner_id.state_id">(</p><p style="margin:5px; margin-left:0px; display:inline" t-field="o.partner_id.state_id.code"></p><p style="margin:5px; margin-left:0px; display:inline" t-if="o.partner_id.state_id">)</p>
                      <p style="margin:5px"><b>Partita IVA e Codice Fiscale</b></p>
                      <p  style="margin:5px"><span t-field="o.partner_id.vat"/> - <span t-field="o.partner_id.fiscalcode"/></p>
                  </div>
@@ -78,7 +78,7 @@
                      </tr>
                  </table>
              </div>
-             <div style="margin-top:10px; min-height:580px; margin-bottom:10px;">
+             <div style="margin-top:10px; min-height:560px; margin-bottom:10px;">
                 <table style="border-collapse: collapse; margin:0; padding:0; width:100%; font-size:11px;border:1px solid black;">
                     <tr style="border:1px solid black;">
                         <th style="border-right:1px solid black;padding:5px">Codice Articolo</th>
@@ -115,7 +115,7 @@
 
              <div style="margin-top:5px;">
                <div>
-                    <h4>Note</h4>
+                    <h4 t-if="o.note">Note</h4>
                     <p><span t-field="o.note"></span></p>
                     <table style="border-collapse: collapse; margin:0; padding:0; width:100%; ; font-size:11px;border:1px solid black; margin-bottom:10px;">
                         <tr style="border-top:1px solid black;text-align:center; ">

@@ -15,14 +15,7 @@ import codecs
 from openerp import tools
 import time
 import hashlib
-
-class magento_pt_mapping(models.Model):
-	_name = "magento.pt.mapping"
-
-	name = fields.Char(string="Payment term magento")
-	payment_term = fields.Many2one('payment.method', string="Payment method")
-
-
+import json
 
 class Magento_sync(models.Model):
 	_name = 'magento_sync'
@@ -489,8 +482,10 @@ class Magento_sync(models.Model):
 	def import_orders(self, cr, uid, ids, context = None):
 				_logger = logging.getLogger(__name__)
 
-				for record in self.browse(cr, uid, ids, context=context):
-					r = record
+				r = self.browse(cr, uid, ids, context=context)[0]
+				if not r:
+					raise osv.except_osv(_("CANNOT FIND RECORD"), _("Record not found"))
+
 				user_id = r.default_user.id if r.default_user else 1
 				cs = {
 					'location': r.mage_location,
@@ -500,12 +495,19 @@ class Magento_sync(models.Model):
 				}
 				magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
 				orders = magento.sales_order.list()
+				#DEBUG - DEBUG - DEBUG
+				with open('/opt/odoo/gigra_addons/mage_sync/orders/orders_list.txt', 'w') as outfile:
+					json.dump(orders, outfile)
 
 				for order in orders:
-					order_id = None
-					try:
+							order_id = None
 							#retirieve order info
+							magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
 							o = magento.sales_order.info(order['increment_id'])
+
+							#DEBUG - DEBUG - DEBUG
+							with open('/opt/odoo/gigra_addons/mage_sync/orders/order-%s.txt' % order['increment_id'], 'w') as outfile:
+								json.dump(o, outfile)
 
 							inc_id = order['increment_id']
 							#check if exists
@@ -517,34 +519,35 @@ class Magento_sync(models.Model):
 							if o['status_history'][0]['status'] != 'pending':
 								continue
 
+							magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
+
 							#WHEN CONSIDERING MAGENTO - OFF
 							payment = o['payment']['method']
 
+							odoo_payment_method_ids = self.pool.get('payment.method').search(cr, uid, [('magento_payment_method', '=', payment)], context=None)
 
-							if payment == 'cashondelivery':
-								pm_id = 3
-							elif payment == 'paypal':
-								pm_id = 6
-							elif payment == 'saved_cc':
-								pm_id = 1
-							else:
-								pm_id = 5
+							odoo_payment_method_id = odoo_payment_method_ids[0] if odoo_payment_method_ids else 1
 
+							payment_term_id = self.pool.get('account.payment.term').search(cr, uid, [], context=None)[0]
+							method_obj = self.pool.get('payment.method')
+							method = method_obj.browse(cr, uid, odoo_payment_method_id, context=context)
+							if method.payment_term_id:
+								payment_term_id = method.payment_term_id.id
 
 							pid = self.pool.get('res.partner').search(cr, uid, [('magento_id', '=', o['customer_id']), ('active', '=', True), ('is_company', '=', True)], context=context)
 							if not pid:
-								country_ids = self.pool.get('res.country').search(cr, uid, [("code", "=", o['shipping_address']['country_id'])], context=None)
-								country_id = False
-								if country_ids:
-									country_id = country_ids[0]
+								self.pool.get('res.partner').search(cr, uid, [('email', '=', o['customer_email']),  ('active', '=', True), ('is_company', '=', True)], context=None)
+
+							if not pid:
+								country_ids = self.pool.get('res.country').search(cr, uid, [("code", "=", o['billing_address']['country_id'])], context=None)
+								country_id = country_ids[0] if country_ids else None
 								par_vals = {
 									'name': order['billing_firstname'],
 									'user_id': user_id,
 									'email': order['customer_email'],
-									'name': o['shipping_address']['firstname'],
-									'street': o['shipping_address']['street'],
-									'zip': o['shipping_address']['postcode'],
-									'city': o['shipping_address']['city'],
+									'street': o['billing_address']['street'],
+									'zip': o['billing_address']['postcode'],
+									'city': o['billing_address']['city'],
 									'country_id': country_id,
 									'sale_warn': 'no-message',
 									'purchase_warn': 'no-message',
@@ -555,39 +558,24 @@ class Magento_sync(models.Model):
 									'notify_email':'never',
 									'magento_id': o['customer_id']
 								}
-								partner_id = self.pool.get('res.partner').create(cr, uid, par_vals, context=context)
+								partner_id = self.pool.get('res.partner').create(cr, user_id, par_vals, context=context)
 							else:
 								partner_id = pid[0]
 
 							partner = self.pool.get('res.partner').browse(cr, uid, partner_id, context=None)[0]
-
-							payment_term = 2
-							method_obj = self.pool.get('payment.method')
-							if method_obj:
-								method = method_obj.browse(cr, uid, pm_id, context=context)
-
-								if method.payment_term_id:
-									payment_term = method.payment_term_id.id
-
-							#company_ids = self.pool.get('res.company').search(cr, uid, [], context=None)
-							shipping_partner = partner_id
+							shipping_partner_id = partner_id
+							shipping_address = None
 							if o['shipping_address']:
-
 								shipping_address = o['shipping_address']
 
 							if shipping_address:
-
 								shipp_ids = self.pool.get('res.partner').search(cr, uid, [("parent_id", "=", partner_id), ("type", "=", "delivery")], context=None)
 
 								found = False
 								if shipp_ids:
 									shipp = self.pool.get('res.partner').browse(cr, uid, shipp_ids, context=None)[0]
-
-									found = False
-									for s in shipp:
-										if int(shipping_address['address_id']) == s.magento_address_id:
-											shipping_partner = s.id
-											found = True
+									if shipp.street == o['shipping_address']['street'] and shipp.city == o['shipping_address']['city']:
+										found = True
 
 								if not found:
 
@@ -613,14 +601,20 @@ class Magento_sync(models.Model):
 										'magento_id': o['customer_id'],
 										'user_id': user_id
 									}
-									shipping_partner = self.pool.get('res.partner').create(cr, uid, par_vals, context=context)
+									shipping_partner_id = self.pool.get('res.partner').create(cr, user_id, par_vals, context=context)
 
 
 
 							dc = self.pool.get('delivery.grid').search(cr, uid, [('default_courier', '=', True)], context=None)
 							dc = dc[0] if dc else None
-							#company = company_ids[0]
-							order_tmp = self.pool.get('sale.order')
+
+							notes = ''
+							for status_history in o['status_history']:
+								if not status_history['comment']:
+									continue
+								notes += str(status_history["created_at"]) + " " + status_history['comment'] + '\n'
+
+							order_obj = self.pool.get('sale.order')
 							vals = {
 									'partner_id': partner_id,
 									#'amount_tax': float(o['base_tax_amount']),
@@ -629,7 +623,7 @@ class Magento_sync(models.Model):
 									#'amount_total': float(o['subtotal_incl_tax']),
 									#'name': so_name,
 									'partner_invoice_id': partner_id,
-									'partner_shipping_id': shipping_partner,
+									'partner_shipping_id': shipping_partner_id,
 									'order_policy': 'picking',
 									'picking_policy': 'direct',
 									'warehouse_id': 1,
@@ -638,31 +632,30 @@ class Magento_sync(models.Model):
 									'section_id': partner.section_id.id if partner.section_id else 0,
 									#'company_id': company,
 									'carrier_id': partner.property_delivery_carrier.id or dc,
-									'note':o['comment'] if 'comment' in o else '',
-									#'payment_method_id': pm_id,
+									'note':notes,
+									'payment_method_id': odoo_payment_method_id,
 									#'workflow_process_id':1,
 									'magento_id': order['increment_id'],
 									#'procurement_group_id': self.pool.get('procurement.group').create(cr, uid, {}, context=context)
-									'payment_term': partner.property_payment_term.id
+									'payment_term': partner.property_payment_term.id or payment_term_id
 
 							}
+							order_id = order_obj.create(cr, user_id, vals, context=None)
 
 							so_lines = []
-							order_id = order_tmp.create(cr, uid, vals, context)
-
 
 							for ol in o['items']:
 										product_template_id = int(ol['sku'])
 										template = self.pool.get('product.template').browse(cr, uid, product_template_id, context=None)
 										if not template:
 											if order_id:
-												order_tmp.unlink(cr, uid, order_id, context=None)
+												order_obj.unlink(cr, uid, order_id, context=None)
 											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id)))
-										pros = template.product_variant_ids
-										if not pros:
+										product_variant_ids = template.product_variant_ids
+										if not product_variant_ids:
 											if order_id:
-												order_tmp.unlink(cr, uid, order_id, context=None)
+												order_obj.unlink(cr, uid, order_id, context=None)
 											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name)))
 
@@ -672,19 +665,19 @@ class Magento_sync(models.Model):
 										company_defs = [x.id for x in company.value_ids] if company.value_ids else []
 										categ_defs = [x.id for x in template.categ_id.value_ids]
 										product = None
-										for p in pros:
+										for p in product_variant_ids:
 											if any(x.id in categ_defs for x in p.attribute_value_ids):
 												product = p
 											if any(x.id in company_defs for x in p.attribute_value_ids):
 												product = p
 
 										if not product:
-											for p in pros:
+											for p in product_variant_ids:
 												if not p.attribute_value_ids:
 													product = p
 										if not product:
 											if order_id:
-												order_tmp.unlink(cr, uid, order_id, context=None)
+												order_obj.unlink(cr, uid, order_id, context=None)
 											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name)))
 										pricelist =  partner.property_product_pricelist or 1
@@ -745,23 +738,28 @@ class Magento_sync(models.Model):
 								so_lines.append(shipping_cost)
 
 							for s in so_lines:
-										order_line = self.pool.get('sale.order.line')
-										order_line.create(cr, uid, s, context)
+										order_line_obj = self.pool.get('sale.order.line')
+										order_line_obj.create(cr, uid, s, context)
 
-							self.pool.get('sale.order').signal_workflow(cr, uid, [order_id], 'order_confirm')
+							order_check = self.pool.get('sale.order').browse(cr, uid, order_id, context=None)
+							if order_check.amount_total == 0:
+								order_check.unlink();
+								raise osv.osv_except(_('ERROR'), _("0 total"))
 
-							email_template = r.confirmation_email_template
-							if email_template:
+							#self.pool.get('sale.order').signal_workflow(cr, uid, [order_id], 'order_confirm')
 
-								self.pool.get('email.template').send_mail(cr, uid, email_template.id, order_id)
-					except:
-						e = sys.exc_info()[0]
-						t = sys.stderr
-						z = traceback.format_exc()
-						if order_id:
-							self.pool.get('sale.order').unlink(cr, uid, order_id, context=None)
-						self.pool.get('cron.log').create(cr, uid, {'name':'Magento Order Import', 'description': e, 'status':1, 'date': datetime.datetime.now()}, context=None)
-						continue
+							#email_template = r.confirmation_email_template
+							#if email_template:
+
+								#self.pool.get('email.template').send_mail(cr, uid, email_template.id, order_id)
+
+						#e = sys.exc_info()[0]
+						#t = sys.stderr
+						#z = traceback.format_exc()
+						#if order_id:
+						#	self.pool.get('sale.order').unlink(cr, uid, order_id, context=None)
+						#self.pool.get('cron.log').create(cr, uid, {'name':'Magento Order Import', 'description': e, 'status':1, 'date': datetime.datetime.now()}, context=None)
+						#continue
 				r.so_imported = datetime.datetime.now()
 
 def _export_invoice(increment_id, items, cs):
@@ -1644,3 +1642,8 @@ class stock_change_product_qty(models.Model):
 					}
 					_update_product_stock_mage(cs, data.product_id.magento_id, data.new_quantity)
 		return res
+
+class PaymentMethod(models.Model):
+	_inherit = "payment.method"
+
+	magento_payment_method = fields.Char(string="Magento payment method")

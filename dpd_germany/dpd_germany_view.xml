@@ -140,5 +140,19 @@
         </xpath>
       </field>
       </record>
+
+      <record id="stock_picking_weights" model="ir.ui.view">
+        <field name="name">stock picking weights</field>
+        <field name="model">stock.picking.package.preparation</field>
+        <field name="inherit_id" ref="l10n_it_ddt.ddt_stock_picking_package_preparation_form"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='weight']" position="replace">
+            <field name="weight_dpd"/>
+          </xpath>
+          <xpath expr="//field[@name='net_weight']" position="replace">
+            <field name="net_weight_dpd"/>
+          </xpath>
+        </field>
+      </record>
   </data>
 </openerp>

@@ -50,6 +50,7 @@ class product_compare(models.Model):
 		return True
 	def updatePrices(self, cr, uid, ids, context=None, product_id=None):
 		_logger = logging.getLogger(__name__)
+		_logger.info("PRODUCT PRICE UPDATE ID: %s" % product_id)
 		product_ids = product_id or self.pool.get('product.template').search(cr, uid, [('active', '=', True)], context=None)
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
 
@@ -354,7 +355,7 @@ class product_template(models.Model):
 	def sync_lines(self, cr, uid, ids, context=None):
 		self.pool.get('product.compare').syncFromProduct(cr, uid, ids, context=None, product_id=ids)
 	def update_prices(self, cr, uid, ids, context=None):
-		self.pool.get('product.compare').updatePrices(cr, uid, ids, context=None, product_id=ids)
+		self.pool.get('product.compare').updatePricesFromProduct(cr, uid, ids, context=None, product_id=ids)
 
 class category_mapping(models.Model):
 	_name = "product.compare.category.mapping"

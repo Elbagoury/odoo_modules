@@ -142,4 +142,5 @@ class account_invoice(models.Model):
 class stock_picking_package_preparation(models.Model):
     _inherit = 'stock.picking.package.preparation'
 
-    net_weight = fields.Float(string="Net weight")
+    weight_dpd = fields.Float(string="Weight")
+    net_weight_dpd = fields.Float(string="Net weight")

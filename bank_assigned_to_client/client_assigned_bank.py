@@ -9,16 +9,11 @@ class ResPartner(models.Model):
 	@api.model
 	def _get_bank_partner(self):
 
-		cr = self._cr
-		uid = self._uid
-		ids = self._ids
-		db = cr.dbname
-
-		c = self.pool.get('res.company').search(cr, uid, [('is_bank_default', '=', True)], context=None)
+		c = self.pool.get('res.company').search(self._cr, self._uid, [('is_bank_default', '=', True)], context=None)
 		#print c
 		if not c:
 			return 0
-		com = self.pool.get('res.company').browse(cr, uid, c, context=None)[0]
+		com = self.pool.get('res.company').browse(self._cr, self._uid, c, context=None)[0]
 		#print com
 		banks = com.bank_ids
 		if not banks:

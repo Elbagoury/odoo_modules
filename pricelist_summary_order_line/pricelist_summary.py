@@ -46,10 +46,8 @@ class ProductTemplate(models.Model):
 
     @api.one
     def _get_pricelist_discounts(self):
-        cr = self._cr
-        uid = self._uid
-        pricelist_ids = self.pool.get('product.pricelist').search(cr, uid, [('is_main', '=', True)], context=None)
-        pricelists = self.pool.get('product.pricelist').browse(cr, uid, pricelist_ids, context=None)
+        pricelist_ids = self.pool.get('product.pricelist').search(self._cr, self._uid, [('is_main', '=', True)], context=None)
+        pricelists = self.pool.get('product.pricelist').browse(self._cr, self._uid, pricelist_ids, context=None)
         if True:
             product = self
             text = ''

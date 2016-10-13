@@ -18,12 +18,9 @@ class Boxes(models.Model):
 		return True
 
 def _create_labels(self, name, cid):
-
-	cr = self._cr
-	uid = self._uid
-	label_ids = self.pool.get('label.maker').search(cr, uid, [('is_created', '!=', False)], context=None)
+	label_ids = self.pool.get('label.maker').search(self._cr, self._uid, [('is_created', '!=', False)], context=None)
 	if label_ids:
-		labels = self.pool.get('label.maker').browse(cr, uid, label_ids, context=None)
+		labels = self.pool.get('label.maker').browse(self._cr, self._uid, label_ids, context=None)
 
 		for label in labels:
 			print label.view_name
@@ -41,7 +38,7 @@ def _create_labels(self, name, cid):
 				'customer_id': cid
 			}
 			print var_name
-			var_id = self.pool.get('label.variant').create(cr, uid, vals, context=None)
+			var_id = self.pool.get('label.variant').create(self._cr, self._uid, vals, context=None)
 			print "CREATED LABEL VARIANT WITH ID " + str(var_id)
 	return True
 
@@ -49,8 +46,8 @@ def _delete_labels(self):
 
 	cr = self._cr
 	uid = self._uid
-	label_variant_ids = self.pool.get('label.variant').search(cr, uid, [('customer_id', '=', self.id)], context=None)
-	return self.pool.get('label.variant').unlink(cr, uid, label_variant_ids, context=None)
+	label_variant_ids = self.pool.get('label.variant').search(self._cr, self._uid, [('customer_id', '=', self.id)], context=None)
+	return self.pool.get('label.variant').unlink(self._cr, self._uid, label_variant_ids, context=None)
 
 def _create_boxes(self, name, cid):
 
@@ -200,7 +197,7 @@ class res_partner(models.Model):
 				_delete_boxes(self)
 				_delete_variants(self)
 				_delete_labels(self)
-		
+
 		return result
 
 class product_template(models.Model):

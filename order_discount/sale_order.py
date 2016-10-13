@@ -12,9 +12,6 @@ class sale_order(models.Model):
 	@api.onchange('discount')
 	def onchange_discount(self):
 		print "here"
-		cr = self._cr
-		uid = self._uid
-		ids = self._ids
 		order = self.browse(ids)[0]
 		for ol in order.order_line:
 			print ol.price_subtotal
@@ -41,4 +38,3 @@ class sale_order_line(models.Model):
  										line.order_id.partner_id)
 			cur = line.order_id.pricelist_id.currency_id
 			res[line.id] = cur_obj.round(cr, uid, cur, taxes['total'])
-

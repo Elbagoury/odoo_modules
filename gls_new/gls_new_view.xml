@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<menuitem id="menu_gls_new" parent="base.menu_administration" name="GLS Service" sequence="3" groups="base.group_no_one"/>
+
+
+      <record model="ir.actions.act_window" id="action_gls_new_inst">
+    		<field name="name">Instances</field>
+    		<field name="res_model">gls</field>
+    		<field name="view_model">tree, form</field>
+    	</record>
+		<menuitem id="menu_gls_new_inst" parent="menu_gls_new" name="Instances" action="action_gls_new_inst"/>
+    	<record model="ir.actions.act_window" id="action_gls_new_parcel">
+    		<field name="name">Parcels</field>
+    		<field name="res_model">gls.new.parcel</field>
+    		<field name="view_model">tree, form</field>
+    	</record>
+		<menuitem id="menu_gls_new_parcels" parent="menu_gls_new" name="Parcels" action="action_gls_new_parcel"/>
+    <record model="ir.actions.act_window" id="action_gls_new_log">
+      <field name="name">Logs</field>
+      <field name="res_model">gls.new.log</field>
+      <field name="view_model">tree, form</field>
+    </record>
+  <menuitem id="menu_gls_new_log" parent="menu_gls_new" name="Logs" action="action_gls_new_log"/>
+  <!--<record model="ir.ui.view" id="dpd_parcel_form">
+    <field name="name">gls new parcel form</field>
+    <field name="model">new.gls.parcel</field>
+    <field name="type">form</field>
+    <field name="arch" type="xml">
+      <form string="DPD parcel" version="7.0">
+        <sheet>
+
+        </sheet>
+      </form>
+    </field>
+  </record>-->
+  <record id="gls_new_parcel_tree" model="ir.ui.view">
+    <field name="name">gls new parcel tree</field>
+    <field name="model">gls.new.parcel</field>
+    <field name="type">tree</field>
+    <field name="arch" type="xml">
+      <tree>
+        <field name="ragionesociale" />
+        <field name="colli" />
+
+      </tree>
+    </field>
+  </record>
+
+  <record model="ir.ui.view" id="gls_new_log_form">
+    <field name="name">gls_new log form</field>
+    <field name="model">gls.new.log</field>
+    <field name="type">form</field>
+    <field name="arch" type="xml">
+      <form string="DPD log" version="7.0">
+        <sheet>
+          <group string="GLS log">
+            <field name="datetime"/>
+            <field name="name"/>
+            <field name="message"/>
+        </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="gls_new_log_tree" model="ir.ui.view">
+    <field name="name">gls_new log tree</field>
+    <field name="model">gls.new.log</field>
+    <field name="type">tree</field>
+    <field name="arch" type="xml">
+      <tree>
+        <field name="datetime"/>
+        <field name="name"/>
+        <field name="message"/>
+      </tree>
+    </field>
+  </record>
+  <record id="gls_create_form" model="ir.ui.view">
+    <field name="name">gls.create.form</field>
+    <field name="model">delivery.grid</field>
+    <field name="inherit_id" ref="delivery_master_grid.view_delivery_grid_form" />
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='sequence']" position="before">
+
+          <field name="generate_gls_file_for" />
+
+
+      </xpath>
+    </field>
+    </record>
+
+    <record model="ir.ui.view" id="gls_new_inst_form">
+      <field name="name">gls_new inst form</field>
+      <field name="model">gls</field>
+      <field name="type">form</field>
+      <field name="arch" type="xml">
+        <form string="GLS Instance" version="7.0">
+          <sheet>
+            <group string="GLS Instance">
+
+              <field name="name" />
+              <field name="host" />
+              <field name="user" />
+              <field name="password" />
+              <field name="port" />
+              <field name="path"/>
+              <field name="local_file_path"/>
+              <field name="last_gen"/>
+              <button name="generate_file" type="object" string="Generate file!" class="oe_highlight"/>
+
+          </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+
+    <record id="gls_invoice" model="ir.ui.view">
+        <field name="name">gls invoice</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="l10n_it_ddt.invoice_form_view_ddt"/>
+        <field name="arch" type="xml">
+        <xpath expr="//field[@name='parcels']" position="after">
+          <field name="gls_bot_passed" string="Included in GLS file"/>
+        </xpath>
+      </field>
+      </record>
+
+    <!--
+      <record id="stock_picking_weights" model="ir.ui.view">
+        <field name="name">stock picking weights</field>
+        <field name="model">stock.picking.package.preparation</field>
+        <field name="inherit_id" ref="l10n_it_ddt.ddt_stock_picking_package_preparation_form"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='weight']" position="replace">
+            <field name="weight_dpd"/>
+          </xpath>
+          <xpath expr="//field[@name='net_weight']" position="replace">
+            <field name="net_weight_dpd"/>
+          </xpath>
+        </field>
+      </record>
+    -->
+  </data>
+</openerp>

@@ -20,7 +20,7 @@ class SaleOrderLine(models.Model):
             product_obj = product_obj.browse(cr, uid, product, context=None)
             name = product_obj.description or product_obj.name
             if name and len(name) > 100:
-                #_logger.info("-----IS LONG %s" % len(name))
+                _logger.info("-----IS LONG %s" % len(name))
                 text = name.split(' ')
             	new_name = ''
             	for a in text:
@@ -32,12 +32,10 @@ class SaleOrderLine(models.Model):
                 if product_obj.no_of_copies:
                     name += " - Copies: %s" % product_obj.no_of_copies
                 #_logger.info(name)
-            res['value'].update(
-                {
-                    'name': name
-                }
-            )
-            #_logger.info(res)
+            value = res.setdefault('value', {})
+
+            value['name'] = name
+
             return res
 
 

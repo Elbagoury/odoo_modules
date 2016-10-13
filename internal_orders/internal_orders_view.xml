@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 	<openerp>
 		<data>
-			<record id="internal_order" model="ir.ui.view">
-				<field name="name">internal.order.form</field>
+			<record id="internal_order_so_form" model="ir.ui.view">
+				<field name="name">internal.order.form2</field>
 				<field name="model">sale.order</field>
 				<field name="inherit_id" ref="sale.view_order_form"/>
 				<field name="arch" type="xml">
 					<xpath expr="//field[@name='company_id']" position="after">
 						<field name="transfer_remotely"/>
 						<field name="remote_order_id" attrs="{'invisible': [('remote_order_id', '=', False)]}"/>
+						<button name="transfer_order" type="object" string="Transfer - DEJAN ONLY"/>
 
 
 					</xpath>

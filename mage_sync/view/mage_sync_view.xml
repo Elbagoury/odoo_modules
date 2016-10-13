@@ -158,6 +158,7 @@
                 <button name="test_button" type="object" class="oe_highlight" string="*** TEST BUTTON ***" confirm="Are you sure you want to do this?"/>
                 <button name="sync_ids_clients" type="object" class="oe_highlight" confirm="Are you sure?" string="SYNC CUSTOMER IDS"/>
                 <button name="sync_ids_products" type="object" class="oe_highlight" confirm="Are you sure?" string="SYNC PRODUCTS IDS"/>
+                <button name="trovaprezzi_generate" type="object" class="oe_highlight" string="TrovaPrezzi generate"/>
             </group>
           </sheet>
         </form>

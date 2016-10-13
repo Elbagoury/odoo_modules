@@ -40,7 +40,7 @@ class InternalOrders(models.Model):
         par = par[0]
         pricelist = par['property_product_pricelist'][0] if par['property_product_pricelist'] else 1
         vals = {
-            'partner_id': 190856,
+            'partner_id': 191286,
             'location_id': 1,
             'pricelist_id': pricelist
         }
@@ -75,14 +75,13 @@ class SaleOrder(models.Model):
 
     remote_order_id = fields.Integer(string="Remote Order ID")
     transfer_remotely = fields.Boolean(string="Transfer remotely", default="True")
-
+    """
     def action_button_confirm(self, cr, uid, ids, context=None):
         super(SaleOrder, self).action_button_confirm(cr, uid, ids, context=None)
         order = self.browse(cr, uid, ids, context=None)
         for o in order:
             if o.transfer_remotely:
                 o.transfer_order()
-
-
+    """
     def transfer_order(self, cr, uid, ids, context=None):
         self.pool.get('internal.moves').transfer(cr, uid, ids, context=None)

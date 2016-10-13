@@ -16,6 +16,7 @@ from openerp import tools
 import time
 import hashlib
 import json
+import ftplib
 
 class Magento_sync(models.Model):
 	_name = 'magento_sync'
@@ -80,39 +81,51 @@ class Magento_sync(models.Model):
 			self.pool.get('cron.log').create(cr, uid, {'name':'Magento Product Export', 'description': "Cron failed", 'status':1, 'date': datetime.datetime.now()}, context=None)
 
 	def compare_prices(self, cr, uid, ids, context=None):
-
+		_logger = logging.getLogger(__name__)
 
 		for record in self.browse(cr, uid, ids, context=context):
 			r = record
 
+		line_ids = self.pool.get('magento.price.compare').search(cr, uid, [('magento_instance', '=', r.id)], context=None)
+		self.pool.get('magento.price.compare').unlink(cr, uid, line_ids, context=None)
 		magento = MagentoAPI(r.mage_location, r.mage_port, r.mage_user, r.mage_pwd)
-		product_ids = self.pool.get('product.template').search(cr, uid, [], context=None)
+		product_ids = self.pool.get('product.template').search(cr, uid, [('sale_ok', '=', True), ('active', '=', True)], context=None)
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
-		cnt = 0
-		last = 0
+		_logger.info("------PRODUCTS LEN: %s" % len(products))
 		res = magento.catalog_product.list()
-		mage_pros = []
-		for r in res:
-			p = magento.catalog_product.info(r['product_id'], '', '', 'productId')
-			if p:
-				mage_pros.append(p)
+		_logger.info("------MAGE LEN: %s" % len(res))
 
+		count = 0
 
 		for p in products:
-				for x in mage_pros:
-					if p.id == x['sku']:
+			try:
+				if count == 100:
+					magento = None
+					magento = MagentoAPI(r.mage_location, r.mage_port, r.mage_user, r.mage_pwd)
+					count = 0
+
+				for x in res:
+					magento_product = None
+					if p.id == int(x['sku']):
+						count += 1
+						#_logger.info("0---------FOUND %s" % x['sku'])
+						magento_product = magento.catalog_product.info(x['product_id'], '', '', 'productId')
+						#_logger.info(" price %s - %s" % (p.list_price, magento_product['price']))
 						if not p.magento_id:
 							p.magento_id = x['product_id']
 
-					if p.list_price != float(x['price']):
+					if magento_product and p.list_price != float(magento_product['price']):
+						#_logger.info("-------- DIFFERENT PRICE %s" % x['sku'])
 						vals = {
 							'product_id': p.id,
 							'odoo_price': p.list_price,
-							'mage_price': x['price'],
+							'mage_price': magento_product['price'],
 							'magento_instance': r.id
 						}
 						self.pool.get('magento.price.compare').create(cr, uid, vals, context=None)
-
+			except:
+				magento = MagentoAPI(r.mage_location, r.mage_port, r.mage_user, r.mage_pwd)
+				continue
 
 	def export_products(self, cr, uid, ids, context = None):
 			for record in self.browse(cr, uid, ids, context=context):
@@ -150,10 +163,78 @@ class Magento_sync(models.Model):
 
 			return True
 
+	def trovaprezzi_generate(self, cr, uid, ids, context=None):
+		_logger = logging.getLogger(__name__)
+		r = self.browse(cr, uid, ids, context=context)[0]
 
+		cnt = 0
+
+		magento = MagentoAPI(r.mage_location, r.mage_port, r.mage_user, r.mage_pwd)
+		mage_products = magento.catalog_product.list()
+		#mage_categories = magento.catalog_category.tree()
+		with open('/opt/odoo/gigra_addons/mage_sync/trovaprezzi.csv', 'wb') as csvfile:
+			writer = csv.writer(csvfile, delimiter='|',quotechar='\"', quoting=csv.QUOTE_MINIMAL)
+			for p in mage_products:
+				if cnt > 10:
+					break
+				cnt += 1
+				mage_product_images =  magento.catalog_product_attribute_media.list(p['product_id'], '', 'productId')
+				mage_image_url = ''
+				if mage_product_images:
+					mage_image_url = mage_product_images[0]['url']
+
+				_logger.info(mage_product_images)
+				mage_product = magento.catalog_product.info(p['product_id'], '', '', 'productId')
+				_logger.info("%s - %s - %s" % (mage_product['name'],mage_product['status'], mage_product['category_ids']))
+				category_string = ' '
+				if mage_product['price'] == 0:
+					continue
+				#for cat in mage_product['category_ids']:
+				#	for mc in mage_categories:
+				#		if str(mc[0]['category_id']) == cat:
+				#			category_string += "%s, " % mc['name']
+
+				full_desc = mage_product['description']
+				splitted = full_desc.split(' ')
+				new_desc = ''
+				index = 0
+				while len(new_desc) < 80 and len(splitted) > index:
+					new_desc += "%s " % splitted[index]
+					index += 1
+
+				new_desc = new_desc.strip()
+				if new_desc[-1:] == ',':
+						new_desc = new_desc[:-1]
+				if len(full_desc) > 255:
+					full_desc = full_desc [:255]
+
+				product_url = "http://ecommerce.free-tech.com/index.php/%s" % mage_product['url_path']
+
+				writer.writerow([new_desc] + [' '] + [full_desc] + [mage_product['price']] + [mage_product['sku']] + [product_url] + [' '] + [category_string] + [mage_image_url] + [0] + [' '] + [' '] + [' '] + [' '] )
+
+		try:
+
+			host = r.mage_location
+			user = 'ftp_magento'
+			password = '#7vWjBgaFtHLm'
+			port = 21
+			path = '/var/www/%s/' % r.mage_location
+			ftp = ftplib.FTP(host)
+			ftp.set_pasv(False)
+			ftp.login(user=user, passwd=password)
+			filename = '/opt/odoo/gigra_addons/mage_sync/trovaprezzi.csv'
+			fn = 'trovaprezzi.csv'
+			if path:
+				ftp.cwd(path)
+			response = ftp.storbinary('STOR ' + fn, open(filename, 'rb'))
+			_logger.info(response)
+			ftp.quit()
+		except:
+			_logger.info("FAILED TRANSFER")
 
 	def cron_export_customers(self, cr, uid, ids=1, context=None):
 		return export_customers(self, cr, uid, ids, context=None)
+
 	def export_customers(self, cr, uid, ids, context = None, client_id=None):
 			for record in self.pool.get('magento_sync').browse(cr, uid, ids, context=context):
 				r = record
@@ -494,7 +575,13 @@ class Magento_sync(models.Model):
 					'pwd': r.mage_pwd
 				}
 				magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
-				orders = magento.sales_order.list()
+				ox2 = magento.sales_order.list()
+
+				orders = []
+				import_start = datetime.datetime.today() - datetime.timedelta(days=4)
+				for ox in ox2:
+					if ox['created_at'] > str(import_start):
+						orders.append(ox)
 				#DEBUG - DEBUG - DEBUG
 				with open('/opt/odoo/gigra_addons/mage_sync/orders/orders_list.txt', 'w') as outfile:
 					json.dump(orders, outfile)
@@ -645,19 +732,20 @@ class Magento_sync(models.Model):
 							so_lines = []
 
 							for ol in o['items']:
+										_logger.info("IMPORTING PRODUCTS LINES: %s %s" % (ol['sku'], order_id))
 										product_template_id = int(ol['sku'])
 										template = self.pool.get('product.template').browse(cr, uid, product_template_id, context=None)
 										if not template:
-											if order_id:
-												order_obj.unlink(cr, uid, order_id, context=None)
-											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id), 'status':1, 'date': datetime.datetime.now()}, context=None)
+											#if order_id:
+											#	order_obj.unlink(cr, uid, order_id, context=None)
+											#self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id)))
 										product_variant_ids = template.product_variant_ids
 										if not product_variant_ids:
-											if order_id:
-												order_obj.unlink(cr, uid, order_id, context=None)
-											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
-											raise osv.except_osv(_("Error"), _("No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name)))
+											#if order_id:
+											#	order_obj.unlink(cr, uid, order_id, context=None)
+											#self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
+											raise osv.except_osv(_("Error"), _("No variants detected for product1 %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.product_variant_ids)))
 
 										company_id = self.pool.get('res.company').search(cr, uid, [], context=None)[0]
 										company = self.pool.get('res.company').browse(cr, uid, company_id, context=None)
@@ -672,13 +760,11 @@ class Magento_sync(models.Model):
 												product = p
 
 										if not product:
-											for p in product_variant_ids:
-												if not p.attribute_value_ids:
-													product = p
+											product = product_variant_ids[0]
 										if not product:
-											if order_id:
-												order_obj.unlink(cr, uid, order_id, context=None)
-											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
+										#	if order_id:
+										#		order_obj.unlink(cr, uid, order_id, context=None)
+										#	self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name)))
 										pricelist =  partner.property_product_pricelist or 1
 										discount_rate = 0
@@ -746,12 +832,12 @@ class Magento_sync(models.Model):
 								order_check.unlink();
 								raise osv.osv_except(_('ERROR'), _("0 total"))
 
-							#self.pool.get('sale.order').signal_workflow(cr, uid, [order_id], 'order_confirm')
+							self.pool.get('sale.order').signal_workflow(cr, uid, [order_id], 'order_confirm')
 
-							#email_template = r.confirmation_email_template
-							#if email_template:
+							email_template = r.confirmation_email_template
+							if email_template:
 
-								#self.pool.get('email.template').send_mail(cr, uid, email_template.id, order_id)
+								self.pool.get('email.template').send_mail(cr, uid, email_template.id, order_id)
 
 						#e = sys.exc_info()[0]
 						#t = sys.stderr
@@ -1021,7 +1107,7 @@ def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):
 
 	if not instant_product:
 
-		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ('state', 'not in', ['draft', 'obsolete']),("do_not_publish_mage", "=", False), ('sale_ok', '=', True)], context=None) # , ("do_not_publish_mage", "!=", True)
+		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ('state', 'not in', ['draft', 'obsolete']),("do_not_publish_mage", "=", False), ('sale_ok', '=', True), ('list_price', '>', 0)], context=None) # , ("do_not_publish_mage", "!=", True)
 		to_remove_ids = self.pool.get('product.template').search(cr, uid, ['|', ("categ_id.magento_id", "=", 0), ('categ_id.do_not_publish_mage', '=', True), ('state', 'in', ['draft', 'obsolete']),("do_not_publish_mage", "=", True), ('sale_ok', '=',False)], context=None)
 		to_remove = self.pool.get('product.template').browse(cr, uid, to_remove_ids, context=None)
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)

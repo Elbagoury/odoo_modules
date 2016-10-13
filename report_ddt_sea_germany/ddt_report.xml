@@ -6,64 +6,39 @@
               <div class="page">
                 <div style="font-family: Times, sans-serif; font-size:12px; width:826px; height:1142px; padding:15px 30px;">
                   <div style="margin-bottom:10px;width:100%;">
-                       <div style="float:left; width:23%; height:90px;">
-
-                       </div>
-                       <div style="float:left; width:25%; padding-top:10px; color:#0028bd;">
+                        <div style="float:left; width:30%; height:90px;">
+                        <img style="width:180px; margin-top:20px;" src="http://ecommerce.free-tech.com/media/sea_LOGO.jpg"></img>
+                        </div>
+                        <div style="float:left; width:45%; padding-top:10px; color:#0028bd;">
                            <p style="font-weight:bold; margin:0px; font-size:1.2em">S.E.A. S.r.l.</p>
-                           <p style="margin:0; padding:0;">Sede Legale: Via A, De Gasperi, 51 </p>
-                           <p style="margin:0; padding:0;">
-                             80024 Cardito (NA)
-                           </p>
-                           <p style="margin:0; padding:0;">Stabilimento: Via S, Antonio, 51 </p>
-                           <p style="margin:0; padding:0; ">
-                             82030 Limatola (BN)
-                           </p>
+                           <p style="margin:0; padding:0;">HEADQUARTERS: Via S. Antonio, 51 </p>
+                           <p style="margin:0; padding:0;">82030 Limatola (BN) - Italy</p>
+                           <p style="padding:0;margin-bottom:10px; margin-left:0; margin-top:0; margin-right:0;">VAT n. DE305936418</p>
+                           <p style="margin:0; padding:0; ">WAREHOUSE ADDRESS: Heinrich-Hertz-Strasse 42</p>
+                           <p style="margin:0; padding:0; ">40699 Erkrath - Germany</p>
 
-
-                       </div>
-                      <div style="float:left; width:52%; padding-top:10px; color:#0028bd; text-align:right;">
-                         <p style="margin:0px;">
-                           Tel: ++39 (0) 823 484 101
-                         </p>
-                         <p style="margin:0px;">
-                           Fax: ++39 (0) 823 1656 101
-                         </p>
-                         <p style="margin:0px;">
-                           Web: www.free-tech.com
-                         </p>
-                         <p style="margin:0px;">
-
-                           Email: info@free-tech.com
-                         </p>
-                         <p style="margin:0px;">
-                           R. Impr. NA REA n. 733520 Cap. Soc. Int. Vers. € 300.000,00
-
-                         </p>
-                         <p style="margin:0px;">
-                           P. IVA e C.F. 05102851218
-                         </p>
-
-                       </div>
+                        </div>
+                      <div style="float:left; width:25%; padding-top:10px; color:#0028bd; text-align:right;">
+                           </div>
                        <div style="clear:both;"></div>
                    </div>
-                 <div style="width:100%; text-align:right"><p style="margin:0px; font-size:1.3em">Documento di trasporto</p></div>
+                 <div style="width:100%; text-align:right"><p style="margin:0px; font-size:1.3em">Transport document</p></div>
              <div style="width:49%; float:left; margin-right:1%;">
-                 <h3 style="margin:15px 0 0 5px;">Destinatario:</h3>
+                 <h3 style="margin:15px 0 0 5px;">Customer:</h3>
                  <div style="width:100%; height:120px; border:1px solid black;">
 
                      <p t-field="o.partner_id.name" style="margin:5px"> </p>
                      <p t-field="o.partner_id.street" style="margin:5px"></p>
                      <p t-field="o.partner_id.zip" style="margin:5px; display:inline"></p><p style="margin:5px; margin-left:0px; display:inline" t-field="o.partner_id.city"></p><p style="margin:5px; margin-left:0px; display:inline" t-if="o.partner_id.state_id">(</p><p style="margin:5px; margin-left:0px; display:inline" t-field="o.partner_id.state_id.code"></p><p style="margin:5px; margin-left:0px; display:inline" t-if="o.partner_id.state_id">)</p>
                      <p style="margin:5px; margin-left:0px; display:inline" t-field="o.partner_id.country_id.code"></p>
-                     <p style="margin:5px"><b>Partita IVA e Codice Fiscale</b></p>
+                     <p style="margin:5px"><b>VAT n.</b></p>
                      <p  style="margin:5px"><span t-field="o.partner_id.vat"/> - <span t-field="o.partner_id.fiscalcode"/></p>
                  </div>
              </div>
 
              <div style="width:49%; float:right; margin-left:1%;">
 
-                 <h3 style="margin:15px 0 0 5px;">Luogo di consegna:</h3>
+                 <h3 style="margin:15px 0 0 5px;">Place of delivery:</h3>
                  <div style="width:100%; height:70px; border:1px solid black;">
                      <p t-field="o.partner_shipping_id.name" style="margin:5px"></p>
                      <p t-field="o.partner_shipping_id.street" style="margin:5px"></p>
@@ -71,7 +46,7 @@
 
                  </div>
                  <div style="width:100%; height:40px; border:1px solid black; margin-top:8px">
-                     <h3 style="margin:12px 5px; font-size:14px;"><b>ORARI CONSEGNA :</b></h3>
+                     <h3 style="margin:12px 5px; font-size:14px;"><b>Delivery time:</b></h3>
                  </div>
              </div>
              <div style="clear:both;"></div>
@@ -80,7 +55,7 @@
                  <table style="border-collapse: collapse; margin:0; padding:0;  width:100%; font-size:12px;  border:1px solid black;">
                      <tr style="text-align:center;height:40px;">
                          <td style="border-right:1px solid black;">
-                             <p style="margin:0;padding:0;"><b>Data DDT</b></p>
+                             <p style="margin:0;padding:0;"><b>Date DDT</b></p>
                              <p t-field="o.date" t-field-options='{"format": "d/MM/yyyy"}' style="margin:0;padding:5px;height:14px;"></p>
                          </td>
                          <td style="border-right:1px solid black; width:120px;">
@@ -92,29 +67,29 @@
                              <p style="margin:0;padding:5px;height:14px;">1</p>
                          </td>-->
                          <td style="border-right:1px solid black;">
-                             <p style="margin:0;padding:0;"><b>Valuta</b></p>
+                             <p style="margin:0;padding:0;"><b>Currency</b></p>
                              <p style="margin:0;padding:5px;height:14px;"></p>
                          </td>
                          <td style="border-right:1px solid black; width:65%; text-align:left;padding-left:10px">
-                             <p style="margin:0;padding:0;"><b>Causale del trasporto</b></p>
+                             <p style="margin:0;padding:0;"><b>Reason for transportation</b></p>
                              <p t-field="o.transportation_reason_id.name" style="margin:0;padding:5px; height:14px;"></p>
                          </td>
                      </tr>
                  </table>
              </div>
-             <div style="margin-top:10px; min-height:560px; margin-bottom:10px;">
+             <div style="margin-top:10px; min-height:500px; margin-bottom:10px;">
                 <table style="border-collapse: collapse; margin:0; padding:0; width:100%; font-size:11px;border:1px solid black;">
                     <tr style="border:1px solid black;">
-                        <th style="border-right:1px solid black;padding:5px">Codice Articolo</th>
-                        <th style="border-right:1px solid black;padding:5px">Descrizione</th>
-                        <th style="border-right:1px solid black;padding:5px">Codice cliente</th>
-                        <th style="border-right:1px solid black;padding:5px">Riferimento ordini</th>
-                        <th style="border-right:1px solid black;padding:5px">U.M.</th>
-                        <th style="border-right:1px solid black;padding:5px">Quantità</th>
-                        <th style="border-right:1px solid black;padding:5px">Prezzo</th>
-                        <th style="border-right:1px solid black;padding:5px">Sconti</th>
-                        <th style="border-right:1px solid black;padding:5px">Importo</th>
-                        <th>C.I.</th>
+                        <th style="border-right:1px solid black;padding:5px">Code</th>
+                        <th style="border-right:1px solid black;padding:5px">Description</th>
+                        <th style="border-right:1px solid black;padding:5px">Client code</th>
+                        <th style="border-right:1px solid black;padding:5px">Order reference</th>
+                        <th style="border-right:1px solid black;padding:5px">UOM</th>
+                        <th style="border-right:1px solid black;padding:5px">Quantity</th>
+                        <th style="border-right:1px solid black;padding:5px">Price</th>
+                        <th style="border-right:1px solid black;padding:5px">Discount</th>
+                        <th style="border-right:1px solid black;padding:5px">Subtotal</th>
+                        <th style="border-right:1px solid black;padding:5px">VAT</th>
                     </tr>
                     <tr t-foreach="o.picking_ids" t-as="pick" style="">
                     <tr t-foreach="pick.move_lines" t-as="ln" style="">
@@ -142,14 +117,14 @@
                  <p><span t-field="o.note"></span></p>
                     <table style="border-collapse: collapse; margin:0; padding:0; width:100%; ; font-size:11px;border:1px solid black; margin-bottom:10px;">
                         <tr style="border-top:1px solid black;text-align:center; ">
-                            <td style="border-right:1px solid black; padding:0 5px;">Sconti</td>
-                            <td style="border-right:1px solid black;">Spese Trasporto</td>
-                            <td style="border-right:1px solid black; text-align: center;">Spese Incasso</td>
-                            <td style="border-right:1px solid black; text-align: center;">Spese Imballo</td>
-                            <td colspan="2" style="border-right:1px solid black; text-align: center; ">Cod. I.V.A.</td>
-                            <td style="text-align: right; width:11%;">Imponibile I.V.A.</td>
-                            <td style="text-align: right; padding:0 5px;">Imposta</td>
-                            <td colspan="2" style="text-align: right; width:12%;font-size:12px"><b>Totale DDT EU</b>
+                            <td style="border-right:1px solid black; padding:0 5px;">Discount</td>
+                            <td style="border-right:1px solid black;">Transport cost</td>
+                            <td style="border-right:1px solid black; text-align: center;">Collection charges</td>
+                            <td style="border-right:1px solid black; text-align: center;">Packaging cost</td>
+                            <td colspan="2" style="border-right:1px solid black; text-align: center; ">VAT</td>
+                            <td style="text-align: right; width:11%;">Ammount untaxed</td>
+                            <td style="text-align: right; padding:0 5px;">Tax</td>
+                            <td colspan="2" style="text-align: right; width:12%;font-size:12px"><b>Total DDT EU</b>
                             </td>
                         </tr>
                         <tr style="text-align:center;">
@@ -167,13 +142,13 @@
                 </div>
                  <table style="border-collapse: collapse; margin:0; padding:0; width:100%; ; font-size:11px;border:1px solid black;">
                      <tr style="border-top:1px solid black;text-align:left;">
-                         <td style="padding:0 5px;">Trasporto a mezzo</td>
-                         <td style="">Porto</td>
-                         <td style="">N.Colli</td>
-                         <td style="">Peso netto</td>
-                         <td style="border-right:1px solid black;">Peso lordo</td>
-                         <td style="padding:0px 5px;">Data e Ora del Trasporto</td>
-                         <td style="">Aspetto esteriore dei beni</td>
+                         <td style="padding:0 5px;">Method of transportation</td>
+                         <td style="">Cariage condition</td>
+                         <td style="">Parcels</td>
+                         <td style="">Net weight</td>
+                         <td style="border-right:1px solid black;">Total weight</td>
+                         <td style="padding:0px 5px;">Shipping date and time </td>
+                         <td style="">Description of goods</td>
                      </tr>
                      <tr style="text-align:left;">
                          <td style="padding:7px 5px;"><span t-field="o.transportation_method_id.name"></span></td>
@@ -189,33 +164,33 @@
              <div style="margin-top:5px; font-size:11px;">
                  <div style="width:49%; float:left; margin-right:1%;">
                      <div style="width:100%; height:35px; border:1px solid black;">
-                         <p style="margin:0;padding:2px;">Vettore</p>
+                         <p style="margin:0;padding:2px;">Carrier</p>
                          <p style="margin:0;padding-left:5px;"><span t-field="o.carrier_id.name"></span></p>
                      </div>
                  </div>
                  <div style="width:49%; float:right; margin-left:1%;">
                      <div style="width:100%; height:35px; border:1px solid black;">
-                         <p style="margin:0;padding:2px;">Firma Vettore</p>
+                         <p style="margin:0;padding:2px;">Carrier name</p>
 
                      </div>
                  </div>
                  <div style="width:49%; float:left; margin-right:1%;margin-top:5px;">
                      <div style="width:100%; height:35px; border:1px solid black;">
-                         <p style="margin:0;padding:2px;">Firma Conducente</p>
+                         <p style="margin:0;padding:2px;">Driver name</p>
 
                      </div>
                  </div>
                  <div style="width:49%; float:right; margin-left:1%; margin-top:5px;">
                      <div style="width:100%; height:35px; border:1px solid black;">
-                         <p style="margin:0;padding:2px;">Firma Destinatario</p>
+                         <p style="margin:0;padding:2px;">Recipient name</p>
 
                      </div>
                  </div>
                  <div style="clear:both;"></div>
              </div>
 
-             <p style="text-align:center;font-size:8px; width:70%; margin: 0 auto;">La merce viaggia a rischio e pericolo del Destinatario.Non verranno accettate contestazioni trascorsi 8 gg dalla data di consegna.
- Eventuali loghi , nomi e marchi inseriti nella presente documentazione sono registrati e appartengono ai rispettivi proprietari.</p>
+             <p style="text-align:center;font-size:8px; width:70%; margin: 0 auto;">Goods are sent under client responsability. Reclamation will be accepted after autorization.
+All the brands, logos, company names and trademarks referred on the website are owned by respective owners only. Brands, logos, company names and trademarks have been restrictedly used for representation.</p>
          </div>
               </div>
             </xpath>

@@ -13,6 +13,7 @@
 
             <field name="magento_id" string="Magento ID"/>
             <field name="mage_root" string="Root category on magento"/>
+            <button name="export_pros_in_cat" type="object" string="Export products in this category" class="oe_highlight" attrs="{'invisible': [('magento_id', '=', 0)]}"/>
           </group>
     </xpath>
     </field>

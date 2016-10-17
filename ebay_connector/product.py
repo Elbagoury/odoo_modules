@@ -30,7 +30,8 @@ class product_ebay(osv.osv):
 		'name_parts': fields.one2many('ebay.name.parts', 'np_id'),
 		'stock_limit': fields.integer(default=5, string="Ebay stock limit"),
 		'ebay_listing_duration': fields.selection((('Days_7', '7 days'), ('Days_30', '30 days'), ('GTC', 'Good `Till Canceled')), string="Ebay listing duration"),
-		'ebay_custom_desc': fields.text(string="Custom description")
+		'ebay_custom_desc': fields.text(string="Custom description"),
+		'ebay_force_shipping_cost': fields.boolean(string="Use this shipping cost")
 
 	}
 	def export_now(self, cr, uid, ids, context=None):

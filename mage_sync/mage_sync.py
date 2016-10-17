@@ -73,9 +73,9 @@ class Magento_sync(models.Model):
 		r.categories_exported = datetime.datetime.utcnow()
 		return True
 
-	def cron_export_products(self, cr, uid, ids=1, context=None):
+	def cron_ducts(self, cr, uid, ids=1, context=None):
 		try:
-			self.export_products(self, cr, uid, ids, context=None)
+			self.ducts(self, cr, uid, ids, context=None)
 			self.pool.get('cron.log').create(cr, uid, {'name':'Magento Product Export', 'description': "Cron Succeded", 'status':0, 'date': datetime.datetime.now()}, context=None)
 		except:
 			self.pool.get('cron.log').create(cr, uid, {'name':'Magento Product Export', 'description': "Cron failed", 'status':1, 'date': datetime.datetime.now()}, context=None)
@@ -126,7 +126,6 @@ class Magento_sync(models.Model):
 			except:
 				magento = MagentoAPI(r.mage_location, r.mage_port, r.mage_user, r.mage_pwd)
 				continue
-
 	def export_products(self, cr, uid, ids, context = None):
 			for record in self.browse(cr, uid, ids, context=context):
 				r = record
@@ -143,7 +142,8 @@ class Magento_sync(models.Model):
 
 			r.products_exported = datetime.datetime.utcnow()
 			return True
-
+	def export_from_cat(self, cr, uid, cs, product_ids):
+		_export_products(self, cr, uid, True, cs, instant_product=product_ids)
 
 	def export_products_all(self, cr, uid, ids=1, context = None):
 			for record in self.browse(cr, uid, ids, context=context):
@@ -655,14 +655,24 @@ class Magento_sync(models.Model):
 							if o['shipping_address']:
 								shipping_address = o['shipping_address']
 
+							invoice_partner_id = partner_id
+							invoice_address = None
+							if o['billing_address']:
+								invoice_address = o['billing_address']
+
+
 							if shipping_address:
 								shipp_ids = self.pool.get('res.partner').search(cr, uid, [("parent_id", "=", partner_id), ("type", "=", "delivery")], context=None)
 
 								found = False
 								if shipp_ids:
-									shipp = self.pool.get('res.partner').browse(cr, uid, shipp_ids, context=None)[0]
-									if shipp.street == o['shipping_address']['street'] and shipp.city == o['shipping_address']['city']:
-										found = True
+									shipps = self.pool.get('res.partner').browse(cr, uid, shipp_ids, context=None)
+									for shipp in shipps:
+										if shipp.street == o['shipping_address']['street'] and shipp.city == o['shipping_address']['city']:
+											found = True
+											shipping_partner_id = shipp.id
+											break
+
 
 								if not found:
 
@@ -690,7 +700,41 @@ class Magento_sync(models.Model):
 									}
 									shipping_partner_id = self.pool.get('res.partner').create(cr, user_id, par_vals, context=context)
 
+							if invoice_address:
+								inv_ids = self.pool.get('res.partner').search(cr, uid, [("parent_id", "=", partner_id), ("type", "=", "invoice")], context=None)
 
+								found = False
+								if inv_ids:
+									inv = self.pool.get('res.partner').browse(cr, uid, inv_ids, context=None)
+									for i in inv:
+										if i.street == o['billing_address']['street'] and i.city == o['billing_address']['city']:
+											found = True
+											invoice_partner_id = i.id
+											break
+								if not found:
+									inv_country_ids = self.pool.get('res.country').search(cr, uid, [("code", "=", o['inv_address']['country_id'])], context=None)
+									inv_country_id = False
+									if inv_country_ids:
+										inv_country_id = inv_country_ids[0]
+									par_vals = {
+										'name': invoice_address['firstname'],
+										'street': invoice_address['street'],
+										'zip': invoice_address['postcode'],
+										'city': invoice_address['city'],
+										'country_id': inv_country_id,
+										'sale_warn': 'no-message',
+										'parent_id': partner_id,
+										'type': 'delivery',
+										'purchase_warn': 'no-message',
+										'picking_warn': 'no-message',
+										'invoice_warn': 'no-message',
+										'property_account_receivable':938,
+										'property_account_payable':993,
+										'notify_email':'always',
+										'magento_id': o['customer_id'],
+										'user_id': user_id
+									}
+									invoice_partner_id = self.pool.get('res.partner').create(cr, user_id, par_vals, context=context)
 
 							dc = self.pool.get('delivery.grid').search(cr, uid, [('default_courier', '=', True)], context=None)
 							dc = dc[0] if dc else None
@@ -735,16 +779,16 @@ class Magento_sync(models.Model):
 										_logger.info("IMPORTING PRODUCTS LINES: %s %s" % (ol['sku'], order_id))
 										product_template_id = int(ol['sku'])
 										template = self.pool.get('product.template').browse(cr, uid, product_template_id, context=None)
-										if not template:
+										if not template or template.active == False or template.sale_ok == False:
 											#if order_id:
 											#	order_obj.unlink(cr, uid, order_id, context=None)
-											#self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id), 'status':1, 'date': datetime.datetime.now()}, context=None)
+											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("Could not find product with id %s\nNon puoi trovare il prodotto con ID %s" % (product_template_id, product_template_id)))
 										product_variant_ids = template.product_variant_ids
 										if not product_variant_ids:
 											#if order_id:
 											#	order_obj.unlink(cr, uid, order_id, context=None)
-											#self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
+											self.pool.get('cron.log').create(cr, uid, {'name':'Magento order import', 'description': "No variants detected for product %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.name), 'status':1, 'date': datetime.datetime.now()}, context=None)
 											raise osv.except_osv(_("Error"), _("No variants detected for product1 %s\nNon puoi trovare nessuno varianti per prodotto %s" % (template.name, template.product_variant_ids)))
 
 										company_id = self.pool.get('res.company').search(cr, uid, [], context=None)[0]
@@ -1106,32 +1150,37 @@ def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):
 	last_update = record.products_exported
 
 	if not instant_product:
-
 		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ('state', 'not in', ['draft', 'obsolete']),("do_not_publish_mage", "=", False), ('sale_ok', '=', True), ('list_price', '>', 0)], context=None) # , ("do_not_publish_mage", "!=", True)
 		to_remove_ids = self.pool.get('product.template').search(cr, uid, ['|', ("categ_id.magento_id", "=", 0), ('categ_id.do_not_publish_mage', '=', True), ('state', 'in', ['draft', 'obsolete']),("do_not_publish_mage", "=", True), ('sale_ok', '=',False)], context=None)
-		to_remove = self.pool.get('product.template').browse(cr, uid, to_remove_ids, context=None)
-		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
-
-
-		for tr in to_remove:
-			if tr.magento_id > 0:
-				rm_res = _remove_product(self, cr, uid, ids, tr, magento)
-				_logger.info("---_%s" % rm_res)
-
-		if not full:
-			ps = []
-			for p in products:
-				if p.__last_update > last_update:
-					ps.append(p)
-
-			products = ps
-			_logger.warning("*******EXPORTING ONLY WITH LAST UPDATE")
-
-		if not products:
-			_logger.warning("**************************** NO PRODUCTS TO EXPORT")
-			return True
 	else:
-		products = self.pool.get('product.template').browse(cr, uid, instant_product, context=None)
+		#make sure instant_product is []
+		if type(instant_product) is not list:
+			instant_product = [instant_product]
+		product_ids = self.pool.get('product.template').search(cr, uid, [("id", 'in', instant_product), ("categ_id.magento_id", ">", 0), ('state', 'not in', ['draft', 'obsolete']),("do_not_publish_mage", "=", False), ('sale_ok', '=', True), ('list_price', '>', 0)], context=None) # , ("do_not_publish_mage", "!=", True)
+		removers = self.pool.get('product.template').search(cr, uid, ['|', ("categ_id.magento_id", "=", 0), ('categ_id.do_not_publish_mage', '=', True), ('state', 'in', ['draft', 'obsolete']),("do_not_publish_mage", "=", True), ('sale_ok', '=',False)], context=None)
+		to_remove_ids = [x for x in removers if x in instant_product]
+
+	to_remove = self.pool.get('product.template').browse(cr, uid, to_remove_ids, context=None)
+	products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
+
+
+	for tr in to_remove:
+		if tr.magento_id > 0:
+			rm_res = _remove_product(self, cr, uid, ids, tr, magento)
+			_logger.info("---_%s" % rm_res)
+
+	if not full:
+		ps = []
+		for p in products:
+			if p.__last_update > last_update:
+				ps.append(p)
+
+		products = ps
+		_logger.warning("*******EXPORTING ONLY WITH LAST UPDATE")
+
+	if not products:
+		_logger.warning("**************************** NO PRODUCTS TO EXPORT")
+		return True
 
 
 	#GET MAGENTO CATEGORY COLLECTION
@@ -1625,7 +1674,7 @@ class product_template(models.Model):
 			for p in products:
 
 				if not p.categ_id.do_not_publish_mage and not p.do_not_publish_mage and p.categ_id.magento_id:
-					_export_products(self, cr, uid, True, cs, instant_product=p.id)
+					_ducts(self, cr, uid, True, cs, instant_product=p.id)
 				elif p.magento_id:
 					_delete_product_from_mage(cs, p.magento_id)
 					p.magento_id = None
@@ -1673,7 +1722,7 @@ class product_template(models.Model):
 				}
 				p = self.browse(cr, uid, product_template_id, context=None)
 				if not p.categ_id.do_not_publish_mage and not p.do_not_publish_mage:
-					_export_products(self, cr, uid, True, cs, instant_product=product_template_id)
+					_ducts(self, cr, uid, True, cs, instant_product=product_template_id)
 		except:
 			return product_template_id
 		return product_template_id

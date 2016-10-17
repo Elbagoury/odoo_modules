@@ -1007,9 +1007,7 @@ def save_product(pro,  name, desc, lst_up, defs):
 		if not shipping_c or defs.override_default:
 			shipping_c = defs.ebay_shipping_cost
 
-		add_shipping_c = pro.ebay_additional_item_cost
-		if not add_shipping_c or defs.override_default:
-			add_shipping_c = defs.ebay_shipping_additional
+		add_shipping_c = pro.ebay_additional_item_cost if pro.ebay_force_shipping_cost else defs.ebay_shipping_cost
 
 		list_dur = pro.ebay_listing_duration
 		if not list_dur or defs.override_default:

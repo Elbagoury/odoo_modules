@@ -38,6 +38,7 @@
 								<group>
 								<field name="ebay_shipping_cost" string="Shipping cost" />
 								<field name="ebay_additional_item_cost" string="Shipping cost for additional item" />
+								<field name="ebay_force_shipping_cost"/>
 								<field name="ebay_free_shipping" string="Free shipping" />
 								<field name="ebay_payment_instruction" string="Payment instructions" />
 

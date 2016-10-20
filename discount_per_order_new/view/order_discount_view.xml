@@ -14,6 +14,7 @@
 						<field name="product_price"/>
 						<field name="pricelist_discount"/>
 
+
 						<!--<field name="discount_global"/>-->
 					</xpath>
 
@@ -25,8 +26,10 @@
 					</xpath>
 					<xpath expr="//field[@name='note']" position="before">
 						<group>
+							<field name="cig"/>
 							<field name="discount_method"/>
 							<field name="order_discount"/>
+
 						</group>
 					</xpath>
 					<xpath expr="//field[@name='amount_untaxed']" position="after">
@@ -45,7 +48,7 @@
 
 
 							</xpath>
-						
+
 				</field>
 			</record>
 

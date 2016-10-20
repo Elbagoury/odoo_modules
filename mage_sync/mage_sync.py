@@ -73,23 +73,43 @@ class Magento_sync(models.Model):
 		r.categories_exported = datetime.datetime.utcnow()
 		return True
 
-	def cron_ducts(self, cr, uid, ids=1, context=None):
+	def cron_export_products(self, cr, uid, ids=1, context=None):
 		try:
 			self.ducts(self, cr, uid, ids, context=None)
 			self.pool.get('cron.log').create(cr, uid, {'name':'Magento Product Export', 'description': "Cron Succeded", 'status':0, 'date': datetime.datetime.now()}, context=None)
 		except:
 			self.pool.get('cron.log').create(cr, uid, {'name':'Magento Product Export', 'description': "Cron failed", 'status':1, 'date': datetime.datetime.now()}, context=None)
-
-	def compare_prices(self, cr, uid, ids, context=None):
+	def getMagePrice(self, cr, uid, vals, context=None):
+		sku = vals['sku']
+		rec_ids = self.search(cr, uid, [], context=None)
+		r = self.browse(cr, uid, rec_ids, context=context)[0]
+		magento = MagentoAPI(r.mage_location, r.mage_port, r.mage_user, r.mage_pwd)
+		try:
+			magento_product = magento.catalog_product.info(sku, '', '', 'sku')
+		except:
+			return ''
+		if magento_product:
+			return str(magento_product['price'])
+		else:
+			return ''
+	def compare_prices(self, cr, uid, ids, context=None, product_id=None):
 		_logger = logging.getLogger(__name__)
 
 		for record in self.browse(cr, uid, ids, context=context):
 			r = record
 
-		line_ids = self.pool.get('magento.price.compare').search(cr, uid, [('magento_instance', '=', r.id)], context=None)
+		if not product_id:
+			line_ids = self.pool.get('magento.price.compare').search(cr, uid, [('magento_instance', '=', r.id)], context=None)
+		else:
+			line_ids = self.pool.get('magento.price.compare').search(cr, uid, [('magento_instance', '=', r.id), ('product_id.id', '=', product_id)], context=None)
+
 		self.pool.get('magento.price.compare').unlink(cr, uid, line_ids, context=None)
+
 		magento = MagentoAPI(r.mage_location, r.mage_port, r.mage_user, r.mage_pwd)
-		product_ids = self.pool.get('product.template').search(cr, uid, [('sale_ok', '=', True), ('active', '=', True)], context=None)
+		if not product_id:
+			product_ids = self.pool.get('product.template').search(cr, uid, [('sale_ok', '=', True), ('active', '=', True)], context=None)
+		else:
+			product_ids = [product_id]
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
 		_logger.info("------PRODUCTS LEN: %s" % len(products))
 		res = magento.catalog_product.list()
@@ -99,7 +119,11 @@ class Magento_sync(models.Model):
 
 		for p in products:
 			try:
-				if count == 100:
+				count += 1
+				if count == 500:
+					###BREAKER
+					break
+					###ENDBREAKER
 					magento = None
 					magento = MagentoAPI(r.mage_location, r.mage_port, r.mage_user, r.mage_pwd)
 					count = 0
@@ -107,7 +131,7 @@ class Magento_sync(models.Model):
 				for x in res:
 					magento_product = None
 					if p.id == int(x['sku']):
-						count += 1
+
 						#_logger.info("0---------FOUND %s" % x['sku'])
 						magento_product = magento.catalog_product.info(x['product_id'], '', '', 'productId')
 						#_logger.info(" price %s - %s" % (p.list_price, magento_product['price']))
@@ -578,7 +602,7 @@ class Magento_sync(models.Model):
 				ox2 = magento.sales_order.list()
 
 				orders = []
-				import_start = datetime.datetime.today() - datetime.timedelta(days=4)
+				import_start = datetime.datetime.today() - datetime.timedelta(days=3)
 				for ox in ox2:
 					if ox['created_at'] > str(import_start):
 						orders.append(ox)
@@ -712,7 +736,7 @@ class Magento_sync(models.Model):
 											invoice_partner_id = i.id
 											break
 								if not found:
-									inv_country_ids = self.pool.get('res.country').search(cr, uid, [("code", "=", o['inv_address']['country_id'])], context=None)
+									inv_country_ids = self.pool.get('res.country').search(cr, uid, [("code", "=", o['billing_address']['country_id'])], context=None)
 									inv_country_id = False
 									if inv_country_ids:
 										inv_country_id = inv_country_ids[0]
@@ -779,6 +803,7 @@ class Magento_sync(models.Model):
 										_logger.info("IMPORTING PRODUCTS LINES: %s %s" % (ol['sku'], order_id))
 										product_template_id = int(ol['sku'])
 										template = self.pool.get('product.template').browse(cr, uid, product_template_id, context=None)
+										_logger.info("===== TEMPLATE: %s" % template.name)
 										if not template or template.active == False or template.sale_ok == False:
 											#if order_id:
 											#	order_obj.unlink(cr, uid, order_id, context=None)
@@ -876,7 +901,8 @@ class Magento_sync(models.Model):
 								order_check.unlink();
 								raise osv.osv_except(_('ERROR'), _("0 total"))
 
-							self.pool.get('sale.order').signal_workflow(cr, uid, [order_id], 'order_confirm')
+							#self.pool.get('sale.order').signal_workflow(cr, uid, [order_id], 'order_confirm')
+							self.pool.get('sale.order').set_preorder(cr, uid, [order_id], context=None)
 
 							email_template = r.confirmation_email_template
 							if email_template:
@@ -1061,7 +1087,7 @@ def _translate_category(self, cr, uid, cat_id, name,  cs):
 
 	return True
 def _export_pricelists(self, cr, uid, product, magento):
-	#_logger = logging.getLogger(__name__)
+	_logger = logging.getLogger(__name__)
 	pl_ids = self.pool.get('product.pricelist').search(cr, uid, [("mage_cat", ">", 0)], context=None)
 	pls = self.pool.get('product.pricelist').browse(cr, uid, pl_ids, context=None)
 
@@ -1674,7 +1700,7 @@ class product_template(models.Model):
 			for p in products:
 
 				if not p.categ_id.do_not_publish_mage and not p.do_not_publish_mage and p.categ_id.magento_id:
-					_ducts(self, cr, uid, True, cs, instant_product=p.id)
+					_export_products(self, cr, uid, True, cs, instant_product=p.id)
 				elif p.magento_id:
 					_delete_product_from_mage(cs, p.magento_id)
 					p.magento_id = None
@@ -1722,7 +1748,7 @@ class product_template(models.Model):
 				}
 				p = self.browse(cr, uid, product_template_id, context=None)
 				if not p.categ_id.do_not_publish_mage and not p.do_not_publish_mage:
-					_ducts(self, cr, uid, True, cs, instant_product=product_template_id)
+					_export_products(self, cr, uid, True, cs, instant_product=product_template_id)
 		except:
 			return product_template_id
 		return product_template_id

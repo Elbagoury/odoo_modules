@@ -63,6 +63,7 @@
                         <field name="field_to_check" string="Fields to check" widget="many2many_tags"/>
                         <field name="sync_images" string="Sync images"/>
                         <field name="add_all" />
+                        <field name="mage_integration"/>
 
 
                     </group>
@@ -96,6 +97,7 @@
                     <field name="info_diff" string="Difference only in info"/>
                     <field name="category_foreign"/>
                     <field name="compare_id" string="Company ID"/>
+                    <field name="mage_price"/>
                 </tree>
             </field>
         </record>

@@ -12,6 +12,7 @@ class product_compare(models.Model):
 	user = fields.Char()
 	pwd = fields.Char()
 	sync_images = fields.Boolean()
+	mage_integration = fields.Boolean(string="Integrate magento")
 	add_all = fields.Boolean(string="Update all products regardless of the difference")
 	field_to_check = fields.Many2many('ir.model.fields',  domain=[('model', '=', 'product.template'),('name', '!=', 'name'), ('name', '!=', 'image'),('ttype', 'not in', ['one2many',  'reference', 'function'])], required=True)
 
@@ -89,10 +90,11 @@ class product_compare_line(models.Model):
 	category_foreign = fields.Char(string="Category foreign")
 	info_diff = fields.Boolean(string="Only info diff")
 	compare_id = fields.Integer()
+	mage_price = fields.Char(string="Magento price")
 
 
 def _refresh_all(self, cr, uid, ids, context=None, product_id = None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		record = self.browse(cr, uid, ids, context)[0]
 		for item in record.lines:
 			if product_id:
@@ -122,7 +124,7 @@ def _refresh_all(self, cr, uid, ids, context=None, product_id = None):
 		else:
 			pro_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.foreign_binding", "ilike", record.id), ('active', '=', True)])
 
-		_logger.info("***********PRODUCTS THAT SHOULD BE ON THIS COMPANY: %s" % len(pro_ids))
+		#_logger.info("***********PRODUCTS THAT SHOULD BE ON THIS COMPANY: %s" % len(pro_ids))
 		#return True
 		#DEBUGGING
 		#products = self.pool.get('product.template').browse(cr, uid, pro_ids, context=None)
@@ -144,9 +146,9 @@ def _refresh_all(self, cr, uid, ids, context=None, product_id = None):
 
 		for p in self.pool.get('product.template').browse(cr, uid, pro_ids, context=None):
 			if not p.default_code:
-				_logger.info("skipping %s" % p.name)
+				#_logger.info("skipping %s" % p.name)
 				continue
-			_logger.info("going with %s" % p.name)
+			#_logger.info("going with %s" % p.name)
 			f_ids = models.execute_kw(db, uid, password, 'product.template', 'search', [[['default_code', '=', p.default_code]]])
 
 			if f_ids:
@@ -154,7 +156,7 @@ def _refresh_all(self, cr, uid, ids, context=None, product_id = None):
 				#continue
 				#BREAKER#BREAKER#BREAKER#BREAKER
 				f_pro = models.execute_kw(db, uid, password, 'product.template', 'read', [f_ids], {'fields': to_retrieve})[0]
-				_logger.info("exists %s" % f_pro)
+				#_logger.info("exists %s" % f_pro)
 				hasDifference = False
 				for field in to_check:
 
@@ -172,27 +174,39 @@ def _refresh_all(self, cr, uid, ids, context=None, product_id = None):
 
 						if value != slave:
 							hasDifference = True
-							_logger.info("%s ********* DIFFERENT OR NO %s" % (p.default_code, field.name))
+							#_logger.info("%s ********* DIFFERENT OR NO %s" % (p.default_code, field.name))
 					elif f_pro[field.name]:
 						hasDifference = True
 
+				#MAGENTO INTEGRATION
+				mage_price = ''
+				if record.mage_integration:
+					f_id = f_pro['id']
+					mage_price = models.execute_kw(db, uid, password, 'magento_sync', 'getMagePrice', [{'sku': f_id}])
+
+					if mage_price and float(mage_price) != p.list_price:
+						hasDifference = True
+
+				#END magento
+
 
 				if hasDifference or addAll:
-					_logger.info("******** in setting %s" % p.default_code)
+					#_logger.info("******** in setting %s" % p.default_code)
 
 					vals = {
 						'product_id': p.id,
 						'description': p.description,
 						'default_code': p.default_code,
 						'code_for_foreign': f_pro['name'],
+						'mage_price': mage_price,
 						'info_diff': True,
 						'compare_id': record.id,
 						'category_foreign': f_pro['categ_id'][1]
 					}
 					self.pool.get('product.compare.line').create(cr, uid, vals, context=context)
-				_logger.info("Exists but no diff")
+				#_logger.info("Exists but no diff")
 			else:
-				_logger.info("dont exist %s" % p.name)
+				#_logger.info("dont exist %s" % p.name)
 				vals = {
 					'product_id': p.id,
 					'description': p.description,
@@ -200,9 +214,6 @@ def _refresh_all(self, cr, uid, ids, context=None, product_id = None):
 					'compare_id': record.id
 				}
 				self.pool.get("product.compare.line").create(cr, uid, vals, context=context)
-
-
-
 		return True
 
 def _sync(self, cr, uid, ids, context=None, product_id = None):

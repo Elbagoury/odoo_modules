@@ -370,9 +370,10 @@ class ebay(models.Model):
 				order_ids.append(res)
 			else:
 				continue
+		if order_ids:
+			self.pool.get('sale.order').set_preorder(cr, uid, order_ids, context=None)
 
-
-		if True:
+		if False:
 			_logger.info("ORDER_IDS: %s" % order_ids)
 
 			invoice_ids = []

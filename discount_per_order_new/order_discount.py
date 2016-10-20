@@ -83,13 +83,16 @@ class SaleOrderLine(models.Model):
 					items = pricelist.version_id[0].items_id
 
 					qty = 0
+
 					for item in items:
-						if item.product_tmpl_id and item.product_tmpl_id.id not line.product_tmpl_id.id:
+
+						if item.product_tmpl_id and item.product_tmpl_id.id != line.product_tmpl_id.id:
 							continue
-						if item.product_id and item.product_id.id not line.product_id.id:
+						if item.product_id and item.product_id.id != line.product_id.id:
 							continue
 						if item.categ_id.id and item.categ_id.id not in categ_ids:
 							continue
+
 						if line.product_uom_qty >= item.min_quantity and item.min_quantity >= qty:
 							discount_rate = (item.price_discount * -1) * 100
 							qty = item.min_quantity
@@ -98,6 +101,7 @@ class SaleOrderLine(models.Model):
 								field = price_type.field
 								product_price = line.product_id[field]
 							elif item.base == -1:
+
 								if item.base_pricelist_id:
 									price_temp = self.pool.get('product.pricelist')._price_get_multi(self._cr, self._uid,
 										item.base_pricelist_id, [(line.product_id, line.product_uom_qty, line.order_id.partner_id)], context=context)[line.product_id.id]
@@ -164,6 +168,7 @@ class SaleOrder(models.Model):
 			res[order.id]['amount_total'] = res[order.id]['amount_untaxed'] + res[order.id]['amount_tax']
 		return res
 
+	cig = fields.Char(string="CIG")
 	discount_method = fields.Selection([('fixed','Fixed'), ('percent','Percent')], string="Discount method")
 	order_discount= fields.Float(string="Discount")
 	"""
@@ -244,6 +249,7 @@ class SaleOrder(models.Model):
 			'section_id' : order.section_id.id,
 			'invoice_discount': order.order_discount,
 			'discount_method': order.discount_method,
+			'cig': order.cig,
 			'our_bank':order.partner_id.our_bank.id if order.partner_id.our_bank else None,
 			'goods_description_id': order.goods_description_id.id if order.goods_description_id else None,
 			'carriage_condition_id': order.carriage_condition_id.id if order.carriage_condition_id else None,
@@ -438,6 +444,7 @@ class stock_pck_test(models.Model):
 			'user_id': user_id,
 			'invoice_discount': discount,
 			'discount_method': discount_method,
+			'cig': move.picking_id.sale_id.cig or '',
 			'our_bank':partner.our_bank.id if partner.our_bank else None,
 			'goods_description_id': sale_id.goods_description_id.id if sale_id else None,
 			'carriage_condition_id':sale_id.carriage_condition_id.id if sale_id else None,

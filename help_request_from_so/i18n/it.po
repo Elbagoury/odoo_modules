@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-03 05:36+0000\n"
-"PO-Revision-Date: 2016-08-03 05:36+0000\n"
+"POT-Creation-Date: 2016-10-19 12:23+0000\n"
+"PO-Revision-Date: 2016-10-19 12:23+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -59,6 +59,11 @@ msgstr "Attivo"
 #: view:crm.helpdesk:crm_helpdesk.view_crm_case_helpdesk_filter
 msgid "All pending Helpdesk Request"
 msgstr "Tutte le richieste help desk in attesa"
+
+#. module: crm_helpdesk
+#: selection:crm.helpdesk,state:0
+msgid "Answer from client"
+msgstr "Risposta da cliente"
 
 #. module: crm_helpdesk
 #: view:crm.helpdesk:crm_helpdesk.view_crm_case_helpdesk_filter
@@ -122,11 +127,6 @@ msgstr "Canale di comunicazione"
 #: field:crm.helpdesk.report,company_id:0
 msgid "Company"
 msgstr "Azienda"
-
-#. module: crm_helpdesk
-#: selection:crm.helpdesk,state:0
-msgid "Complete info"
-msgstr "Informazioni complete"
 
 #. module: crm_helpdesk
 #: model:ir.actions.act_window,help:crm_helpdesk.crm_helpdesk_categ_action
@@ -326,6 +326,16 @@ msgid "If checked new messages require your attention."
 msgstr "Se spuntato i nuovi messaggi richiederanno la vostra attenzione"
 
 #. module: crm_helpdesk
+#: selection:crm.helpdesk,state:0
+msgid "Informations complete"
+msgstr "Informazioni complete"
+
+#. module: crm_helpdesk
+#: selection:crm.helpdesk,state:0
+msgid "Inkjet"
+msgstr "Inkjet"
+
+#. module: crm_helpdesk
 #: field:crm.helpdesk,message_is_follower:0
 msgid "Is a Follower"
 msgstr "E' un Follower"
@@ -491,11 +501,6 @@ msgid "Probability (%)"
 msgstr "Probabilità (%)"
 
 #. module: crm_helpdesk
-#: selection:crm.helpdesk,state:0
-msgid "Production check"
-msgstr "Verifica Produzione"
-
-#. module: crm_helpdesk
 #: view:crm.helpdesk:crm_helpdesk.crm_case_form_view_helpdesk
 #: view:crm.helpdesk:crm_helpdesk.crm_case_tree_view_helpdesk
 #: view:crm.helpdesk:crm_helpdesk.view_crm_case_helpdesk_filter
@@ -576,6 +581,11 @@ msgid "Section"
 msgstr "Sezione"
 
 #. module: crm_helpdesk
+#: selection:crm.helpdesk,state:0
+msgid "Spare parts"
+msgstr "Spare parts"
+
+#. module: crm_helpdesk
 #: view:crm.helpdesk:crm_helpdesk.view_crm_case_helpdesk_filter
 #: field:crm.helpdesk,state:0
 #: view:crm.helpdesk.report:crm_helpdesk.view_report_crm_helpdesk_filter
@@ -605,11 +615,6 @@ msgid "These email addresses will be added to the CC field of all inbound and ou
 msgstr "Questi indirizzi email verranno aggiunti nel campo CC di tutte le email, in entrate e uscita, prima di essere spedite. E' necessario separare gli indirizzi con una virgola"
 
 #. module: crm_helpdesk
-#: selection:crm.helpdesk,state:0
-msgid "Time previewing"
-msgstr "Analisi tempi consegna"
-
-#. module: crm_helpdesk
 #: field:crm.helpdesk,message_unread:0
 msgid "Unread Messages"
 msgstr "Messaggi non letti"
@@ -626,13 +631,8 @@ msgstr "Utente"
 
 #. module: crm_helpdesk
 #: selection:crm.helpdesk,state:0
-msgid "Waiting for customer"
-msgstr "In attesa del cliente"
-
-#. module: crm_helpdesk
-#: selection:crm.helpdesk,state:0
-msgid "Warehouse"
-msgstr "Magazzino"
+msgid "Warehouse/Production"
+msgstr "Magazzino/Producione"
 
 #. module: crm_helpdesk
 #: field:crm.helpdesk,email_cc:0

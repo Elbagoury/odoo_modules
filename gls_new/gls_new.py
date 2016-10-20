@@ -30,10 +30,17 @@ class gls_service(models.Model):
         invoices = inv_obj.browse(cr, uid, invoice_ids, context=None)
         if not invoices:
             return
+
+        ddt_obj = self.pool.get('stock.picking.package.preparation')
+        ddt_ids = ddt_obj.search(cr, uid, [('gls_bot_passed', '=', False), ('carrier_id', '!=', False), ('carrier_id.generate_gls_file_for', '=', True)], context=None)
+        _logger.info("----TOTAL NUMBER OF GLS DDTS: %s" % len(ddt_ids))
+        ddts = ddt_obj.browse(cr, uid, ddt_ids, context=None)
+
         record = self.browse(cr, uid, ids, context=None)[0]
         values = []
         cnt = 0
         for invoice in invoices:
+            #BREAKER ONLY DEBUG
             if cnt> 10:
                 continue
             cnt += 1
@@ -53,27 +60,18 @@ class gls_service(models.Model):
             shipping_partner = invoice.address_shipping_id
 
             vname = shipping_partner.parent_id.name if shipping_partner.parent_id else shipping_partner.name
-            vname = vname.replace("&", "&amp;")
-            vname = vname.replace("'", "&#39;")
-            vname = vname.replace("\"", "&quot;")
 
             vstreet = shipping_partner.street
-            vstreet = vstreet.replace("&", "&amp;")
-            vstreet = vstreet.replace("'", "&#39;")
-            vstreet = vstreet.replace("\"", "&quot;")
 
             vloc = shipping_partner.city
-            vloc = vloc.replace("&", "&amp;")
-            vloc = vloc.replace("'", "&#39;")
-            vloc = vloc.replace("\"", "&quot;")
+            importo_contrassegno = invoice.amount_total
+            importo_contrassegno = str(importo_contrassegno)
+            importo_contrassegno = importo_contrassegno.replace('.', ',')
             vweight = invoice.total_weight
             vweight = str(vweight)
             vweight = vweight.replace('.', ',')
 
             vnote = invoice.transportation_note or ''
-            vnote = vnote.replace("&", "&amp;")
-            vnote = vnote.replace("'", "&#39;")
-            vnote = vnote.replace("\"", "&quot;")
 
             valx = {
                     'ragionesociale': vname,
@@ -83,8 +81,10 @@ class gls_service(models.Model):
                     'provincia': invoice.address_shipping_id.state_id.code or '',
                     'colli': invoice.parcels or 1,
                     'peso_reale': vweight,
+                    'importo_contrassegno': importo_contrassegno,
                     'tipo_porto': tipo_porto,
                     'tipo_collo': '',#tipo_collo,
+                    'document_name': invoice.number,
                     'cellulare': invoice.address_shipping_id.mobile,
                     'email': shipping_partner.email,
                     'note': vnote,
@@ -95,16 +95,75 @@ class gls_service(models.Model):
             if res:
                 values.append(valx)
                 invoice.gls_bot_passed = True
-                message += 'Creating parcel: Success '
+                message += 'Creating parcel for %s: Success ' % valx[document_name]
+        cnt = 0
+        for ddt in ddts:
+            #BREAKER ONLY DEBUG
+            if cnt> 10:
+                continue
+            cnt += 1
+            if not ddt.total_weight:
+                raise osv.except_orm("GLS Labeling", "You must specify total weight")
+            if not ddt.carriage_condition_id:
+                raise osv.except_orm("GLS Labeling", "You must specify carriage condition (Franco/Contrassegno)")
+            pts = ''
+
+            if ddt.carriage_condition_id.name == "PORTO FRANCO":
+                tipo_porto = "F"
+            elif ddt.carriage_condition_id.name == "PORTO ASSEGNATO":
+                tipo_porto = "A"
+
+            else:
+                tipo_porto = "F"
+            shipping_partner = ddt.partner_shipping_id
+
+            vname = shipping_partner.parent_id.name if shipping_partner.parent_id else shipping_partner.name
+
+            vstreet = shipping_partner.street
+
+            vloc = shipping_partner.city
+            importo_contrassegno = 0
+
+            vweight = ddt.total_weight
+            vweight = str(vweight)
+            vweight = vweight.replace('.', ',')
+
+            vnote = ddt.note or ''
+
+            valx = {
+                    'ragionesociale': vname,
+                    'indirizzo': vstreet,
+                    'localita': vloc,
+                    'zipcode': ddt.partner_shipping_id.zip,
+                    'provincia': ddt.partner_shipping_id.state_id.code or '',
+                    'colli': ddt.parcels or 1,
+                    'peso_reale': vweight,
+                    'importo_contrassegno': importo_contrassegno,
+                    'tipo_porto': tipo_porto,
+                    'tipo_collo': '',#tipo_collo,
+                    'document_name': ddt.name,
+                    'cellulare': ddt.partner_shipping_id.mobile,
+                    'email': shipping_partner.email,
+                    'note': vnote,
+                    'ddt_id': ddt.id
+            }
+            res = self.pool.get('gls.new.parcel').create(cr, uid, valx, context=None)
+            _logger.info("_____res %s" % res)
+            if res:
+                values.append(valx)
+                invoice.gls_bot_passed = True
+                message += 'Creating parcel for %s: Success ' % valx[document_name]
+
         _logger.info(values)
         try:
 
             #CREATE FILE
+            importo  = val['importo_contrassegno'] if val['tipo_porto'] == 'A' else ''
+
 
             text = ''
             for val in values:
-
-                text += "%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;\n" % (val['ragionesociale'],val['indirizzo'],val['localita'],val['zipcode'],val['provincia'], '', '', val['colli'], '',val['peso_reale'],'',val['note'], val['tipo_porto'], '', '', val['tipo_collo'], '', '', '', '', '', val['email'] or '', val['cellulare'] or '')
+                text += "%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;" % (val['ragionesociale'],val['indirizzo'],val['localita'],val['zipcode'],val['provincia'],val['document_name'],'',val['colli'],'',val['peso_reale'], importo,val['note'])
 
             with open(record.local_file_path, 'w') as file:
                 file.write(text);
@@ -160,16 +219,17 @@ class gls_new_parcel(models.Model):
     tipo_porto = fields.Char() #port type F-franco, A-attached
     tipo_collo = fields.Integer(default=0)
     cellulare = fields.Char()
+    document_name = fields.Char(string="Document name")
     modalita_incasso = fields.Char()
     importo_contrassegno = fields.Char()
     note = fields.Text(string="Transportation note")
     status = fields.Char(string="Status")
     invoice_id = fields.Integer(string="Invoice ID")
+    ddt_id = fields.Integer(string="DDT ID")
     date = fields.Char(string="Date")
-    invoice_id = fields.Integer(stirng="Invoice ID")
     email = fields.Char(string="Email")
 
-class dpd_log(models.Model):
+class gls_log(models.Model):
     _name = "gls.new.log"
 
     datetime = fields.Datetime(sting="Date")
@@ -180,12 +240,9 @@ class dpd_log(models.Model):
 class account_invoice(models.Model):
     _inherit = "account.invoice"
 
-    gls_bot_passed = fields.Boolean(string="DPD bot passed")
+    gls_bot_passed = fields.Boolean(string="GLS bot passed")
 
-"""
-class stock_picking_package_preparation(models.Model):
-    _inherit = 'stock.picking.package.preparation'
+class stock_picking_package(models.Model):
+    _inherit = "stock.picking.package.preparation"
 
-    weight_dpd = fields.Float(string="Weight")
-    net_weight_dpd = fields.Float(string="Net weight")
-"""
+    gls_bot_passed = fields.Boolean(string="GLS bot passed")

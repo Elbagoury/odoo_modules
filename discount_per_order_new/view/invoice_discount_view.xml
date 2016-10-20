@@ -7,9 +7,10 @@
 				<field name="inherit_id" ref="account.invoice_form" />
 				<field name="arch" type="xml">
 					<xpath expr="//field[@name='payment_term']" position="before">
-							
+
 							<field name="discount_method" style="width:100px;"/>
 							<field name="invoice_discount" />
+							<field name="cig"/>
 
 					</xpath>
 					<xpath expr="//field[@name='amount_untaxed']" position="after">

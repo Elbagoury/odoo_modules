@@ -60,12 +60,12 @@ class crm_helpdesk_extended(models.Model):
                 item.order = text
 
 
-    state = fields.Selection([('draft', 'Warehouse'),
-     ('open', 'Production check'),
-     ('time_preview', 'Time previewing'),
+    state = fields.Selection([('draft', 'Warehouse/Production'),
+     ('inkjet', "Inkjet"),
+     ('spare_parts', "Spare parts"),
      ('sales_call', 'Sales call'),
-     ('pending', 'Waiting for customer'),
-     ('complete_info', 'Complete info'),
+     ('pending', 'Answer from client'),
+     ('complete_info', 'Informations complete'),
      ('done', 'Closed')], 'Status', readonly=True, track_visibility='onchange',
                       help='The status is set to \'Draft\', when a case is created.\
                       \nIf the case is in progress the status is set to \'Open\'.\

@@ -76,6 +76,7 @@ class account_invoice(models.Model):
 				self.write({'send': True})
 		return True
 
+	cig = fields.Char(string="CIG")
 	discount_method = fields.Selection([('fixed','Fixed'), ('percent','Percent')], string="Discount method")
 	invoice_discount = fields.Float(string="Invoice discount")
 	amount_discount = fields.Float(string="Discount", digits=dp.get_precision('Account'),

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<openerp>
+		<data>
+			<record id="internal_order_new_so_form" model="ir.ui.view">
+				<field name="name">internal.order.form2</field>
+				<field name="model">sale.order</field>
+				<field name="inherit_id" ref="sale.view_order_form"/>
+				<field name="arch" type="xml">
+					<xpath expr="//field[@name='company_id']" position="after">
+						<field name="transfer_remotely"/>
+						<field name="remote_order_id" attrs="{'invisible': [('remote_order_id', '=', False)]}"/>
+						<button name="transfer_order" type="object" string="Transfer - DEJAN ONLY"/>
+
+
+					</xpath>
+
+        </field>
+      </record>
+
+      <menuitem id="menu_im" parent="base.menu_administration" name="Internal moves" sequence="3" groups="base.group_no_one"/>
+
+
+      <record model="ir.actions.act_window" id="action_im_conf">
+    		<field name="name">Configuration</field>
+    		<field name="res_model">internal.moves</field>
+    		<field name="view_model">tree, form</field>
+    	</record>
+		  <menuitem id="menu_im_conf" parent="menu_im" name="Configuration" action="action_im_conf"/>
+    </data>
+  </openerp>

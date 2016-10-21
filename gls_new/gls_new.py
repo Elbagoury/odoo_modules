@@ -95,7 +95,7 @@ class gls_service(models.Model):
             if res:
                 values.append(valx)
                 invoice.gls_bot_passed = True
-                message += 'Creating parcel for %s: Success ' % valx[document_name]
+                message += 'Creating parcel for %s: Success ' % valx['document_name']
         cnt = 0
         for ddt in ddts:
             #BREAKER ONLY DEBUG
@@ -158,15 +158,15 @@ class gls_service(models.Model):
         try:
 
             #CREATE FILE
-            importo  = val['importo_contrassegno'] if val['tipo_porto'] == 'A' else ''
+
 
 
             text = ''
-            for val in values:
-                text += "%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;" % (val['ragionesociale'],val['indirizzo'],val['localita'],val['zipcode'],val['provincia'],val['document_name'],'',val['colli'],'',val['peso_reale'], importo,val['note'])
-
-            with open(record.local_file_path, 'w') as file:
-                file.write(text);
+            with open(record.local_file_path, 'wb') as csvfile:
+                writer = csv.writer(csvfile, delimiter=';',quotechar='\"', quoting=csv.QUOTE_MINIMAL)
+                for val in values:
+                    importo  = val['importo_contrassegno'] if val['tipo_porto'] == 'A' else ''
+                    writer.writerow([val['ragionesociale']] + [val['indirizzo']] + [val['localita']] + [val['zipcode']] + [val['provincia']] + [val['provincia']] + [val['document_name']] + [' '] + [val['colli']] + [' '] + [val['peso_reale']] + [importo] + [val['note']])
 
             message += "Writing to file: Success "
         except IOError:

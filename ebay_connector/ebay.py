@@ -367,7 +367,8 @@ class ebay(models.Model):
 		for o in ox:
 			res = _import_order(self, cr, uid, ids, o, [r])
 			if res:
-				order_ids.append(res)
+				if type(res) is dict:
+					order_ids.append(res['order'])
 			else:
 				continue
 		if order_ids:
@@ -1438,6 +1439,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 			#check if exists
 			xid = self.pool.get('sale.order').search(cr, uid, [('ebay_id', '=', o["OrderID"])], context=context)
 			if xid:
+				return True
 				this_so = self.pool.get('sale.order').browse(cr, uid, xid, context=None)
 			#get username (unique identifier)
 			uname = o['BuyerUserID']

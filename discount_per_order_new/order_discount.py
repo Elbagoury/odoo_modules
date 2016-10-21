@@ -104,9 +104,9 @@ class SaleOrderLine(models.Model):
 
 								if item.base_pricelist_id:
 									price_temp = self.pool.get('product.pricelist')._price_get_multi(self._cr, self._uid,
-										item.base_pricelist_id, [(line.product_id, line.product_uom_qty, line.order_id.partner_id)], context=context)[line.product_id.id]
+										item.base_pricelist_id, [(line.product_id, line.product_uom_qty, line.order_id.partner_id)], context=None)[line.product_id.id]
 									ptype_src = item.base_pricelist_id.currency_id.id
-									price = self.pool.get('res.currency').compute(self._cr, self._uid, ptype_src, pricelist.currency_id.id, price_tmp, round=False, context=context)
+									price = self.pool.get('res.currency').compute(self._cr, self._uid, ptype_src, pricelist.currency_id.id, price_temp, round=False, context=None)
 							else:
 								product_price = line.product_id.list_price
 

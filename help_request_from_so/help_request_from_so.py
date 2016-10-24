@@ -102,10 +102,10 @@ class SaleOrder(models.Model):
 
 
   helpdesk_note = fields.Char(string="Helpdesk note", compute="_get_helpdesk")
-  helpdesk_state = fields.Selection([('draft', 'Warehouse'),
-     ('open', 'Production check'),
-     ('time_preview', 'Time previewing'),
+  helpdesk_state = fields.Selection([('draft', 'Warehouse/Production'),
+     ('inkjet', "Inkjet"),
+     ('spare_parts', "Spare parts"),
      ('sales_call', 'Sales call'),
-     ('pending', 'Waiting for customer'),
-     ('complete_info', 'Complete info'),
+     ('pending', 'Answer from client'),
+     ('complete_info', 'Informations complete'),
      ('done', 'Closed')], string="Helpdesk state", compute="_get_helpdesk")

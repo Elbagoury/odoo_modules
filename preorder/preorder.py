@@ -21,8 +21,25 @@ class SaleOrder(models.Model):
 
     def set_preorder(self, cr, uid, ids, context=None):
         for o in self.browse(cr, uid, ids, context=None):
+            for ol in o.order_line:
+                ol.state = 'preorder'
             o.state = 'preorder'
 
     def set_draft(self, cr, uid, ids, context=None):
         for o in self.browse(cr, uid, ids, context=None):
+            for ol in o.order_line:
+                ol.state = 'draft'
             o.state = 'draft'
+
+
+
+class SaleOrderLine(models.Model):
+    _inherit = "sale.order.line"
+
+    state = fields.Selection([('cancel', 'Cancelled'),('draft', 'Draft'), ('preorder', 'Preorder'),('confirmed', 'Confirmed'),('exception', 'Exception'),('done', 'Done')],
+    'Status', required=True, readonly=True, copy=False,
+    help='* The \'Draft\' status is set when the related sales order in draft status. \
+        \n* The \'Confirmed\' status is set when the related sales order is confirmed. \
+        \n* The \'Exception\' status is set when the related sales order is set as exception. \
+        \n* The \'Done\' status is set when the sales order line has been picked. \
+        \n* The \'Cancelled\' status is set when a user cancel the sales order related.')

@@ -212,11 +212,11 @@ class stock_move(osv.osv):
     _defaults = {
         'weight_uom_id': lambda self, cr, uid, c: self._get_default_uom(cr, uid, c),
     }
-"""
+
 class StockPickingPackagePreparation(osv.osv):
     _inherit = "stock.picking.package.preparation"
     _columns = {
         'carrier_id': fields.many2one('delivery.grid', 'Carrier')
     }
-"""
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

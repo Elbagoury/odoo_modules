@@ -1412,10 +1412,10 @@ def _update_product_stock_mage(cs, id, qty):
 	}
 	return magento.catalog_product.update(id, product, '', 'productId')
 
-def _delete_product_from_mage(cs, id):
+def _delete_product_from_mage(cs, sku):
 		magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
 		try:
-			magento.catalog_product.delete(id)
+			magento.catalog_product.delete(sku, "sku")
 		except:
 			return False
 		return True
@@ -1679,7 +1679,7 @@ class product_template(models.Model):
 		res = super(product_template, self).write(cr, uid, ids, vals, context=context)
 		if 'magento_id' in vals:
 			return res
-		if 'description' not in vals and 'qty_available' not in vals and 'list_price' not in vals and 'name' not in vals and 'do_not_publish_mage' not in vals and 'image' not in vals and 'active' not in vals and 'categ_id' not in vals:
+		if 'description' not in vals and 'qty_available' not in vals and 'list_price' not in vals and 'name' not in vals and 'do_not_publish_mage' not in vals and 'image' not in vals and 'active' not in vals and 'categ_id' not in vals and 'sale_ok' not in vals and 'state' not in vals:
 			return res
 
 
@@ -1699,10 +1699,10 @@ class product_template(models.Model):
 			products = self.browse(cr, uid, ids, context=None)
 			for p in products:
 
-				if not p.categ_id.do_not_publish_mage and not p.do_not_publish_mage and p.categ_id.magento_id:
+				if not p.categ_id.do_not_publish_mage and not p.do_not_publish_mage and p.categ_id.magento_id and p.sale_ok and p.state in ['sellable']:
 					_export_products(self, cr, uid, True, cs, instant_product=p.id)
-				elif p.magento_id:
-					_delete_product_from_mage(cs, p.magento_id)
+				else:
+					_delete_product_from_mage(cs, p.id)
 					p.magento_id = None
 		return res
 

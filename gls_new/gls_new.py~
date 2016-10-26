@@ -166,7 +166,7 @@ class gls_service(models.Model):
                 writer = csv.writer(csvfile, delimiter=';',quotechar='\"', quoting=csv.QUOTE_MINIMAL)
                 for val in values:
                     importo  = val['importo_contrassegno'] if val['tipo_porto'] == 'A' else ''
-                    writer.writerow([val['ragionesociale']] + [val['indirizzo']] + [val['localita']] + [val['zipcode']] + [val['provincia']] + [val['document_name']] + [' '] + [val['colli']] + [' '] + [val['peso_reale']] + [importo] + [val['note']])
+                    writer.writerow([val['ragionesociale']] + [val['indirizzo']] + [val['localita']] + [val['zipcode']] + [val['provincia']] + [val['provincia']] + [val['document_name']] + [' '] + [val['colli']] + [' '] + [val['peso_reale']] + [importo] + [val['note']])
 
             message += "Writing to file: Success "
         except IOError:

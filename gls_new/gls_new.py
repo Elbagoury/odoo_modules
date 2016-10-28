@@ -8,6 +8,7 @@ from openerp.osv import osv
 class delivery_grid(models.Model):
     _inherit = 'delivery.grid'
     generate_gls_file_for = fields.Boolean(string="Generate GLS file for", help="Invoices with this courier selected will be included in GLS parcel file")
+    gls_instance = fields.Many2one('gls', string="GLS contract")
 
 class gls_service(models.Model):
     _name="gls"
@@ -25,7 +26,7 @@ class gls_service(models.Model):
         _logger = logging.getLogger(__name__)
         message = ''
         inv_obj = self.pool.get('account.invoice')
-        invoice_ids = inv_obj.search(cr, uid, [('gls_bot_passed', '=', False), ('carrier_id', '!=', False), ('carrier_id.generate_gls_file_for', '=', True)], context=None)
+        invoice_ids = inv_obj.search(cr, uid, [('gls_bot_passed', '=', False), ('carrier_id', '!=', False), ('carrier_id.gls_instance', '!=', None)], context=None)
         _logger.info("----TOTAL NUMBER OF GLS INVOICES: %s" % len(invoice_ids))
         invoices = inv_obj.browse(cr, uid, invoice_ids, context=None)
         if not invoices:
@@ -36,13 +37,11 @@ class gls_service(models.Model):
         _logger.info("----TOTAL NUMBER OF GLS DDTS: %s" % len(ddt_ids))
         ddts = ddt_obj.browse(cr, uid, ddt_ids, context=None)
 
-        record = self.browse(cr, uid, ids, context=None)[0]
+        
         values = []
         cnt = 0
         for invoice in invoices:
-            #BREAKER ONLY DEBUG
-            if cnt> 10:
-                continue
+           
             cnt += 1
             if not invoice.total_weight:
                 raise osv.except_orm("GLS Labeling", "You must specify total weight")
@@ -88,7 +87,8 @@ class gls_service(models.Model):
                     'cellulare': invoice.address_shipping_id.mobile,
                     'email': shipping_partner.email,
                     'note': vnote,
-                    'invoice_id': invoice.id
+                    'invoice_id': invoice.id,
+                    'instance_id': invoice.carrier_id.gls_instance.id
             }
             res = self.pool.get('gls.new.parcel').create(cr, uid, valx, context=None)
             _logger.info("_____res %s" % res)
@@ -98,9 +98,7 @@ class gls_service(models.Model):
                 message += 'Creating parcel for %s: Success ' % valx['document_name']
         cnt = 0
         for ddt in ddts:
-            #BREAKER ONLY DEBUG
-            if cnt> 10:
-                continue
+          
             cnt += 1
             if not ddt.total_weight:
                 raise osv.except_orm("GLS Labeling", "You must specify total weight")
@@ -145,7 +143,8 @@ class gls_service(models.Model):
                     'cellulare': ddt.partner_shipping_id.mobile,
                     'email': shipping_partner.email,
                     'note': vnote,
-                    'ddt_id': ddt.id
+                    'ddt_id': ddt.id,
+                    'instance_id': ddt.carrier_id.gls_instance.id
             }
             res = self.pool.get('gls.new.parcel').create(cr, uid, valx, context=None)
             _logger.info("_____res %s" % res)
@@ -156,29 +155,25 @@ class gls_service(models.Model):
 
         _logger.info(values)
         try:
-
+            #Treba uraditi sortiranje po gls ugovoru i onda praviti file za svaki ugovor koristeci 
+            #parametre iz tog ugovora
             #CREATE FILE
-
-
-
             text = ''
             with open(record.local_file_path, 'wb') as csvfile:
                 writer = csv.writer(csvfile, delimiter=';',quotechar='\"', quoting=csv.QUOTE_MINIMAL)
                 for val in values:
                     importo  = val['importo_contrassegno'] if val['tipo_porto'] == 'A' else ''
-<<<<<<< HEAD
                     writer.writerow([val['ragionesociale']] + [val['indirizzo']] + [val['localita']] + [val['zipcode']] + [val['provincia']] + [val['document_name']] + [' '] + [val['colli']] + [' '] + [val['peso_reale']] + [importo] + [val['note']])
-=======
-                    writer.writerow([val['ragionesociale']] + [val['indirizzo']] + [val['localita']] + [val['zipcode']] + [val['provincia']] + [val['provincia']] + [val['document_name']] + [' '] + [val['colli']] + [' '] + [val['peso_reale']] + [importo] + [val['note']])
->>>>>>> 20fa0d5ddc3860cf78f7057bb765975589d948bd
+
 
             message += "Writing to file: Success "
         except IOError:
             _logger.info("FAILED WRITING TO FILE")
             message += "Writing to file: FAILED "
         try:
-
+            #isto i za transfer
             #Transfer the file
+
             host = record.host
             user = record.user
             password = record.password
@@ -232,6 +227,8 @@ class gls_new_parcel(models.Model):
     ddt_id = fields.Integer(string="DDT ID")
     date = fields.Char(string="Date")
     email = fields.Char(string="Email")
+    instance_id = fields.Many2one('gls', string="GLS instance")
+    included = fields.Boolean(string="Included in the file")
 
 class gls_log(models.Model):
     _name = "gls.new.log"

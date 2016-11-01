@@ -24,6 +24,7 @@ class gls_service(models.Model):
 
     def generate_file(self, cr, uid, ids, context):
         _logger = logging.getLogger(__name__)
+        instance = self.browse(cr, uid, ids, context=None)[0]
         message = ''
         inv_obj = self.pool.get('account.invoice')
         invoice_ids = inv_obj.search(cr, uid, [('gls_bot_passed', '=', False), ('carrier_id', '!=', False), ('carrier_id.gls_instance', '!=', None)], context=None)
@@ -37,11 +38,12 @@ class gls_service(models.Model):
         _logger.info("----TOTAL NUMBER OF GLS DDTS: %s" % len(ddt_ids))
         ddts = ddt_obj.browse(cr, uid, ddt_ids, context=None)
 
-        
+
         values = []
         cnt = 0
         for invoice in invoices:
-           
+            if invoice.carrier_id.gls_instance.id != instance.id:
+                continue
             cnt += 1
             if not invoice.total_weight:
                 raise osv.except_orm("GLS Labeling", "You must specify total weight")
@@ -98,7 +100,8 @@ class gls_service(models.Model):
                 message += 'Creating parcel for %s: Success ' % valx['document_name']
         cnt = 0
         for ddt in ddts:
-          
+            if ddt.carrier_id.gls_instance.id != instance.id:
+                continue
             cnt += 1
             if not ddt.total_weight:
                 raise osv.except_orm("GLS Labeling", "You must specify total weight")
@@ -155,7 +158,7 @@ class gls_service(models.Model):
 
         _logger.info(values)
         try:
-            #Treba uraditi sortiranje po gls ugovoru i onda praviti file za svaki ugovor koristeci 
+            #Treba uraditi sortiranje po gls ugovoru i onda praviti file za svaki ugovor koristeci
             #parametre iz tog ugovora
             #CREATE FILE
             text = ''

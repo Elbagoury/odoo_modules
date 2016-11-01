@@ -82,7 +82,7 @@
     <field name="arch" type="xml">
       <xpath expr="//field[@name='sequence']" position="before">
 
-          <field name="generate_gls_file_for" />
+          <field name="gls_instance" />
 
 
       </xpath>

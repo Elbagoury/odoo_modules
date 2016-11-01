@@ -666,7 +666,7 @@ class Magento_sync(models.Model):
 									'invoice_warn': 'no-message',
 									'property_account_receivable':938,
 									'property_account_payable':993,
-									'notify_email':'never',
+									'notify_email':'none',
 									'magento_id': o['customer_id']
 								}
 								partner_id = self.pool.get('res.partner').create(cr, user_id, par_vals, context=context)
@@ -718,7 +718,7 @@ class Magento_sync(models.Model):
 										'invoice_warn': 'no-message',
 										'property_account_receivable':938,
 										'property_account_payable':993,
-										'notify_email':'always',
+										'notify_email':'none',
 										'magento_id': o['customer_id'],
 										'user_id': user_id
 									}
@@ -754,7 +754,7 @@ class Magento_sync(models.Model):
 										'invoice_warn': 'no-message',
 										'property_account_receivable':938,
 										'property_account_payable':993,
-										'notify_email':'always',
+										'notify_email':'none',
 										'magento_id': o['customer_id'],
 										'user_id': user_id
 									}

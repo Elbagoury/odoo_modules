@@ -380,8 +380,10 @@ class Magento_sync(models.Model):
 
 	def export_pricelists(self, cr, uid, ids, context = None):
 		_logger = logging.getLogger(__name__)
-		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ("do_not_publish_mage", "=", False)], context=None)
+		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ("sale_ok", "=", True), ("active", "=", True), ("do_not_publish_mage", "=", False)], context=None)
+		#product_ids = [128581]
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
+		_logger.info("STARTING EXPORT OF PRICELISTS: %s" % len(product_ids))
 		for record in self.browse(cr, uid, ids, context=context):
 				r = record
 
@@ -397,16 +399,41 @@ class Magento_sync(models.Model):
 		last = 0
 		limit = 0
 
+		#statictics - Aco: primeni ovo na sve druge exporte
+		current_estimated_time = 'N/A'
+		current_percent = 0
+		current_good_percent = 0
+		total_time = 0
+		total = len(products)
+		done = 0
+		good = 0
+
 		for p in products:
 			cnt +=1
+			#na svakih 500 obnavalja magento sesiju da ne bi istekla, mada istekne ona svakako kad se zainati
 			if cnt - last == 500:
-				_logger.info("PRICELIST EXPORT PROGRESS: %s" % cnt)
 				last = cnt
 				magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
 
+			start = datetime.datetime.now()
+			res = _export_pricelists(self, cr, uid, p, magento)
+			end = datetime.datetime.now()
+			done += 1
+			if res != False:
+				good += 1
 
-			_logger.info("EXPORTING PRICELIST FOR: %s (%s)" % (p.name, p.id))
-			_export_pricelists(self, cr, uid, p, magento)
+			current_percent = done * 100 / total
+			current_good_percent = good * 100 / done
+
+			time_spent = (end - start).total_seconds()
+			total_time += time_spent
+			average = total_time / done
+			time_est_sec = average * (total - done)
+			time_estimated_time = str(datetime.timedelta(seconds=time_est_sec))
+
+			message = "EXPORTING PRODUCT: %s(%s) ... %s -- progress: %s of %s - %sp done (%sp good), in %s sec (%s remaining)" % (p.name, p.id, res, done, total, current_percent, current_good_percent, time_spent, time_estimated_time )
+			_logger.info(message)
+
 
 	def reindex(self, cr, uid, ids, context=None):
 		for record in self.browse(cr, uid, ids, context=context):
@@ -1103,23 +1130,24 @@ def _export_pricelists(self, cr, uid, product, magento):
 
 		items = v.items_id
 
-
 		for i in items:
 			mq = -1
 			price = 0
 			if i.product_tmpl_id:
 				if i.product_tmpl_id == product.id:
-					mq = i.min_quantity
+					mq = i.min_quantity or 0
 					price = (1+i.price_discount) * product.list_price + i.price_surcharge
 
 			elif i.categ_id:
-				if i.categ_id.id in categ_ids:
-					mq = i.min_quantity
+			 	if i.categ_id.id in categ_ids:
+					mq = i.min_quantity or 0
 					price = (1+i.price_discount) * product.list_price + i.price_surcharge
 			else:
-				mq = i.min_quantity
+				mq = i.min_quantity or 0
 				price = (1+i.price_discount) * product.list_price + i.price_surcharge
 
+			if mq == -1 or price == 0:
+				continue
 			curr = {
 
 				'group_id': p.mage_cat,
@@ -1153,12 +1181,10 @@ def _export_pricelists(self, cr, uid, product, magento):
 			tiers.append(mage_tier)
 
 	try:
-		#_logger.info("----vals: %s, %s" % (groups, tiers) )
 		res = magento.catalog_product.update(product.id, {'group_price':groups, 'tier_price':tiers, 'price':product.list_price}, '', 'sku')
-		#_logger.info("----- RES %s" % res)
-		return res
+		return "Done"
 	except:
-		return True
+		return "Fail"
 
 
 def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):

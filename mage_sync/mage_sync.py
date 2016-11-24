@@ -428,7 +428,7 @@ class Magento_sync(models.Model):
 			time_spent = (end - start).total_seconds()
 			total_time += time_spent
 			average = total_time / done
-			time_est_sec = average * (total - done)
+			time_est_sec = average * (total - done) 
 			time_estimated_time = str(datetime.timedelta(seconds=time_est_sec))
 
 			message = "EXPORTING PRODUCT: %s(%s) ... %s -- progress: %s of %s - %sp done (%sp good), in %s sec (%s remaining)" % (p.name, p.id, res, done, total, current_percent, current_good_percent, time_spent, time_estimated_time )

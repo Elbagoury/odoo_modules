@@ -113,7 +113,7 @@ class ebay(models.Model):
 			np.suffix = None
 
 	def complete_sale(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		instance_id = self.pool.get('ebay').search(cr,uid, [], context=None)
 		i = self.browse(cr, uid, instance_id, context=None)
 		i = i[0]
@@ -151,7 +151,7 @@ class ebay(models.Model):
 
 
 	def export_products(self, cr, uid, ids, context=None, product_id=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		(opts, args) = init_options()
 		current_record = None
 		if product_id:
@@ -175,8 +175,8 @@ class ebay(models.Model):
 		if products:
 
 			for pro in products:
-				_logger.info("------- %s" % pro)
-				_logger.warning("*******INSIDE PRODUCT %s ************" % pro.name)
+				#_logger.info("------- %s" % pro)
+				#_logger.warning("*******INSIDE PRODUCT %s ************" % pro.name)
 				code = pro.name
 				if pro.main_name_part:
 
@@ -191,7 +191,7 @@ class ebay(models.Model):
 							self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s" % code, 'error': 'Title too long / Il tilolo tropo lungo', 'datetime': datetime.datetime.now()}, context=None)
 
 						code_tmp += suffix
-						_logger.warning("********* INSERTING PRODUCT %s ******** %s" % (code_tmp, len(pro.name_parts)))
+						#_logger.warning("********* INSERTING PRODUCT %s ******** %s" % (code_tmp, len(pro.name_parts)))
 						item = save_product(pro, code_tmp, desc, lst_up, current_record)
 						if "Error" in item:
 							self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s" % code, 'error': item['Error'], 'datetime': datetime.datetime.now()}, context=None)
@@ -199,7 +199,7 @@ class ebay(models.Model):
 
 						if not pn.ebay_id:
 							ebay_id, ebay_date = addItem(current_record, item)
-							_logger.info("Product has no ebay_id, inserting new")
+							#_logger.info("Product has no ebay_id, inserting new")
 							if ebay_id and ebay_date:
 								pn.suffix = suffix
 								pn.ebay_id = ebay_id
@@ -207,12 +207,12 @@ class ebay(models.Model):
 								pro.ebay_date_added = ebay_date
 
 						else:
-							_logger.info("This one has ebay_id %s" % pn.ebay_id)
+							#_logger.info("This one has ebay_id %s" % pn.ebay_id)
 							res, mess = addItem(current_record, item, ebay_id=pn.ebay_id)
 							if not res:
 								self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s (ebay side)" % code, 'error': mess, 'datetime': datetime.datetime.now()}, context=None)
 				elif len(pro.description) <= 80:
-					_logger.warning("********* INSERTING PRODUCT %s  NO NAME PARTS********" % pro.name)
+					#_logger.warning("********* INSERTING PRODUCT %s  NO NAME PARTS********" % pro.name)
 					item = save_product(pro, pro.name, pro.description, lst_up, current_record)
 					if "Error" in item:
 						self.pool.get('ebay.log').create(cr, uid, {'name': "ERROR EXPORTING %s" % code, 'error': item['Error'], 'datetime': datetime.datetime.now()}, context=None)
@@ -231,7 +231,7 @@ class ebay(models.Model):
 							self.pool.get('ebay.ids').create(cr, uid, {'product_id': pro.id, 'ebay_id': ebay_id})
 							pro.ebay_date_added = ebay_date
 				else:
-					_logger.warning("********* Skipping %s ********" % pro.name)
+					#_logger.warning("********* Skipping %s ********" % pro.name)
 					continue
 
 
@@ -250,7 +250,7 @@ class ebay(models.Model):
 		return True
 
 	def read_messages(self, cr, uid, ids=2, context=None, only_new=True):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		r = self.browse(cr, uid, ids, context=context)
 		cert = r.cert_id
 		dev = r.dev_id
@@ -296,7 +296,7 @@ class ebay(models.Model):
 				'ebay_instance_id': r.id
 			}
 			msg_id = self.pool.get('ebay.message').create(cr, uid, vals, context=None)
-			_logger.info("Created: %s - %s" % (msg_id, m['header']['ReceiveDate']))
+			#_logger.info("Created: %s - %s" % (msg_id, m['header']['ReceiveDate']))
 
 		if not only_new:
 			#UPDATE EXISTING
@@ -308,7 +308,7 @@ class ebay(models.Model):
 
 				}
 				self.pool.get('ebay.message').write(cr, uid, x['odoo_id'], vals, context=None)
-				_logger.info("Updated: %s" % x['odoo_id'])
+				#_logger.info("Updated: %s" % x['odoo_id'])
 
 
 			#DELETE MSGS DELETED EXTERNALY
@@ -317,29 +317,29 @@ class ebay(models.Model):
 			for m in odoo_collection:
 				if m['message_id'] not in msg_ids:
 					self.pool.get('ebay.message').unlink(cr, uid, [m['id']], context=None)
-					_logger.info("Deleted: %s" % m)
+					#_logger.info("Deleted: %s" % m)
 
 		r.messages_synced_date = datetime.datetime.now()
 		return True
 
 	def cron_import_orders(self, cr, uid, ids=2, context=None):
 		try:
-			_logger = logging.getLogger(__name__)
-			_logger.info("EBAY ORDER IMPORT CRON STARTED *******************")
+			#_logger = logging.getLogger(__name__)
+			#_logger.info("EBAY ORDER IMPORT CRON STARTED *******************")
 			self.import_orders(cr, uid, ids, context=context)
 			_logger.info("EBAY ORDER IMPORT CRON FINISHED *******************")
 		except:
 			e = sys.exc_info()[0]
 
-			_logger.warning("***********ERROR IMPORTING EBAY ORDERS: %s " % e)
+			#_logger.warning("***********ERROR IMPORTING EBAY ORDERS: %s " % e)
 
 	def import_orders(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
-		_logger.info("STARTINGS")
+		#_logger = logging.getLogger(__name__)
+		#_logger.info("STARTINGS")
 		#ids = self.pool.get('ebay').search(cr, uid, ids, [], context=None)
 		r = self.browse(cr, uid, ids, context=context)
 		if not r:
-			_logger.warning("FATAL. COULD NOT RETRIEVE CONFIG")
+			#_logger.warning("FATAL. COULD NOT RETRIEVE CONFIG")
 			return False
 
 		r = r[0]
@@ -363,7 +363,7 @@ class ebay(models.Model):
 
 
 		order_ids = []
-		_logger.info("LEN OF ORDERS IS: %s" % len(ox))
+		#_logger.info("LEN OF ORDERS IS: %s" % len(ox))
 		for o in ox:
 			res = _import_order(self, cr, uid, ids, o, [r])
 			if res:
@@ -375,7 +375,7 @@ class ebay(models.Model):
 			self.pool.get('sale.order').set_preorder(cr, uid, order_ids, context=None)
 
 		if False:
-			_logger.info("ORDER_IDS: %s" % order_ids)
+			#_logger.info("ORDER_IDS: %s" % order_ids)
 
 			invoice_ids = []
 
@@ -396,10 +396,10 @@ class ebay(models.Model):
 						'type': inv.type in ('out_invoice', 'out_refund') and 'receipt', #or payment
 						'reference': inv.name
 					}
-					_logger.info("**** VOUCHER_DATA: %s" % voucher_vals)
+				#	_logger.info("**** VOUCHER_DATA: %s" % voucher_vals)
 
 					voucher_id = self.pool.get('account.voucher').create(cr, uid, voucher_vals, context=None)
-					_logger.info("*** VOUCHER_ID: %s" % voucher_id)
+				#	_logger.info("*** VOUCHER_ID: %s" % voucher_id)
 
 					self.pool.get('account.voucher').write(cr, uid, [voucher_id], {'state': 'draft'}, context=None)
 					double_check = 0
@@ -438,10 +438,10 @@ class ebay(models.Model):
 								double_check += 1
 
 					if double_check == 0:
-						_logger.error("**** DID NOT CREATE ANY V LINES")
+						#_logger.error("**** DID NOT CREATE ANY V LINES")
 						raise osv.except_osv(_("Warning"), _("I did not create any voucher line"))
 					elif double_check > 1:
-						_logger.error("**** CREATED MORE THAT ONE V LINE")
+						#_logger.error("**** CREATED MORE THAT ONE V LINE")
 						raise osv.except_osv(_("Warning"), _("I created multiple voucher line ??"))
 
 					self.pool.get('account.voucher').button_proforma_voucher(cr, uid, [voucher_id], context=context)
@@ -459,11 +459,11 @@ class ebay(models.Model):
 		for olid in order_line_item_ids:
 			if olid:
 				api.execute('AddDispute', {'DisputeExplanation': 'BuyerNoLongerWantsItem', 'DisputeReason': 'TransactionMutuallyCanceled', 'OrderLineItemID': olid})
-				print api.response.json()
+				#print api.response.json()
 		return True
 
 	def import_categories(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		category_tmp = self.pool.get('ebay.categories.line')
 		r = self.browse(cr, uid, ids, context=context)
 		cert = r.cert_id
@@ -472,7 +472,7 @@ class ebay(models.Model):
 		tok = r.token_id
 		(opts, args) = init_options()
 		categories = getCategories(opts, cert, dev, app, tok)
-		_logger.info("******************* %s" % categories)
+		#_logger.info("******************* %s" % categories)
 		version = categories['Version']
 
 		result = True
@@ -674,7 +674,7 @@ class send_order_message_wizard(models.TransientModel):
 
 		api.execute('AddMemberMessageAAQToPartner', {'ItemID': msg.item_id, 'MemberMessage':{'Body': msg.message, 'EmailCopyToSender': msg.copy_to_sender, 'QuestionType':msg.question_type, 'RecipientID':msg.recipient_id, 'Subject': msg.subject}})
 		rsp = json.loads(api.response.json())
-		print rsp
+		#print rsp
 		if rsp["Ack"] == "Failure":
 			raise osv.except_osv(_('Error sending message'), _('Message cannot be sent at the time. Ebay failed to send message: %s' % rsp['Errors']['LongMessage']))
 
@@ -713,7 +713,7 @@ class order_combine(models.TransientModel):
 		total = 0
 		for so in self.pool.get('sale.order').browse(self._cr, self._uid, so_ids, context=None):
 			for sol in so.order_line:
-				if sol.name != "Delivery cost":
+				if sol.name != "Spese di trasporto":
 					total += sol.price_subtotal * (1+sol.tax_id.amount or 0.22)
 		return total
 
@@ -722,7 +722,7 @@ class order_combine(models.TransientModel):
 		total = 0
 		for so in self.pool.get('sale.order').browse(self._cr, self._uid, so_ids, context=None):
 			for sol in so.order_line:
-				if sol.name == "Delivery cost":
+				if sol.name == "Spese di trasporto":
 					total += sol.price_subtotal * (1+ sol.tax_id.amount or 0.22)
 		return total
 
@@ -731,7 +731,7 @@ class order_combine(models.TransientModel):
 		total = 0
 		for so in self.pool.get('sale.order').browse(self._cr, self._uid, so_ids, context=None):
 			for sol in so.order_line:
-				if sol.name != "Delivery cost":
+				if sol.name != "Spese di trasporto":
 					total += sol.price_subtotal
 		return total
 
@@ -740,7 +740,7 @@ class order_combine(models.TransientModel):
 		total = 0
 		for so in self.pool.get('sale.order').browse(self._cr, self._uid, so_ids, context=None):
 			for sol in so.order_line:
-				if sol.name != "Delivery cost":
+				if sol.name != "Spese di trasporto":
 					total += sol.price_subtotal * sol.tax_id.amount or 0.22
 		return total
 
@@ -749,7 +749,7 @@ class order_combine(models.TransientModel):
 		total = ''
 		for so in self.pool.get('sale.order').browse(self._cr, self._uid, so_ids, context=None):
 			for sol in so.order_line:
-				if sol.name != "Delivery cost":
+				if sol.name != "Spese di trasporto":
 					if len(total)>0:
 						total += ", "
 					total += sol.product_id.name + " (" + str(int(sol.product_uom_qty)) + ")"
@@ -783,7 +783,7 @@ class order_combine(models.TransientModel):
 		total = 0
 		for so in self.pool.get('sale.order').browse(self._cr, self._uid, so_ids, context=None):
 			for sol in so.order_line:
-				if sol.name != "Delivery cost":
+				if sol.name != "Spese di trasporto":
 					total += int(sol.product_uom_qty)
 		return total
 	def _get_order_lines(self):
@@ -791,9 +791,9 @@ class order_combine(models.TransientModel):
 		line_ids = []
 		for so in self.pool.get('sale.order').browse(self._cr, self._uid, so_ids, context=None):
 			for sol in so.order_line:
-				if sol.name != "Delivery cost":
+				if sol.name != "Spese di trasporto":
 					line_ids.append(sol.id)
-		print line_ids
+		#print line_ids
 		return line_ids
 	def _get_orders(self):
 		so_ids = self._context.get('active_ids')
@@ -847,7 +847,7 @@ class order_combine(models.TransientModel):
 
 			'TransactionArray':items
 		}
-		print val
+		#print val
 		instance = self.pool.get('ebay').browse(cr, uid, sf.instance_id, context=None)
 
 		cert = instance.cert_id
@@ -860,13 +860,13 @@ class order_combine(models.TransientModel):
                       certid=cert, devid=dev, warnings=True, timeout=20)
 		api.execute('AddOrder', {'Order':val})
 		response = json.loads(api.response.json())
-		print response
+		#print response
 		if "OrderID" not in response or not response["OrderID"]:
 			raise osv.except_osv(_("EBAY ORDER COMBINE"), _("Order combination failed!"))
 		new_order = json.loads(getOrders(opts, cert, dev, app, tok, response["OrderID"]))
 		if _import_order(self, cr, uid, ids, new_order["OrderArray"]["Order"][0], instance):
 			oids = [x.id for x in sf.orders]
-			print oids
+			#print oids
 			self.pool.get('sale.order').unlink(cr, uid, oids, context=None)
 		else:
 			raise osv.except_osv(_("EBAY ORDER COMBINE"), _("Order is combined successfully on ebay but import of newly created order to odoo failed!"))
@@ -919,14 +919,14 @@ def getCategories(opts, cert, dev, app, tok):
     return categories
 
 def save_product(pro,  name, desc, lst_up, defs):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 
 		cert = defs.cert_id
 		dev = defs.dev_id
 		app = defs.app_id
 		tok = defs.token_id
 
-		_logger.info("---- %s, %s, %s, %s" % (cert, dev, app, tok))
+		#_logger.info("---- %s, %s, %s, %s" % (cert, dev, app, tok))
 
 		(opts, args) = init_options()
 		qty = 0
@@ -934,7 +934,7 @@ def save_product(pro,  name, desc, lst_up, defs):
 		if pro.qty_available > 0:
 			qty = pro.qty_available
 		else:
-			_logger.warning("***NO Stock***")
+			#_logger.warning("***NO Stock***")
 			return {'Error':"INSUFFICIENT STOCK"}
 
 		if not pro.stock_limit or defs.override_default:
@@ -959,7 +959,7 @@ def save_product(pro,  name, desc, lst_up, defs):
 
 		cat_id = pro.categ_id.ebay_category_id.categoryID
 		if not cat_id:
-			_logger.warning("***NO CATEGORY***")
+			#_logger.warning("***NO CATEGORY***")
 			return {'Error': "EBAY CATEGORY NOT SPECIFIED"}
 
 		cd = name
@@ -967,13 +967,13 @@ def save_product(pro,  name, desc, lst_up, defs):
 		desc = desc
 
 		if not desc:
-			_logger.warning("***NO TITLE***")
+			#_logger.warning("***NO TITLE***")
 			return {'Error':"ITEM HAS NO TITLE"}
 
 
 		image_url = uploadPictureFromFilesystem(opts,cert, app, dev, tok, pro.name, pro.image)
 		if not image_url:
-			_logger.warning("***NO IMG**")
+			#_logger.warning("***NO IMG**")
 			return {'Error':"FAILED TO UPLOAD IMAGE"}
 
 		if pro.ebay_template_id:
@@ -1099,10 +1099,10 @@ def completeSale(opts, cert, dev, app, tok, data):
 	except ConnectionError as e:
 		error = json.loads(e.response.json())
 
-		_logger.warning("*****ERROR: %s" % error)
+		#_logger.warning("*****ERROR: %s" % error)
 
 def addItem(i, myitem, ebay_id=None):
-	_logger = logging.getLogger(__name__)
+	#_logger = logging.getLogger(__name__)
 	cert = i.cert_id
 	dev = i.dev_id
 	app = i.app_id
@@ -1117,13 +1117,13 @@ def addItem(i, myitem, ebay_id=None):
 					certid=cert, devid=dev,token=tok, warnings=False, siteid=101)
 
 		if ebay_id:
-			_logger.info("GOING TO REVISE %s" % ebay_id)
+			#_logger.info("GOING TO REVISE %s" % ebay_id)
 			api.execute('ReviseFixedPriceItem', myitem)
 			resp = json.loads(api.response.json())
-			_logger.info("RESPONSE REVISE: %s" % resp)
+			#_logger.info("RESPONSE REVISE: %s" % resp)
 			return True, resp
 		else:
-			_logger.info("GOING TO INSERT NEW %s" % ebay_id)
+			#_logger.info("GOING TO INSERT NEW %s" % ebay_id)
 			api.execute('AddFixedPriceItem', myitem)
 
 		resp = json.loads(api.response.json())
@@ -1136,11 +1136,11 @@ def addItem(i, myitem, ebay_id=None):
 	except ConnectionError as e:
 		error = json.loads(e.response.json())
 		#eCode = error["Errors"]["ErrorCode"]
-		_logger.warning("*****ERROR: %s" % error)
+		#_logger.warning("*****ERROR: %s" % error)
 		return False, error
 
 def removeFromEbay(opts, cert, dev, app, tok, ebay_ids):
-	_logger = logging.getLogger(__name__)
+	#_logger = logging.getLogger(__name__)
 	try:
 		api = Trading( debug=opts.debug, config_file=None, appid=app,
 					certid=cert, devid=dev,token=tok, warnings=False, siteid=101)
@@ -1154,22 +1154,22 @@ def removeFromEbay(opts, cert, dev, app, tok, ebay_ids):
 	except ConnectionError as e:
 		error = json.loads(e.response.json())
 		#eCode = error["Errors"]["ErrorCode"]
-		_logger.warning("*****ERROR: %s" % error)
+		#_logger.warning("*****ERROR: %s" % error)
 		return False
 
 def uploadPictureFromFilesystem(opts,cert, app, dev, tok, code, image):
 	api = Trading( debug=opts.debug, config_file=None, appid=app,
 				  certid=cert, devid=dev,token=tok, warnings=True, timeout=300)
 
-	_logger = logging.getLogger(__name__)
+	#_logger = logging.getLogger(__name__)
 
 	filepath = '/opt/odoo/ebay_temp/%s.jpg' % code
 
-	_logger.info("Filepath %s" % filepath)
+	#_logger.info("Filepath %s" % filepath)
 	try:
 		img = open(filepath, 'rb')
 	except:
-		_logger.info("CANT OPEN")
+		#_logger.info("CANT OPEN")
 		img = image
 		return False
 	files = {'file': ('EbayImage', img)}
@@ -1246,13 +1246,13 @@ def getImage(code):
 	return True
 """
 def getOrders(opts, cert, dev, app, tok, order_id=None):
-	_logger = logging.getLogger(__name__)
+	#_logger = logging.getLogger(__name__)
 	try:
 		api = Trading( debug=opts.debug, config_file=None, appid=app,
                       certid=cert, devid=dev,token=tok, warnings=True, timeout=300)
 
 		if order_id:
-			print order_id
+			#print order_id
 			api.execute('GetOrders', {'OrderIDArray': {'OrderID':order_id}})
         	#api.execute('GetOrderTransactions', {'OrderIDArray': {'OrderID':order_id}})
 		else:
@@ -1264,7 +1264,7 @@ def getOrders(opts, cert, dev, app, tok, order_id=None):
 		total_pages = res['PaginationResult']['TotalNumberOfPages']
 		total_entries = res['PaginationResult']['TotalNumberOfEntries']
 		total_pages = int(total_pages)
-		_logger.info('---- TOTALS: %s %s' % (total_pages, total_entries))
+		#_logger.info('---- TOTALS: %s %s' % (total_pages, total_entries))
 		if total_pages > 1:
 			for i in range(2,total_pages+1):
 				api.execute('GetOrders', {'NumberOfDays': 5, 'OrderStatus': 'All',  'Pagination': {'PageNumber': i, 'EntriesPerPage': 100}, 'DetailLevel': 'ReturnAll'})
@@ -1276,7 +1276,7 @@ def getOrders(opts, cert, dev, app, tok, order_id=None):
 		return orders
 
 	except ConnectionError as e:
-		print(e)
+		#print(e)
 
 def logError(cr, uid, name, error, context):
 	log_tmp = self.pool.get('ebay.log')
@@ -1295,7 +1295,7 @@ def _get_messages_hdr(opts, cert, dev, app, tok):
                       certid=cert, devid=dev,token=tok, warnings=True, timeout=300)
 
 	api.execute('GetMyMessages', {'DetailLevel': 'ReturnHeaders'})
-	print api.response.reply
+	#print api.response.reply
 	return json.loads(api.response.json())
 
 def _get_messages(opts, cert, dev, app, tok, to_get):
@@ -1304,7 +1304,7 @@ def _get_messages(opts, cert, dev, app, tok, to_get):
 	responses = []
 	counter = 0
 	for tg in to_get:
-		print tg["MessageID"]
+		#print tg["MessageID"]
 		api.execute('GetMyMessages', {'DetailLevel': 'ReturnMessages', 'MessageIDs':{'MessageID':tg['MessageID']}, 'OutputSelector': 'Text'})
 		try:
 			content = api.response.reply.Messages.Message.Text
@@ -1341,7 +1341,7 @@ def _send_reply(opts, cert, dev, app, tok, message_id, user_id, item_id, body, d
 	api = Trading(debug=opts.debug, config_file=None, appid=app,
                       certid=cert, devid=dev,token=tok, warnings=True, timeout=300)
 
-	print {'ItemID':item_id, 'MemberMessage':{'Body': body, 'DisplayToPublic': display_to_public, 'ParentMessageID': message_id, 'RecipientID': user_id}}
+	#print {'ItemID':item_id, 'MemberMessage':{'Body': body, 'DisplayToPublic': display_to_public, 'ParentMessageID': message_id, 'RecipientID': user_id}}
 	api.execute('AddMemberMessageRTQ', {'ItemID':item_id, 'MemberMessage':{'Body': body, 'DisplayToPublic': display_to_public, 'ParentMessageID': message_id, 'RecipientID': user_id}})
 
 	if json.loads(api.response.json())['Ack'] == "Success":
@@ -1374,7 +1374,7 @@ def _get_services(opts, cert, dev, app, tok):
 
 		res = []
 		for s in response['ShippingServiceDetails']:
-			print s
+			#print s
 			vals = {
 				'name': s['Description'],
 				'shipping_name': s['ShippingService'],
@@ -1390,9 +1390,9 @@ def _get_services(opts, cert, dev, app, tok):
 
 
 def _import_order(self, cr, uid, ids, o, r, context=None):
-			_logger = logging.getLogger(__name__)
+			#_logger = logging.getLogger(__name__)
 			r = r[0]
-			_logger.info("____ %s " % o)
+			#_logger.info("____ %s " % o)
 			res_par = self.pool.get('res.partner')
 
 			pro_tmp = self.pool.get('product.template')
@@ -1406,7 +1406,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 				paid = True
 				delivered = False
 			else:
-				_logger.info("------- ITS NOT COMPLETED %s" % o['BuyerUserID'])
+				#_logger.info("------- ITS NOT COMPLETED %s" % o['BuyerUserID'])
 				return True
 			#elif canceled = True
 			"""
@@ -1446,7 +1446,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 			if canceled:
 				if this_so:
 					this_so.state = 'cancel'
-				_logger.info("------- THIS ORDER IS CANCELED ON EBAY: %s (%s)" % (uname, float(o["Total"]["value"])) )
+				#_logger.info("------- THIS ORDER IS CANCELED ON EBAY: %s (%s)" % (uname, float(o["Total"]["value"])) )
 				return True
 			user_id = r.default_user.id if r.default_user else uid
 			eb_order_id = o['OrderID']
@@ -1466,7 +1466,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 				raise osv.except_osv(_('Error importing orders'), _('Default payment term is not defined! \nGo on instance configuration and set Default Payment Term'))
 			#define partner
 
-			_logger.info("---- IMPORTING ORDER %s (%s)" % (o['BuyerUserID'], float(o["Total"]["value"])))
+			#_logger.info("---- IMPORTING ORDER %s (%s)" % (o['BuyerUserID'], float(o["Total"]["value"])))
 			#namex = o['ShippingAddress']['Name'] if 'ShippingAddress' in o else ''
 			p_ids = res_par.search(cr, uid, [("ebay_id", "=", uname)], context=context)
 			#if not p_ids:
@@ -1635,7 +1635,7 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 				untaxed_shipping = (float(o['ShippingServiceSelected']['ShippingServiceCost']['value']) / 122) * 100
 				if o['ShippingServiceSelected']['ShippingServiceCost']['value']:
 					delivery = {
-						"name": "Delivery cost",
+						"name": "Spese di trasporto",
 						#"description": pro_desc,
 						"product_uom": 1,
 						"product_uos_qty": 1,
@@ -1643,8 +1643,8 @@ def _import_order(self, cr, uid, ids, o, r, context=None):
 						"product_uom_qty": 1,
 						"order_partner_id": partner_id,
 						"order_id": 0,
-						"product_id": [x for x in self.pool.get('product.product').search(cr, uid, [("name", '=', 'Delivery cost')], context=None)][0],
-						"product_tmpl_id": [t.product_tmpl_id.id for t in self.pool.get('product.product').browse(cr, uid, self.pool.get('product.product').search(cr, uid, [("name", '=', 'Delivery cost')], context=None), context=None)][0] ,
+						"product_id": [x for x in self.pool.get('product.product').search(cr, uid, [("name", '=', 'Spese di trasporto')], context=None)][0],
+						"product_tmpl_id": [t.product_tmpl_id.id for t in self.pool.get('product.product').browse(cr, uid, self.pool.get('product.product').search(cr, uid, [("name", '=', 'Spese di trasporto')], context=None), context=None)][0] ,
 						"delay": 0,
 						#"state": state,
 						"salesman_id": user_id,

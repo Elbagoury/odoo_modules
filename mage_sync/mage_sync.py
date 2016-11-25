@@ -380,8 +380,8 @@ class Magento_sync(models.Model):
 
 	def export_pricelists(self, cr, uid, ids, context = None):
 		_logger = logging.getLogger(__name__)
-		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ("sale_ok", "=", True), ("active", "=", True), ("do_not_publish_mage", "=", False)], context=None)
-		#product_ids = [128581]
+		#product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ("sale_ok", "=", True), ("active", "=", True), ("do_not_publish_mage", "=", False)], context=None)
+		product_ids = [131932]
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
 		_logger.info("STARTING EXPORT OF PRICELISTS: %s" % len(product_ids))
 		for record in self.browse(cr, uid, ids, context=context):
@@ -408,6 +408,9 @@ class Magento_sync(models.Model):
 		done = 0
 		good = 0
 
+		logfile = open("/opt/odoo/gigra_addons/mage_sync/mageLog.txt", "a")
+		logfile.truncate()
+
 		for p in products:
 			cnt +=1
 			#na svakih 500 obnavalja magento sesiju da ne bi istekla, mada istekne ona svakako kad se zainati
@@ -431,8 +434,14 @@ class Magento_sync(models.Model):
 			time_est_sec = average * (total - done)
 			time_estimated_time = str(datetime.timedelta(seconds=time_est_sec))
 
-			message = "EXPORTING PRODUCT: %s(%s) ... %s -- progress: %s of %s - %sp done (%sp good), in %s sec (%s remaining)" % (p.name, p.id, res, done, total, current_percent, current_good_percent, time_spent, time_estimated_time )
+			message = "EXPORTING PRODUCT: %s(%s) ... %s -- progress: %s of %s - %sp done (%sp good), in %s sec (%s remaining)" % (p.name, p.id, res["message"], done, total, current_percent, current_good_percent, time_spent, time_estimated_time )
 			_logger.info(message)
+			logfile.write("\n%s" % message)
+			if res["message"] == "Fail":
+				_logger.info(res["description"])
+				logfile.write("\n%s" % res["description"])
+
+
 
 		r.pricelists_exported = datetime.datetime.now()
 
@@ -1184,9 +1193,10 @@ def _export_pricelists(self, cr, uid, product, magento):
 
 	try:
 		res = magento.catalog_product.update(product.id, {'group_price':groups, 'tier_price':tiers, 'price':product.list_price}, '', 'sku')
-		return "Done"
+		return {"message": "Done", "description": ""}
 	except:
-		return "Fail"
+		e = sys.exc_info()[0]
+		return {"message": "Fail", "description": e}
 
 
 def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):

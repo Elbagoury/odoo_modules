@@ -24,7 +24,7 @@ class ebay_sale_order(models.Model):
 			'target':'new'
 	}
 	def ebay_cancel_order(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		sf = self.browse(cr, uid, ids, context=None)
 		r = self.pool.get('ebay').browse(cr, uid, sf.ebay_instance_id, context=context)
 		cert = r.cert_id
@@ -33,11 +33,11 @@ class ebay_sale_order(models.Model):
 		tok = r.token_id
 
 		order_line_item_ids = [x.order_line_item_id for x in sf.order_line]
-		print order_line_item_ids
+		#print order_line_item_ids
 
 
 		if r._cancel_order(cert, dev, app, tok, order_line_item_ids):
-			_logger.info("********ORDERED CANCELED")
+			#_logger.info("********ORDERED CANCELED")
 			sf.write({'state':'cancel', 'ebay_id': False})
 		else:
 			raise osv.except_osv(_('Error canceling order'), _('This order cannot be canceled at a moment'))

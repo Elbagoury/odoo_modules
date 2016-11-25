@@ -20,7 +20,7 @@ class StockPickingPackagePreparation(models.Model):
 	gls_config_id = fields.Many2one('gls.config', string="GLS contract")
 
 	def gls_print(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		for invoice in self.browse(cr, uid, ids, context=context):
 			curr_invoice = invoice
 		config = curr_invoice.gls_config_id or self.pool.get('gls.config').browse(cr, uid,1, context=context)
@@ -51,7 +51,7 @@ class StockPickingPackagePreparation(models.Model):
 		invoice_name = invoice_name.replace("/", "-")
 		client = curr_invoice.partner_id
 		shipping_partner = curr_invoice.partner_shipping_id or client
-		_logger.info("PARTNER %s " % shipping_partner)
+		#_logger.info("PARTNER %s " % shipping_partner)
 		if not shipping_partner.street or not shipping_partner.zip or not shipping_partner.city or not shipping_partner.state_id:
 			raise osv.except_osv(_("GLS LABEL PRINT"), _("Missing information on client.  Client must have street, city, zip code and state (province). If invoice has shipping address defined, that is considered, if no, main invoice partner is considered "))
 
@@ -110,12 +110,12 @@ class StockPickingPackagePreparation(models.Model):
 				raise osv.except_orm("GLS Labeling", "Fatal: Error creating parcel in local")
 
 
-			print "CREATED GLS PARCEL LOCAL WITH ID: " + str(counter)
+			#print "CREATED GLS PARCEL LOCAL WITH ID: " + str(counter)
 			#print vals
 
 			parcel = self.pool.get('gls.parcel').browse(cr, uid, counter, context=context)[0]
 			if not parcel:
-				print "Parcel not retrieved"
+				#print "Parcel not retrieved"
 				return False
 
 
@@ -124,7 +124,7 @@ class StockPickingPackagePreparation(models.Model):
 			infostring += getInfoString(parcel, config.glsContract, ddt=True)
 			infostring += "</Info>"
 			if infostring is None:
-				print "No infostring"
+				#print "No infostring"
 				return False
 
 			with open('/opt/odoo/gigra_addons/gls_labels/infostring.xml', 'w') as f:
@@ -142,11 +142,11 @@ class StockPickingPackagePreparation(models.Model):
 				with open('/opt/odoo/gigra_addons/gls_labels/parcel.xml', 'r') as f:
 					tree = etree.parse(f)
 					root = tree.getroot()
-					print root.tag
+					#print root.tag
 					child = root[0]
 					sped_num = child.find('NumeroSpedizione')
 					if sped_num is None:
-						print "Sped num not retrieved"
+						#print "Sped num not retrieved"
 						return False
 					if sped_num.text == '999999999':
 						mess = child.find('NoteSpedizione')
@@ -162,9 +162,9 @@ class StockPickingPackagePreparation(models.Model):
 					date = child.find('DataSpedizione')
 					comp_sped = "%s %s %s %s %s" % (sigla.text, sped_num.text, tot_colli.text, t_collo.text, dest.text)
 					self.pool.get('gls.parcel').write(cr, uid, counter, {'date':date,'numero_spedizione': sped_num.text, 'name': comp_sped, 'status': 'Pending closure'}, context=context)
-					print "SPED NUMBER: " + sped_num.text
+					#print "SPED NUMBER: " + sped_num.text
 
-					print child.tag
+					#print child.tag
 					label = child.find('PdfLabel')
 					decoded = base64.b64decode(label.text)
 
@@ -188,7 +188,7 @@ class gls_invoice(models.Model):
 
 
 	def gls_print(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		for invoice in self.pool.get('account.invoice').browse(cr, uid, ids, context=context):
 			curr_invoice = invoice
 		config = curr_invoice.gls_config_id or self.pool.get('gls.config').browse(cr, uid,1, context=context)
@@ -222,7 +222,7 @@ class gls_invoice(models.Model):
 		invoice_name = invoice_name.replace("/", "-")
 		client = curr_invoice.partner_id
 		shipping_partner = curr_invoice.address_shipping_id or client
-		_logger.info("PARTNER %s " % shipping_partner)
+		#_logger.info("PARTNER %s " % shipping_partner)
 		if not shipping_partner.street or not shipping_partner.zip or not shipping_partner.city or not shipping_partner.state_id:
 			raise osv.except_osv(_("GLS LABEL PRINT"), _("Missing information on client.  Client must have street, city, zip code and state (province). If invoice has shipping address defined, that is considered, if no, main invoice partner is considered "))
 
@@ -282,12 +282,12 @@ class gls_invoice(models.Model):
 				raise except_orm("GLS Labeling", "Fatal: Error creating parcel in local")
 
 
-			print "CREATED GLS PARCEL LOCAL WITH ID: " + str(counter)
+			#print "CREATED GLS PARCEL LOCAL WITH ID: " + str(counter)
 			#print vals
 
 			parcel = self.pool.get('gls.parcel').browse(cr, uid, counter, context=context)[0]
 			if not parcel:
-				print "Parcel not retrieved"
+				#print "Parcel not retrieved"
 				return False
 
 
@@ -297,7 +297,7 @@ class gls_invoice(models.Model):
 			infostring += getInfoString(parcel, config.glsContract)
 			infostring += "</Info>"
 			if infostring is None:
-				print "No infostring"
+				#print "No infostring"
 				return False
 
 			with open('/opt/odoo/gigra_addons/gls_labels/infostring.xml', 'w') as f:
@@ -315,11 +315,11 @@ class gls_invoice(models.Model):
 				with open('/opt/odoo/gigra_addons/gls_labels/parcel.xml', 'r') as f:
 					tree = etree.parse(f)
 					root = tree.getroot()
-					print root.tag
+					#print root.tag
 					child = root[0]
 					sped_num = child.find('NumeroSpedizione')
 					if sped_num is None:
-						print "Sped num not retrieved"
+						#print "Sped num not retrieved"
 						return False
 					if sped_num.text == '999999999':
 						mess = child.find('NoteSpedizione')
@@ -332,15 +332,15 @@ class gls_invoice(models.Model):
 					mage_shipp_id = None
 					if magento_id:
 
-						_logger.warning("*****THIS ORDER IS IMPORTED FROM MAGENTO, INITIATING SHIPPING EXPORT PROCEDURE - %s ******" % magento_id)
-						print "*****THIS ORDER IS IMPORTED FROM MAGENTO, INITIATING SHIPPING EXPORT PROCEDURE - %s ******" % magento_id
+						#_logger.warning("*****THIS ORDER IS IMPORTED FROM MAGENTO, INITIATING SHIPPING EXPORT PROCEDURE - %s ******" % magento_id)
+						#print "*****THIS ORDER IS IMPORTED FROM MAGENTO, INITIATING SHIPPING EXPORT PROCEDURE - %s ******" % magento_id
 						inv_obj = curr_invoice
 						items = []
 						for item in inv_obj.source.order_line:
 
-								print "******"
-								print i.magento_id
-								_logger.warning("**** %s" % i.magento_id)
+								#print "******"
+								#print i.magento_id
+								#_logger.warning("**** %s" % i.magento_id)
 								items.append({"order_item_id":item.magento_id, "qty": item.product_uom_qty})
 
 						if items:
@@ -355,7 +355,7 @@ class gls_invoice(models.Model):
 								}
 								mage_shipp_id = self.pool.get('magento_sync').export_shipment(magento_id, items, sped_num.text, cs)
 								if not mage_shipp_id:
-									print "MAGENTO SHIPP ERROR"
+									#print "MAGENTO SHIPP ERROR"
 									#raise except_orm("MAGENTO CONNECTOR", "SHIPPMENT CANNOT BE EXPORTED TO MAGENTO STORE")
 				#END MAGENTO SHIPPMENT
 					sigla = child.find('SiglaMittente')
@@ -391,8 +391,8 @@ class gls_invoice(models.Model):
 		return True
 
 def getInfoString(parcel, contract, total=False, ddt=False):
-	_logger = logging.getLogger(__name__)
-	_logger.info("CONTRACT: %s, PROPS:%s " % (contract, [parcel.ragionesociale, parcel.indirizzo, parcel.modalita_incasso, parcel.importo_contrassegno]))
+	#_logger = logging.getLogger(__name__)
+	#_logger.info("CONTRACT: %s, PROPS:%s " % (contract, [parcel.ragionesociale, parcel.indirizzo, parcel.modalita_incasso, parcel.importo_contrassegno]))
 	if total:
 		w = parcel.peso_reale.replace(',', '.')
 		w = float(w)
@@ -434,12 +434,12 @@ class gls_parcel(models.Model):
 	#ddt_id = fields.Integer(string="Ddt_id")
 
 	def unlink(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		#return super(gls_parcel, self).unlink(cr, uid, ids, context=context)
-		print "**************IN UNLINK*********************"
+		#print "**************IN UNLINK*********************"
 		config = self.pool.get('gls.config').browse(cr, uid, 1, context=context)
 		if config.sedeID is None:
-			print "coundnt retrieve configurations"
+			#print "coundnt retrieve configurations"
 			raise osv.except_osv(_("GLS PARCEL CANCELATION"), _("COULDNT RETRIEVE CONFIGURATION"))
 
 		record = self.pool.get('gls.parcel').browse(cr, uid, ids, context=context)[0]
@@ -452,10 +452,10 @@ class gls_parcel(models.Model):
 				req.add_header("Content-type", "application/x-www-form-urlencoded")
 				page=urllib2.urlopen(req).read()
 
-				print "DeletedSPEDITION(S)"
+				#print "DeletedSPEDITION(S)"
 
 			except:
-				print "Failed to delete from webserver"
+				#print "Failed to delete from webserver"
 				raise osv.except_osv(_("GLS PARCEL CANCELATION"), _("FAILED TO CANCEL PARCEL %s" % record.numero_spedizione))
 
 
@@ -506,21 +506,21 @@ class gls_cofig(models.Model):
 		return True
 
 	def closeWorkDay(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		config = self.browse(cr, uid, ids, context=context)
 		if not config:
 			raise except_orm("GLS CWD", "COULD NOT GET CONFIG")
 
 		config = config[0]
 		parcel_ids = self.pool.get('gls.parcel').search(cr, uid, [('status', '=', 'Pending closure'), ('config_id', '=', config.id)], context=context)
-		print len(parcel_ids)
+		#print len(parcel_ids)
 
 		records = self.pool.get('gls.parcel').browse(cr, uid, parcel_ids, context=context)
-		print "*******************************************************"
+		#print "*******************************************************"
 		if records is None:
 			raise except_orm("GLS Labeling", "NO PARCELS TO CLOSE")
 
-		print records
+		#print records
 		grouped = []
 		used = []
 
@@ -536,8 +536,8 @@ class gls_cofig(models.Model):
 
 			used.append(record.numero_spedizione)
 
-		_logger.info("------GROUPED PARCELS-------")
-		_logger.info(grouped, [z['colli'] for z in grouped])
+		#_logger.info("------GROUPED PARCELS-------")
+		#_logger.info(grouped, [z['colli'] for z in grouped])
 #
 
 #
@@ -569,8 +569,8 @@ class gls_cofig(models.Model):
 		infostring += infostrings
 		infostring += "</Info>"
 
-		_logger.info("------FINAL-----")
-		_logger.info(infostring)
+		#_logger.info("------FINAL-----")
+		#_logger.info(infostring)
 		with open('/opt/odoo/gigra_addons/gls_labels/cwd_is.xml', 'w') as f:
 			f.write(infostring)
 
@@ -587,12 +587,12 @@ class gls_cofig(models.Model):
 			with open('/opt/odoo/gigra_addons/gls_labels/cwd.xml', 'r') as f:
 				tree = etree.parse(f);
 				root = tree.getroot()
-				print root.tag
-				print root.text
-				print "PROGRAM OK"
+				#print root.tag
+				#print root.text
+				#print "PROGRAM OK"
 
 		except:
-			print "Fatal: Error writing xml/pdf file to disk!"
+			#print "Fatal: Error writing xml/pdf file to disk!"
 			return False
 
 		mydata=[('SedeGls',""+ config.sedeID+""), ('CodiceClienteGls', ""+config.glsUser+""), ('PasswordClienteGls', ""+config.glsPass+"")]
@@ -614,8 +614,8 @@ class gls_cofig(models.Model):
 				for child in children:
 					number = child.find('NumSpedizione').text
 					status = child.find('StatoSpedizione').text
-					print number
-					print status
+					#print number
+					#print status
 					if status == "CHIUSA.":
 						child_id = self.pool.get('gls.parcel').search(cr, uid, [('numero_spedizione', '=', number)], context=context)
 
@@ -623,10 +623,10 @@ class gls_cofig(models.Model):
 
 
 
-				print "PROGRAM OK"
+				#print "PROGRAM OK"
 
 		except:
-			print "Fatal: Error writing xml/pdf file to disk!"
+			#print "Fatal: Error writing xml/pdf file to disk!"
 			return False
 
 		return True

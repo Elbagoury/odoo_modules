@@ -8,7 +8,7 @@ class Portal(models.Model):
         error_msg = self.get_error_messages(cr, uid, ids, context=context)
         if error_msg:
             raise osv.except_osv(_('Contacts Error'), "\n\n".join(error_msg))
-        print "IM HERE"
+        #print "IM HERE"
         for wizard_user in self.browse(cr, SUPERUSER_ID, ids, context):
             portal = wizard_user.wizard_id.portal_id
             user = self._retrieve_user(cr, SUPERUSER_ID, wizard_user, context)

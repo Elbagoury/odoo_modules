@@ -93,7 +93,7 @@ class Magento_sync(models.Model):
 		else:
 			return ''
 	def compare_prices(self, cr, uid, ids, context=None, product_id=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 
 		for record in self.browse(cr, uid, ids, context=context):
 			r = record
@@ -111,9 +111,9 @@ class Magento_sync(models.Model):
 		else:
 			product_ids = [product_id]
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
-		_logger.info("------PRODUCTS LEN: %s" % len(products))
+		#_logger.info("------PRODUCTS LEN: %s" % len(products))
 		res = magento.catalog_product.list()
-		_logger.info("------MAGE LEN: %s" % len(res))
+		#_logger.info("------MAGE LEN: %s" % len(res))
 
 		count = 0
 
@@ -188,7 +188,7 @@ class Magento_sync(models.Model):
 			return True
 
 	def trovaprezzi_generate(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		r = self.browse(cr, uid, ids, context=context)[0]
 
 		cnt = 0
@@ -207,9 +207,9 @@ class Magento_sync(models.Model):
 				if mage_product_images:
 					mage_image_url = mage_product_images[0]['url']
 
-				_logger.info(mage_product_images)
+				#_logger.info(mage_product_images)
 				mage_product = magento.catalog_product.info(p['product_id'], '', '', 'productId')
-				_logger.info("%s - %s - %s" % (mage_product['name'],mage_product['status'], mage_product['category_ids']))
+				#_logger.info("%s - %s - %s" % (mage_product['name'],mage_product['status'], mage_product['category_ids']))
 				category_string = ' '
 				if mage_product['price'] == 0:
 					continue
@@ -251,10 +251,10 @@ class Magento_sync(models.Model):
 			if path:
 				ftp.cwd(path)
 			response = ftp.storbinary('STOR ' + fn, open(filename, 'rb'))
-			_logger.info(response)
+			#_logger.info(response)
 			ftp.quit()
 		except:
-			_logger.info("FAILED TRANSFER")
+			#_logger.info("FAILED TRANSFER")
 
 	def cron_export_customers(self, cr, uid, ids=1, context=None):
 		return export_customers(self, cr, uid, ids, context=None)
@@ -262,7 +262,7 @@ class Magento_sync(models.Model):
 	def export_customers(self, cr, uid, ids, context = None, client_id=None):
 			for record in self.pool.get('magento_sync').browse(cr, uid, ids, context=context):
 				r = record
-			_logger = logging.getLogger(__name__)
+			#_logger = logging.getLogger(__name__)
 			magento = MagentoAPI(r.mage_location, r.mage_port, r.mage_user, r.mage_pwd)
 
 			client_ids = self.pool.get('res.partner').search(cr, uid, [("sync_to_mage", "=", True), ("email", "!=", False), ("customer", "=", True),("city", "!=", False), ("zip", "!=", False),("street", "!=", False), ("phone", "!=", False), ('is_company', '=', True), ('active', '=', True)], context=None)
@@ -270,12 +270,12 @@ class Magento_sync(models.Model):
 				clients = self.pool.get('res.partner').browse(cr, uid, client_id, context=None)
 			else:
 				clients = self.pool.get('res.partner').browse(cr, uid, client_ids, context=None)
-			_logger.warning("**********CUSTOMER COUNT: %s" % len(clients))
+			#_logger.warning("**********CUSTOMER COUNT: %s" % len(clients))
 			counter = 0
 
 			for c in clients:
 
-				_logger.info("*****************CUSTOMER: %s - %s ** %s" % (c.name, c.magento_id, counter))
+				#_logger.info("*****************CUSTOMER: %s - %s ** %s" % (c.name, c.magento_id, counter))
 				pl = c.property_product_pricelist.mage_cat
 				group_id = 1
 				if pl:
@@ -533,7 +533,7 @@ class Magento_sync(models.Model):
 					c.magento_id = r['customer_id']
 
 	def test_button(self, cr, uid, ids, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 
 		r = self.browse(cr, uid, ids, context=context)[0]
 
@@ -546,14 +546,14 @@ class Magento_sync(models.Model):
 		magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
 		product_ids = self.pool.get('product.template').search(cr, uid, [('state', '!=', 'sellable')], context=None)
 
-		_logger.info("PRODUCTS TO DEL %s" % len(product_ids))
+		#_logger.info("PRODUCTS TO DEL %s" % len(product_ids))
 
 		for p in product_ids:
 			try:
 				res = magento.catalog_product.delete(p, 'sku')
-				_logger.info(res)
+				#_logger.info(res)
 			except:
-				_logger.info("DOES NOT EXIST %s" % p)
+				#_logger.info("DOES NOT EXIST %s" % p)
 				continue
 
 
@@ -599,22 +599,22 @@ class Magento_sync(models.Model):
 
 	def cron_import_orders(self, cr, uid, ids=1, context=None ):
 		try:
-			_logger = logging.getLogger(__name__)
-			_logger.info("ORDER IMPORT CRON STARTED *******************")
+			#_logger = logging.getLogger(__name__)
+			#_logger.info("ORDER IMPORT CRON STARTED *******************")
 			self.import_orders(cr, uid, ids, context=context)
-			_logger.info("PASSED *******************")
+			#_logger.info("PASSED *******************")
 			self.pool.get('cron.log').create(cr, uid, {'name':'Magento Order Import', 'description': "Cron Succeded", 'status':0, 'date': datetime.datetime.now()}, context=None)
 
 		except:
 			e = sys.exc_info()[0]
 			t = sys.stderr
 			z = traceback.format_exc()
-			_logger.warning("***********ERROR: %s " % e)
+			#_logger.warning("***********ERROR: %s " % e)
 			self.pool.get('cron.log').create(cr, uid, {'name':'Magento Order Import', 'description': "FAIL", 'status':1, 'date': datetime.datetime.now()}, context=None)
 
 
 	def import_orders(self, cr, uid, ids, context = None):
-				_logger = logging.getLogger(__name__)
+				#_logger = logging.getLogger(__name__)
 
 				r = self.browse(cr, uid, ids, context=context)[0]
 				if not r:
@@ -829,10 +829,10 @@ class Magento_sync(models.Model):
 							so_lines = []
 
 							for ol in o['items']:
-										_logger.info("IMPORTING PRODUCTS LINES: %s %s" % (ol['sku'], order_id))
+										#_logger.info("IMPORTING PRODUCTS LINES: %s %s" % (ol['sku'], order_id))
 										product_template_id = int(ol['sku'])
 										template = self.pool.get('product.template').browse(cr, uid, product_template_id, context=None)
-										_logger.info("===== TEMPLATE: %s" % template.name)
+										#_logger.info("===== TEMPLATE: %s" % template.name)
 										if not template or template.active == False or template.sale_ok == False:
 											#if order_id:
 											#	order_obj.unlink(cr, uid, order_id, context=None)
@@ -903,7 +903,7 @@ class Magento_sync(models.Model):
 											"salesman_id": user_id,
 											"tax_id": [[4,tax_id]]
 										}
-										_logger.info("----LINE %s" % line)
+										#_logger.info("----LINE %s" % line)
 										so_lines.append(line)
 
 							if 'shipping_amount' in o and o['shipping_amount'] and r.import_delivery_cost:
@@ -975,7 +975,7 @@ def _export_shipment(increment_id, items, tracking_no, cs):
 	tracking_id = magento.sales_order_shipment.addTrack(shippment_id, 'usps', "GLS", tracking_no)
 	return shippment_id
 def _export_categories(self, cr, uid, cs, instant_category=None):
-	_logger  = logging.getLogger(__name__)
+	#_logger  = logging.getLogger(__name__)
 	magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
 	record = self.pool.get('magento_sync').browse(cr, uid, 1, context=None)
 	if not record:
@@ -1048,7 +1048,7 @@ def odoo_get_children(self, cr, uid, start, context=None):
 	#END TEST
 
 def add_category(self, cr, uid, odoo_parent, mage_parent, mage_cats, odoo_cats, cs):
-	_logger  = logging.getLogger(__name__)
+	#_logger  = logging.getLogger(__name__)
 	is_added = False
 	for c in odoo_cats:
 
@@ -1070,7 +1070,7 @@ def add_category(self, cr, uid, odoo_parent, mage_parent, mage_cats, odoo_cats, 
 def _add_category(self, cr, uid, odoo_id, name, parent, mage_id, active, cs):
 	magento = MagentoAPI(cs['location'], cs['port'], cs['user'], cs['pwd'])
 	#*******URL KEY********
-	_logger  = logging.getLogger(__name__)
+	#_logger  = logging.getLogger(__name__)
 	category = {
 		'name': name,
 		'is_active': active,
@@ -1455,7 +1455,7 @@ def _remove_product(self, cr, uid, product, magento):
 		return False
 	return True
 def _get_mage_id(self, cr, uid, sku, magento):
-	_logger = logging.getLogger(__name__)
+	#_logger = logging.getLogger(__name__)
 
 	try:
 		res = magento.catalog_product.info(sku,'', '', 'sku')
@@ -1513,7 +1513,7 @@ def _add_categories(op, mp, mcats, cats):
 
 
 def _export_category(self, cr, uid, cat_id):
-	_logger  = logging.getLogger(__name__)
+	#_logger  = logging.getLogger(__name__)
 
 	record = self.pool.get('magento_sync').browse(cr, uid, 1, context=None)
 
@@ -1568,7 +1568,7 @@ def _export_category(self, cr, uid, cat_id):
 	return True
 
 def _update_category(self, cr, uid, mage_id, name):
-	_logger  = logging.getLogger(__name__)
+	#_logger  = logging.getLogger(__name__)
 
 	record = self.pool.get('magento_sync').browse(cr, uid, 1, context=None)
 
@@ -1757,8 +1757,8 @@ class product_template(models.Model):
 
 
 	def create(self, cr, uid, vals, context=None):
-		_logger = logging.getLogger(__name__)
-		_logger.info("--- DEBUGGER: %s" % vals)
+		#_logger = logging.getLogger(__name__)
+		#_logger.info("--- DEBUGGER: %s" % vals)
 		vals['magento_id'] = 0
 		product_template_id = super(product_template, self).create(cr, uid, vals, context=context)
 		try:

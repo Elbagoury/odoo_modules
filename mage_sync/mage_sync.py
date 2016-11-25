@@ -409,7 +409,7 @@ class Magento_sync(models.Model):
 		good = 0
 
 		errorlog = open("/opt/odoo/gigra_addons/mage_sync/mageLog.txt", "w")
-
+		errorlog.write("====== ERROR LOG FOR PRICELIST EXPORT: %s =======" % datetime.datetime.now())
 
 		for p in products:
 			cnt +=1
@@ -439,9 +439,8 @@ class Magento_sync(models.Model):
 
 			if res["message"] == "Fail":
 				_logger.info(res["description"])
-				errorlog.write("====== ERROR LOG FOR PRICELIST EXPORT: %s =======" % datetime.datetime.now())
 				errorlog.write("\n%s" % message)
-				logfile.write("\n%s" % res["description"])
+				errorlog.write("\n%s" % res["description"])
 
 		r.pricelists_exported = datetime.datetime.now()
 

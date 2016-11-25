@@ -254,7 +254,7 @@ class Magento_sync(models.Model):
 			#_logger.info(response)
 			ftp.quit()
 		except:
-			#_logger.info("FAILED TRANSFER")
+			return True
 
 	def cron_export_customers(self, cr, uid, ids=1, context=None):
 		return export_customers(self, cr, uid, ids, context=None)
@@ -380,8 +380,8 @@ class Magento_sync(models.Model):
 
 	def export_pricelists(self, cr, uid, ids, context = None):
 		_logger = logging.getLogger(__name__)
-		#product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ("sale_ok", "=", True), ("active", "=", True), ("do_not_publish_mage", "=", False)], context=None)
-		product_ids = [131932]
+		product_ids = self.pool.get('product.template').search(cr, uid, [("categ_id.magento_id", ">", 0), ("sale_ok", "=", True), ("active", "=", True), ("do_not_publish_mage", "=", False)], context=None)
+		#product_ids = [131932]
 		products = self.pool.get('product.template').browse(cr, uid, product_ids, context=None)
 		_logger.info("STARTING EXPORT OF PRICELISTS: %s" % len(product_ids))
 		for record in self.browse(cr, uid, ids, context=context):
@@ -408,8 +408,8 @@ class Magento_sync(models.Model):
 		done = 0
 		good = 0
 
-		logfile = open("/opt/odoo/gigra_addons/mage_sync/mageLog.txt", "a")
-		logfile.truncate()
+		errorlog = open("/opt/odoo/gigra_addons/mage_sync/mageLog.txt", "w")
+
 
 		for p in products:
 			cnt +=1
@@ -422,7 +422,7 @@ class Magento_sync(models.Model):
 			res = _export_pricelists(self, cr, uid, p, magento)
 			end = datetime.datetime.now()
 			done += 1
-			if res != False:
+			if res["message"] == "Done":
 				good += 1
 
 			current_percent = done * 100 / total
@@ -436,12 +436,12 @@ class Magento_sync(models.Model):
 
 			message = "EXPORTING PRODUCT: %s(%s) ... %s -- progress: %s of %s - %sp done (%sp good), in %s sec (%s remaining)" % (p.name, p.id, res["message"], done, total, current_percent, current_good_percent, time_spent, time_estimated_time )
 			_logger.info(message)
-			logfile.write("\n%s" % message)
+
 			if res["message"] == "Fail":
 				_logger.info(res["description"])
+				errorlog.write("====== ERROR LOG FOR PRICELIST EXPORT: %s =======" % datetime.datetime.now())
+				errorlog.write("\n%s" % message)
 				logfile.write("\n%s" % res["description"])
-
-
 
 		r.pricelists_exported = datetime.datetime.now()
 
@@ -1195,8 +1195,12 @@ def _export_pricelists(self, cr, uid, product, magento):
 		res = magento.catalog_product.update(product.id, {'group_price':groups, 'tier_price':tiers, 'price':product.list_price}, '', 'sku')
 		return {"message": "Done", "description": ""}
 	except:
-		e = sys.exc_info()[0]
-		return {"message": "Fail", "description": e}
+		r_str = traceback.format_exc()
+		for g in groups:
+			r_str += "\n%s" % str(g)
+		for t in tiers:
+			r_str += "\n%s" % str(t)
+		return {"message": "Fail", "description": r_str}
 
 
 def _export_products(self, cr, uid, full, cs, instant_product=None, qty=None):

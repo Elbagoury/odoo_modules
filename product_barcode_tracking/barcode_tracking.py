@@ -5,26 +5,22 @@ import logging
 class tracking_invoice_line(models.Model):
 	_name = "tracking.invoice.line"
 	def create(self, cr, uid, vals, context=None):
-		_logger = logging.getLogger(__name__)
-		_logger.info("*********VALS %s" % vals)
+		#_logger = logging.getLogger(__name__)
+		#_logger.info("*********VALS %s" % vals)
 		vals = vals[0]
 		invoice_number = vals['invoice_number']
 		invoice_id = self.pool.get('account.invoice').search(cr, uid, [("number", '=', invoice_number)], context=None)
-		_logger.info("**********INVOICE %s" % invoice_id)
-		if not invoice_id:
-			_logger.info("****NO INVOICE")
+
 		invoice_id =invoice_id[0]
 		invoice = self.pool.get('account.invoice').browse(cr, uid, invoice_id, context=None)
 		product_code = vals['product_code']
 		p_id = self.pool.get('product.product').search(cr, uid, [('name', '=', product_code)], context=None)
-		if not p_id:
-			_logger.info("*** NO PRODUCT")
 		p_id = p_id[0]
 		account_id = 1051
 		#get earlier invoice lines for this product
 		quantity = 1
 		for il in invoice.invoice_line:
-			_logger.info("*********%s" % il)
+			#_logger.info("*********%s" % il)
 			if il.product_id.id == p_id:
 				quantity = il.quantity + 1
 				il.quantity = quantity
@@ -38,7 +34,7 @@ class tracking_invoice_line(models.Model):
 			'price_unit': 1,
 			'invoice_id': invoice_id
 		}
-		_logger.info(vals)
+		#_logger.info(vals)
 		invoice_line_id = self.pool.get('account.invoice.line').create(cr, uid, vals, context=None)
 		return invoice_line_id
 
@@ -54,23 +50,23 @@ class product_tracking(models.Model):
 	#user_id = fields.Many2one('hr.employee', string="Worker")
 	#mo_id = fields.Many2one('mrp.production', string="Manufacturing order")
 
-	
+
 	def create(self, cr, uid, vals, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		if 'name' not in vals:
-			_logger.error("*******NO NAME SENT")
+			#_logger.error("*******NO NAME SENT")
 			return False
 
 		rec_id = self.pool.get('product.tracking.barcode').search(cr, uid, [("name", "=", vals['name'])], context=None)
 		if not rec_id:
-			_logger.error("FATAL - CANT FIND BOUND ROW")
+			#_logger.error("FATAL - CANT FIND BOUND ROW")
 			return
 		record = self.pool.get("product.tracking.barcode").browse(cr, uid, rec_id, context)[0]
 
 		wrk_ids = self.pool.get('hr.employee').browse(cr, uid, vals['user_id'], context=None)
 		if not wrk_ids:
-			print vals['user_id']
-			_logger.error("FATAL - NO USER")
+			#print vals['user_id']
+			#_logger.error("FATAL - NO USER")
 			return False
 		wrk_id = wrk_ids[0].id
 		department = wrk_ids[0].department_id.name
@@ -78,42 +74,42 @@ class product_tracking(models.Model):
 
 		mo_ids = self.pool.get("mrp.production").search(cr, uid, [("state", "=", "in_production")], context=None)
 		if not mo_ids:
-			_logger.error("Could not find any MO")
+			#_logger.error("Could not find any MO")
 			return False
 		mo_id = False
 		for mo in self.pool.get('mrp.production').browse(cr, uid, mo_ids, context=None):
 			for bom_line in mo.bom_id.bom_line_ids:
-				
+
 				if bom_line.product_id.id == record.product_id.id:
 					mo_id = mo.id
 					break
 		if not mo_id:
 			_logger.error("Could not bind to any MO: product %s - FATAL" % pro.name)
 			return False
-		
+
 		data = {'state': "in_production", 'mo_id': mo_id, 'workers': [[4,bc_flash_id]]}
-		print data
+		#print data
 		record.write(data)
 		return True
-		
+
 class select_toner(models.Model):
 	_name = "tracking.toner.select"
 
 	def create(self, cr, uid, vals, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		worker_id = vals["worker"]
-		toner_id = vals["toner_code"]		
+		toner_id = vals["toner_code"]
 		barcode = vals["barcode"]
 		pro_ids = self.pool.get('product.product').search(cr, uid, [('name', '=',toner_id)], context=None)
 		if pro_ids:
 			pid = pro_ids[0]
-			
+
 		else:
-			_logger.error("CANT FIND PRODUCTS WITH THAT NAME")
+			#_logger.error("CANT FIND PRODUCTS WITH THAT NAME")
 			return False
 		worker = self.pool.get('hr.employee').browse(cr, uid, worker_id, context=None)
 		if not worker:
-			_logger.error("CANT FIND EMPLOYEE")
+			#_logger.error("CANT FIND EMPLOYEE")
 			return False
 		flash ={
 			'worker_id': worker.id,
@@ -139,16 +135,16 @@ class product_barcodes(models.Model):
 	mo_id = fields.Many2one('mrp.production', string="Manufacturing order")
 	workers = fields.One2many('product.barcode.flash', 'tracking_id')
 
-	
+
 	def create(self, cr, uid,vals, context=None):
-		_logger = logging.getLogger(__name__)
+		#_logger = logging.getLogger(__name__)
 		if 'product_code' in vals:
 			pro_ids = self.pool.get('product.product').search(cr, uid, [('name', '=', vals['product_code'])], context=None)
 			if pro_ids:
 				pid = pro_ids[0]
 				vals['product_id'] = pid
 			else:
-				_logger.error("CANT FIND PRODUCTS WITH THAT NAME")
+				#_logger.error("CANT FIND PRODUCTS WITH THAT NAME")
 				return False
 		return super(product_barcodes, self).create(cr, uid,vals, context=context)
 
@@ -158,7 +154,7 @@ class product_tracking_flash(models.Model):
 	department = fields.Char(string="Department")
 	timestamp = fields.Datetime(default=datetime.datetime.now(), string="TimeOfFlash")
 	tracking_id = fields.Integer(string="Tracking ID")
-	
+
 class mrp(models.Model):
 	_inherit = "mrp.product.produce"
 

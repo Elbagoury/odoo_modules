@@ -23,10 +23,10 @@ class ProductTemplate(models.Model):
 			latest_cab_no = max(cab_nos or [0])
 
 			file_nos = [x.file_number for x in products if x.file_letter == latest_letter and x.cabinet_number == latest_cab_no]
-			print file_nos
+			#print file_nos
 			latest_f_no = max(file_nos or [0])
 
-			print latest_f_no, latest_letter, latest_cab_no
+			#print latest_f_no, latest_letter, latest_cab_no
 			new_cab_letter = latest_letter
 			new_file_number += latest_f_no
 			new_cab_number = latest_cab_no
@@ -35,10 +35,7 @@ class ProductTemplate(models.Model):
 				new_cab_number +=1
 				if new_cab_number > 4:
 					new_cab_number = 1
-					if latest_letter == 'D':
-						print "ERR"
-						#raise
-
+					
 					new_cab_letter = 'B' if latest_letter == 'A' else 'C' if latest_letter == 'B' else 'D' if latest_letter == 'C' else 'X'
 		else:
 			new_cab_letter = "A"

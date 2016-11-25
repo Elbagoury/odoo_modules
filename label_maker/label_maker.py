@@ -23,19 +23,19 @@ class label_maker(models.Model):
 	variation_name = fields.Char()
 	test_pro = fields.Many2one('product.product',  string="Product for testing")
 
-	
+
 	def create(self, cr, uid, values, context=None):
-		name = values.get('name')	
+		name = values.get('name')
 		view_name = values.get('view_name')
 		view_arch = values.get('view_arch')
 
-		
-		header = "<t t-name='" + "label_maker." + view_name + "'><t t-call='report.html_container'><t t-foreach='docs' t-as='o'><div class='page'>"	
+
+		header = "<t t-name='" + "label_maker." + view_name + "'><t t-call='report.html_container'><t t-foreach='docs' t-as='o'><div class='page'>"
 		arch = view_arch
 		footer = "</div></t></t></t>"
 
 		values['view_header'] = header
-		values['view_footer'] = footer 
+		values['view_footer'] = footer
 		values['is_created'] = True
 		vals = {
 			'name': view_name,
@@ -45,7 +45,7 @@ class label_maker(models.Model):
 
 		view_id = self.pool.get('ir.ui.view').create(cr, uid, vals, context)
 		if view_id:
-			print "NEW VIEW CREATED WITH ID:" + str(view_id)
+			#print "NEW VIEW CREATED WITH ID:" + str(view_id)
 			values['view_id'] = view_id
 			eid_vals = {
 				'module': 'label_maker',
@@ -55,7 +55,7 @@ class label_maker(models.Model):
 			}
 
 			eid_id = self.pool.get('ir.model.data').create(cr, uid, eid_vals, context)
-			values['eid_id'] = eid_id 
+			values['eid_id'] = eid_id
 			rep_vals = {
 				'name': name,
 				'model': 'product.product',
@@ -66,7 +66,7 @@ class label_maker(models.Model):
 			rep_id = self.pool.get('ir.actions.report.xml').create(cr, uid, rep_vals, context)
 
 			if rep_id:
-				print "NEW REPORT CREATED WITH ID:" + str(rep_id)
+				#print "NEW REPORT CREATED WITH ID:" + str(rep_id)
 				values['rep_id'] = rep_id
 				ab_vals = {
 					'name': name,
@@ -80,8 +80,8 @@ class label_maker(models.Model):
 
 		label = super(label_maker, self).create(cr, uid, values, context=context)
 		lbl = self.browse(cr, uid, label, context=None)
-		print "CREATING LABEL"
-		
+		#print "CREATING LABEL"
+
 		if 'name' in vals:
 			client_ids = self.pool.get('res.partner').search(cr, uid, [("personalize", "=", True)], context=None)
 			if client_ids:
@@ -99,9 +99,9 @@ class label_maker(models.Model):
 						'label_id': lbl.id,
 						'customer_id': client.id
 					}
-					print var_name
+					#print var_name
 					var_id = self.pool.get('label.variant').create(cr, uid, vals, context=None)
-					print "CREATED LABEL VARIANT WITH ID " + str(var_id)
+					#print "CREATED LABEL VARIANT WITH ID " + str(var_id)
 
 		return label
 
@@ -112,7 +112,7 @@ class label_maker(models.Model):
 			rep = record['rep_id']
 		else:
 			return False
-		
+
 		try:
 			if view:
 				a = record['view_header'] + vals['view_arch'] + record['view_footer']
@@ -136,14 +136,14 @@ class label_maker(models.Model):
 		return super(label_maker, self).write(cr, uid, ids, vals, context=context)
 
 	def unlink(self, cr, uid, ids, context=None):
-		print "**************IN UNLINK*********************"
+		#print "**************IN UNLINK*********************"
 		record = self.pool.get('label.maker').browse(cr, uid, ids, context=context)[0]
 		if record:
-			
+
 			if record['rep_id']:
 				rep = record['rep_id']
 				self.pool.get('ir.actions.report.xml').unlink(cr, uid, rep.id, context=context)
-				print "deleted rep"
+				#print "deleted rep"
 
 			for v in record['variations']:
 				v.unlink()
@@ -151,21 +151,21 @@ class label_maker(models.Model):
 
 
 		return super(label_maker, self).unlink(cr, uid, ids, context=context)
-	
-	
+
+
 
 	def add_field(self, cr, uid, ids, context=None):
-		if not ids: 
+		if not ids:
 			return True
 		record = self.pool.get('label.maker').browse(cr, uid,ids, context=context)[0]
-		print "FIELD ID"
-		print record.field_ids.id
+		#print "FIELD ID"
+		#print record.field_ids.id
 		field = self.pool.get('ir.model.fields').browse(cr, uid, record.field_ids.id, context=context)[0]
 
 		field_name = field.name
 		field_type = field.ttype
-		print field_name
-		print field_type
+		#print field_name
+		#print field_type
 		if field_type in ['char', 'text', 'integer', 'float']:
 			if record.tag:
 				if record.tag == 'h1':
@@ -200,11 +200,11 @@ class label_maker(models.Model):
 
 
 		model = rep.report_name
-			
+
 		if not model:
 			return False
-		
-		
+
+
 		rep.report_type = 'qweb-html'
 
 		return test_pro.pool.get('report').get_action(cr, uid, test_pro.id, model, context=context)
@@ -232,19 +232,19 @@ class label_variant(models.Model):
 	variation_name = fields.Char()
 	test_pro = fields.Many2one('product.product',  string="Product for testing")
 
-	
+
 	def create(self, cr, uid, values, context=None):
-		name = values.get('name')	
+		name = values.get('name')
 		view_name = values.get('view_name')
 		view_arch = values.get('view_arch')
 
-		
-		header = "<t t-name='" + "label_maker." + view_name + "'><t t-call='report.html_container'><t t-foreach='docs' t-as='o'><div class='page'>"	
+
+		header = "<t t-name='" + "label_maker." + view_name + "'><t t-call='report.html_container'><t t-foreach='docs' t-as='o'><div class='page'>"
 		arch = view_arch
 		footer = "</div></t></t></t>"
 
 		values['view_header'] = header
-		values['view_footer'] = footer 
+		values['view_footer'] = footer
 		values['is_created'] = True
 		vals = {
 			'name': view_name,
@@ -254,7 +254,7 @@ class label_variant(models.Model):
 
 		view_id = self.pool.get('ir.ui.view').create(cr, uid, vals, context)
 		if view_id:
-			print "NEW VIEW CREATED WITH ID:" + str(view_id)
+			#print "NEW VIEW CREATED WITH ID:" + str(view_id)
 			values['view_id'] = view_id
 			eid_vals = {
 				'module': 'label_maker',
@@ -264,7 +264,7 @@ class label_variant(models.Model):
 			}
 
 			eid_id = self.pool.get('ir.model.data').create(cr, uid, eid_vals, context)
-			values['eid_id'] = eid_id 
+			values['eid_id'] = eid_id
 			rep_vals = {
 				'name': name,
 				'model': 'product.product',
@@ -275,7 +275,7 @@ class label_variant(models.Model):
 			rep_id = self.pool.get('ir.actions.report.xml').create(cr, uid, rep_vals, context)
 
 			if rep_id:
-				print "NEW REPORT CREATED WITH ID:" + str(rep_id)
+				#print "NEW REPORT CREATED WITH ID:" + str(rep_id)
 				values['rep_id'] = rep_id
 				ab_vals = {
 					'name': name,
@@ -296,7 +296,7 @@ class label_variant(models.Model):
 			rep = record['rep_id']
 		else:
 			return False
-		
+
 		try:
 			if view:
 				a = record['view_header'] + vals['view_arch'] + record['view_footer']
@@ -320,33 +320,33 @@ class label_variant(models.Model):
 		return super(label_variant, self).write(cr, uid, ids, vals, context=context)
 
 	def unlink(self, cr, uid, ids, context=None):
-		print "**************IN UNLINK*********************"
+		#print "**************IN UNLINK*********************"
 		record = self.pool.get('label.variant').browse(cr, uid, ids, context=context)[0]
 		if record:
-			
+
 			if record['rep_id']:
 				rep = record['rep_id']
 				self.pool.get('ir.actions.report.xml').unlink(cr, uid, rep.id, context=context)
-				print "deleted rep"
+				#print "deleted rep"
 			if record['view_id']:
 				record.view_id.unlink()
-				print "deleted view"
+				#print "deleted view"
 
 		return super(label_variant, self).unlink(cr, uid, ids, context=context)
-	
-	
+
+
 	def add_field(self, cr, uid, ids, context=None):
-		if not ids: 
+		if not ids:
 			return True
 		record = self.pool.get('label.variant').browse(cr, uid,ids, context=context)[0]
-		print "FIELD ID"
-		print record.field_ids.id
+		#print "FIELD ID"
+		#print record.field_ids.id
 		field = self.pool.get('ir.model.fields').browse(cr, uid, record.field_ids.id, context=context)[0]
 
 		field_name = field.name
 		field_type = field.ttype
-		print field_name
-		print field_type
+		#print field_name
+		#print field_type
 		if field_type in ['char', 'text', 'integer', 'float']:
 			if record.tag:
 				if record.tag == 'h1':
@@ -381,11 +381,11 @@ class label_variant(models.Model):
 
 
 		model = rep.report_name
-			
+
 		if not model:
 			return False
-		
-		
+
+
 		rep.report_type = 'qweb-html'
 
 		return test_pro.pool.get('report').get_action(cr, uid, test_pro.id, model, context=context)

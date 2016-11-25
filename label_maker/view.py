@@ -24,15 +24,15 @@ class view(models.Model):
 		lab_ids = self.pool.get('label.maker').search(cr, uid, [('view_id', 'in', ids)], context=context)
 		labels = self.pool.get('label.maker').browse(cr,uid, lab_ids, context=context)
 		for label in labels:
-			
+
 			left = arch.rfind('<div class="page">')
-			print left
+			#print left
 			right = arch.find('</div>*\n</t>')
-			print right
-			
+			#print right
+
 			length = len(arch)
 			final = arch[left: length-right]
-			print "final" + final
+			#print "final" + final
 			#label.view_arch = final
 
 		ret = super(view, self).write(

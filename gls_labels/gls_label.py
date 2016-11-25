@@ -354,7 +354,7 @@ class gls_invoice(models.Model):
 									'pwd': r.mage_pwd
 								}
 								mage_shipp_id = self.pool.get('magento_sync').export_shipment(magento_id, items, sped_num.text, cs)
-								if not mage_shipp_id:
+								#if not mage_shipp_id:
 									#print "MAGENTO SHIPP ERROR"
 									#raise except_orm("MAGENTO CONNECTOR", "SHIPPMENT CANNOT BE EXPORTED TO MAGENTO STORE")
 				#END MAGENTO SHIPPMENT

@@ -1276,7 +1276,7 @@ def getOrders(opts, cert, dev, app, tok, order_id=None):
 		return orders
 
 	except ConnectionError as e:
-		#print(e)
+		print(e)
 
 def logError(cr, uid, name, error, context):
 	log_tmp = self.pool.get('ebay.log')

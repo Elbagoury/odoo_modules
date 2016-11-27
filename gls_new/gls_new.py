@@ -28,13 +28,11 @@ class gls_service(models.Model):
         message = ''
         inv_obj = self.pool.get('account.invoice')
         invoice_ids = inv_obj.search(cr, uid, [('gls_bot_passed', '=', False), ('carrier_id', '!=', False), ('carrier_id.gls_instance', '!=', None)], context=None)
-        _logger.info("----TOTAL NUMBER OF GLS INVOICES: %s" % len(invoice_ids))
+        _logger.warning("----TOTAL NUMBER OF GLS INVOICES: %s" % len(invoice_ids))
         invoices = inv_obj.browse(cr, uid, invoice_ids, context=None)
-        if not invoices:
-            return
 
         ddt_obj = self.pool.get('stock.picking.package.preparation')
-        ddt_ids = ddt_obj.search(cr, uid, [('gls_bot_passed', '=', False), ('carrier_id', '!=', False), ('carrier_id.generate_gls_file_for', '=', True)], context=None)
+        ddt_ids = ddt_obj.search(cr, uid, [('gls_bot_passed', '=', False), ('carrier_id', '!=', False), ('carrier_id.gls_instance', '!=', None)], context=None)
         _logger.info("----TOTAL NUMBER OF GLS DDTS: %s" % len(ddt_ids))
         ddts = ddt_obj.browse(cr, uid, ddt_ids, context=None)
 
@@ -46,9 +44,9 @@ class gls_service(models.Model):
                 continue
             cnt += 1
             if not invoice.total_weight:
-                raise osv.except_orm("GLS Labeling", "You must specify total weight")
+                raise osv.except_orm("GLS Labeling", "You must specify total weight in invoice: %s (id: %s)" % (invoice.number, invoice.id))
             if not invoice.carriage_condition_id:
-                raise osv.except_orm("GLS Labeling", "You must specify carriage condition (Franco/Contrassegno)")
+                raise osv.except_orm("GLS Labeling", "You must specify carriage condition (Franco/Contrassegno) in invoice: %s (id: %s)" % (invoice.number, invoice.id))
             pts = ''
 
             if invoice.carriage_condition_id.name == "PORTO FRANCO":
@@ -104,9 +102,9 @@ class gls_service(models.Model):
                 continue
             cnt += 1
             if not ddt.total_weight:
-                raise osv.except_orm("GLS Labeling", "You must specify total weight")
+                raise osv.except_orm("GLS Labeling", "You must specify total weight in DDT: %s (id: %s)" % (ddt.name, ddt.id))
             if not ddt.carriage_condition_id:
-                raise osv.except_orm("GLS Labeling", "You must specify carriage condition (Franco/Contrassegno)")
+                raise osv.except_orm("GLS Labeling", "You must specify carriage condition (Franco/Contrassegno) in DDT: %s (id: %s)" % (ddt.name, ddt.id))
             pts = ''
 
             if ddt.carriage_condition_id.name == "PORTO FRANCO":
@@ -158,9 +156,7 @@ class gls_service(models.Model):
 
         _logger.info(values)
         try:
-            #Treba uraditi sortiranje po gls ugovoru i onda praviti file za svaki ugovor koristeci
-            #parametre iz tog ugovora
-            #CREATE FILE
+
             text = ''
             with open(record.local_file_path, 'wb') as csvfile:
                 writer = csv.writer(csvfile, delimiter=';',quotechar='\"', quoting=csv.QUOTE_MINIMAL)

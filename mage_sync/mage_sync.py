@@ -408,8 +408,11 @@ class Magento_sync(models.Model):
 		done = 0
 		good = 0
 
-		errorlog = open("/opt/odoo/gigra_addons/mage_sync/mageLog.txt", "w")
-		errorlog.write("====== ERROR LOG FOR PRICELIST EXPORT: %s =======" % datetime.datetime.now())
+		errorlog = open("/opt/odoo/gigra_addons/mage_sync/mageLog.txt", "a")
+		errorlog.truncate()
+		errorlog.close()
+		errorlog = open("/opt/odoo/gigra_addons/mage_sync/mageLog.txt", "a")
+		errorlog.write("====== ERROR LOG FOR PRICELIST EXPORT: %s =======\n" % datetime.datetime.now())
 
 		for p in products:
 			cnt +=1
@@ -434,14 +437,15 @@ class Magento_sync(models.Model):
 			time_est_sec = average * (total - done)
 			time_estimated_time = str(datetime.timedelta(seconds=time_est_sec))
 
-			message = "EXPORTING PRODUCT: %s(%s) ... %s -- progress: %s of %s - %sp done (%sp good), in %s sec (%s remaining)" % (p.name, p.id, res["message"], done, total, current_percent, current_good_percent, time_spent, time_estimated_time )
+			message = "EXPORTING PRICELIST: %s(%s) ... %s(%s) -- progress: %s of %s - %sp done (%sp good), in %s sec (%s remaining)" % (p.name, p.id, res["message"], res["description"], done, total, current_percent, current_good_percent, time_spent, time_estimated_time )
+			#enable for logging messages
 			_logger.info(message)
 
 			if res["message"] == "Fail":
-				_logger.info(res["description"])
-				errorlog.write("\n%s" % message)
+				#_logger.info(res["description"])
+				errorlog.write("\n%s (%s)" % (p.name, p.id))
 				errorlog.write("\n%s" % res["description"])
-
+		errorlog.close()
 		r.pricelists_exported = datetime.datetime.now()
 
 
@@ -1191,14 +1195,13 @@ def _export_pricelists(self, cr, uid, product, magento):
 			tiers.append(mage_tier)
 
 	try:
+		start = datetime.datetime.now()
 		res = magento.catalog_product.update(product.id, {'group_price':groups, 'tier_price':tiers, 'price':product.list_price}, '', 'sku')
-		return {"message": "Done", "description": ""}
-	except:
-		r_str = traceback.format_exc()
-		for g in groups:
-			r_str += "\n%s" % str(g)
-		for t in tiers:
-			r_str += "\n%s" % str(t)
+		end = datetime.datetime.now()
+		time_spent = (end - start).total_seconds()
+		return {"message": "Done", "description": "rq: %ss" % time_spent}
+	except Exception as e:
+		r_str = str(e)
 		return {"message": "Fail", "description": r_str}
 
 

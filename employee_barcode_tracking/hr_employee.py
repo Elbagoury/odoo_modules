@@ -154,8 +154,6 @@ class worker_timesheet_summary(models.Model):
 					continue
 				if exact and not check_in_day == this_day:
 					continue
-				#print check_in_dow, e.name.name
-				#print "UP_CHECKINDOW"
 				if contract:
 					for att in contract.working_hours.attendance_ids:
 						#print att.dayofweek

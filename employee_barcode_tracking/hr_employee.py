@@ -98,6 +98,7 @@ class worker_timesheet_summary(models.Model):
 
 
 	def get_workers(self, cr, uid, ids, context=None):
+		_logger = logging.getLogger(__name__)
 		self.pool.get('emp.tracking.summary.line').unlink(cr, uid, self.pool.get('emp.tracking.summary.line').search(cr, uid, [],context=None), context=None)
 		data = []
 
@@ -125,7 +126,7 @@ class worker_timesheet_summary(models.Model):
 					c_end = (datetime.datetime.strptime(c.date_end, "%Y-%m-%d")).month if c.date_end else None
 					if this_month >= c_start and (this_month <= c_end or not c_end):
 						contract = c
-						print "FOUND CONTRACT %s" % contract.name
+						_logger.info("FOUND CONTRACT %s" % contract.name)
 						break
 
 			for e in emp.timesheets:
@@ -158,7 +159,7 @@ class worker_timesheet_summary(models.Model):
 					for att in contract.working_hours.attendance_ids:
 						#print att.dayofweek
 						if int(att.dayofweek) == int(check_in_dow):
-							print "FOUND DAY OF WEEK"
+							_logger.info("FOUND DAY OF WEEK")
 							print check_in_dow
 
 							print att.hour_from, check_in_workplace, check_out_workplace
@@ -174,11 +175,11 @@ class worker_timesheet_summary(models.Model):
 
 							if (df_in< 0 and df_in > -0.15) or (df_in > 0 and df_in < 1):
 								check_in_workplace = att.hour_from
-								print "GOING WITH TIME IN: %s (%s)" % (check_in_workplace, df_in)
+								_logger.info("GOING WITH TIME IN: %s (%s)" % (check_in_workplace, df_in))
 
 							if df_out< 0 and df_out > -0.25:
 								check_out_workplace = att.hour_to
-								print "GOING WITH TIME OUT: %s (%s)" % (check_out_workplace, df_out)
+								_logger.info("GOING WITH TIME OUT: %s (%s)" % (check_out_workplace, df_out))
 
 
 				this_reg = check_out_workplace - check_in_workplace
